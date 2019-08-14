@@ -4,18 +4,18 @@ Some fixture methods
 import os
 import pytest
 
-import judas
+import html_checker
 
 
 class FixturesSettingsTestMixin(object):
     """Mixin containing some basic settings"""
     def __init__(self):
         # Base fixture datas directory
-        self.application_path = os.path.abspath(os.path.dirname(judas.__file__))
+        self.application_path = os.path.abspath(os.path.dirname(html_checker.__file__))
         self.tests_dir = 'tests'
         self.tests_path = os.path.normpath(
             os.path.join(
-                os.path.abspath(os.path.dirname(judas.__file__)),
+                os.path.abspath(os.path.dirname(html_checker.__file__)),
                 '..',
                 self.tests_dir,
             )

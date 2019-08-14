@@ -9,7 +9,7 @@ from xml.etree import ElementTree
 import requests
 from requests.exceptions import RequestException
 
-from judas.exceptions import PathInvalidError, SitemapInvalidError
+from html_checker.exceptions import PathInvalidError, SitemapInvalidError
 
 
 class Sitemap:
@@ -19,7 +19,7 @@ class Sitemap:
     """
     def __init__(self, register=None):
         self.register = register
-        self.log = logging.getLogger("py-judas")
+        self.log = logging.getLogger("py-html-checker")
 
     def is_file(self, path):
         """

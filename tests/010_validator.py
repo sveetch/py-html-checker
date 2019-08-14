@@ -3,9 +3,9 @@ from collections import OrderedDict
 
 import pytest
 
-from judas.validator import ValidatorInterface
+from html_checker.validator import ValidatorInterface
 
-from judas.exceptions import (PathInvalidError, SitemapInvalidError,
+from html_checker.exceptions import (PathInvalidError, SitemapInvalidError,
                               ValidatorError)
 
 
@@ -50,7 +50,7 @@ def test_get_interpreter_part(interpreter, options, expected):
         [],
         [],
         "foo.html",
-        ["java", "-jar", "{JUDAS}/vnujar/vnu.jar", "foo.html"],
+        ["java", "-jar", "{HTML_CHECKER}/vnujar/vnu.jar", "foo.html"],
     ),
     (
         None,
@@ -94,7 +94,7 @@ def test_get_validator_command(settings, interpreter, validator,
     if validator is not None:
         v.VALIDATOR = validator
 
-    expected = [item.format(JUDAS=settings.application_path) for item in expected]
+    expected = [item.format(HTML_CHECKER=settings.application_path) for item in expected]
 
     assert expected == v.get_validator_command(
         path,
@@ -232,6 +232,10 @@ def test_validate_success(settings, interpreter, validator,
                           interpreter_options, tool_options, path, expected):
     """
     Should call the validator tool to process checking on given path
+
+    TODO: Unfinished test, it fails because:
+          1. FIXTURES directory is not prepend to report path;
+          2. Expected report are not populated yet with validator results;
     """
     v = ValidatorInterface()
 

@@ -6,9 +6,9 @@ import os
 
 import pytest
 
-from judas.sitemap import Sitemap
+from html_checker.sitemap import Sitemap
 
-from judas.exceptions import PathInvalidError, SitemapInvalidError
+from html_checker.exceptions import PathInvalidError, SitemapInvalidError
 
 
 @pytest.mark.parametrize("path,expected", [
@@ -142,7 +142,7 @@ def test_get_file_ressource_success(settings, path, expected):
 @pytest.mark.parametrize("path", [
     "nope",
     "https://google.fr/sdflmksdlmfk",
-    "http://qsmdlkqsdqsopdkqnqszzaaaAAazdqmjudas/sdflmksdlmfk",
+    "http://qsmdlkqsdqsopdkqnqszzaaaAAazdqmhtml_checker/sdflmksdlmfk",
 ])
 def test_get_url_ressource_fail(path):
     """

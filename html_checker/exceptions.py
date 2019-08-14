@@ -7,21 +7,21 @@ Specific application exceptions.
 """
 
 
-class JudasBaseException(Exception):
+class HtmlCheckerBaseException(Exception):
     """
     Base for every application exceptions.
     """
     pass
 
 
-class PathInvalidError(JudasBaseException):
+class PathInvalidError(HtmlCheckerBaseException):
     """
     Exception to be raised when given path is invalid.
     """
     pass
 
 
-class ReportError(JudasBaseException):
+class ReportError(HtmlCheckerBaseException):
     """
     Exception to be raised when validator return invalid report or report
     export has failed.
@@ -29,14 +29,14 @@ class ReportError(JudasBaseException):
     pass
 
 
-class SitemapInvalidError(JudasBaseException):
+class SitemapInvalidError(HtmlCheckerBaseException):
     """
     Exception to be raised when sitemap ressource is invalid.
     """
     pass
 
 
-class ValidatorError(JudasBaseException):
+class ValidatorError(HtmlCheckerBaseException):
     """
     Exception to be raised when validator fail.
     """

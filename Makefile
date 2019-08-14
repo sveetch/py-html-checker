@@ -3,7 +3,7 @@ VENV_PATH=.venv
 PIP=$(VENV_PATH)/bin/pip
 FLAKE=$(VENV_PATH)/bin/flake8
 PYTEST=$(VENV_PATH)/bin/pytest
-PACKAGE_NAME=py_judas
+PACKAGE_NAME=html_checker
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"

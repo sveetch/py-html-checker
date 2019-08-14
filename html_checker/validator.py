@@ -5,8 +5,8 @@ import subprocess
 from collections import OrderedDict
 
 
-import judas
-from judas.exceptions import ReportError, ValidatorError
+import html_checker
+from html_checker.exceptions import ReportError, ValidatorError
 
 
 class ValidatorInterface:
@@ -14,10 +14,10 @@ class ValidatorInterface:
     Interface for validator tool
     """
     INTERPRETER = "java" # Leading interpreter to execute tool
-    VALIDATOR = "{JUDAS}/vnujar/vnu.jar" # Validator tool to be executed by interpreter
+    VALIDATOR = "{HTML_CHECKER}/vnujar/vnu.jar" # Validator tool to be executed by interpreter
 
     def __init__(self):
-        self.log = logging.getLogger("py-judas")
+        self.log = logging.getLogger("py-html-checker")
 
     def get_interpreter_part(self, options=None):
         """
@@ -51,10 +51,12 @@ class ValidatorInterface:
         """
         args = self.get_interpreter_part(options=interpreter_options)
 
-        judas_application = os.path.abspath(os.path.dirname(judas.__file__))
+        html_checker_application = os.path.abspath(
+            os.path.dirname(html_checker.__file__)
+        )
 
         if self.VALIDATOR:
-            args.append(self.VALIDATOR.format(JUDAS=judas_application))
+            args.append(self.VALIDATOR.format(HTML_CHECKER=html_checker_application))
 
         if tool_options:
             for k in tool_options:

@@ -23,4 +23,4 @@ def _extract_version(package_name):
     return _conf["metadata"]["version"]
 
 
-__version__ = _extract_version("py-judas")
+__version__ = _extract_version("py-html-checker")

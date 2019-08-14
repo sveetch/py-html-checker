@@ -3,7 +3,7 @@ from shutil import which
 
 import click
 
-from judas import __version__
+from html_checker import __version__
 
 
 @click.command()
@@ -12,7 +12,7 @@ def version_command(context):
     """
     Print out version information.
     """
-    click.echo("py-judas {}".format(__version__))
+    click.echo("py-html-checker {}".format(__version__))
 
     java = which("java")
     if java:

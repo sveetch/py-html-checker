@@ -3,16 +3,16 @@ Main entrance to commandline actions
 """
 import click
 
-from judas.logs import init_logger
+from html_checker.logs import init_logger
 
-from judas.cli.version import version_command
+from html_checker.cli.version import version_command
 
 
 # Help alias on '-h' argument
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 # Default logger conf
-JUDAS_LOGGER_CONF = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL', None)
+HTML_CHECKER_LOGGER_CONF = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL', None)
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
@@ -32,10 +32,10 @@ def cli_frontend(ctx, verbose):
         printout = False
 
     # Verbosity is the inverse of logging levels
-    levels = [item for item in JUDAS_LOGGER_CONF]
+    levels = [item for item in HTML_CHECKER_LOGGER_CONF]
     levels.reverse()
     # Init the logger config
-    root_logger = init_logger("py-judas", levels[verbose],
+    root_logger = init_logger("py-html-checker", levels[verbose],
                               printout=printout)
 
     # Init the default context that will be passed to commands
