@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset>
+    <name>Sample</name>
+    <url>
+        <loc>http://perdu.com/</loc>
+        <lastmod>2019-07-08</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://www.google.com/</loc>
+        <lastmod>2019-07-08</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.5</priority>
+    </url>
+</urlset>
