@@ -25,6 +25,9 @@ Dependancies
 ************
 
 * ``requests``;
+* ``click>=7.0,<8.0`` (cli);
+* ``colorama`` (cli);
+* ``colorlog`` (cli);
 
 Install
 *******

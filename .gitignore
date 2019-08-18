@@ -17,6 +17,7 @@ htmlcov/
 .pytest_cache
 nosetests.xml
 coverage.xml
+.tox
 
 # VS Code
 .vscode

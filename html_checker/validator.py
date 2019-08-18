@@ -13,8 +13,10 @@ class ValidatorInterface:
     """
     Interface for validator tool
     """
-    INTERPRETER = "java" # Leading interpreter to execute tool
-    VALIDATOR = "{HTML_CHECKER}/vnujar/vnu.jar" # Validator tool to be executed by interpreter
+    # Leading interpreter to execute tool
+    INTERPRETER = "java"
+    # Validator tool to be executed by interpreter
+    VALIDATOR = "{HTML_CHECKER}/vnujar/vnu.jar"
 
     def __init__(self):
         self.log = logging.getLogger("py-html-checker")
@@ -44,10 +46,10 @@ class ValidatorInterface:
 
         return args
 
-    def get_validator_command(self, path, interpreter_options=None,
+    def get_validator_command(self, paths, interpreter_options=None,
                               tool_options=None):
         """
-        Build full command line to execute validator on given path.
+        Build full command line to execute validator tool on given path list.
         """
         args = self.get_interpreter_part(options=interpreter_options)
 
@@ -62,7 +64,7 @@ class ValidatorInterface:
             for k in tool_options:
                 args.append(k)
 
-        args.append(path)
+        args.extend(paths)
 
         return args
 
@@ -71,35 +73,44 @@ class ValidatorInterface:
         From given validator report return an usable and normalized report.
 
         Arguments:
-            paths (list): List of page path(s) which have been checked by
-                validator.
+            paths (list): List of page path(s) which have been required for
+                checking.
             content (string): Report return from validator, a JSON string is
                 expected.
 
         Returns:
-            list: List of report for checked paths.
+            list: List of reports for checked paths.
         """
         # Build initial registry of path reports
         report = OrderedDict([(item, None) for item in paths])
 
+        # Decode returned byte string from process output JSON
         content = content.decode("utf-8").strip()
 
+        # Try to load and validate report JSON
         try:
             content = json.loads(content)
         except json.decoder.JSONDecodeError as e:
             msg = "Invalid JSON report: {}"
             raise ReportError(msg.format(e))
+        else:
+            if "messages" not in content:
+                msg = ("Invalid JSON validator report, it must contains a "
+                       "'messages' list of checked pages.")
+                raise ReportError(msg)
 
-        if "messages" not in content:
-            msg = ("Invalid JSON validator report, it must contains a "
-                   "'messages' list of checked pages.")
-            raise ReportError(msg)
-
+        # Walk report to find message about required path to check and store
+        # them
         for item in content["messages"]:
             path = item.get("url")
             item.pop("url")
+
+            # Clean prefix file path from reported path
+            if path.startswith("file:"):
+                path = path[len("file:"):]
+
             if path in report:
-                if report[path] == None:
+                if report[path] is None:
                     report[path] = []
                 report[path].append(item)
             else:
@@ -108,43 +119,43 @@ class ValidatorInterface:
 
         return report
 
-    def validate(self, path, interpreter_options=None,
+    def validate(self, paths, interpreter_options=None,
                  tool_options=None):
         """
         Perform validation with validator tool for given path.
 
         Arguments:
-            path (string): Path of page(s) to validate.
+            paths (list): List of page path to validate.
 
         Returns:
             collections.OrderedDict: Ordered dictionnary of checked pages from
             given path.
         """
-        # Path argument can contain one or many paths, however we always store
-        # it as a list for report
-        paths = path.split()
-
         # Enforce JSON format
         if "--format" not in tool_options:
             tool_options.append("--format")
             tool_options.append("json")
 
-        # Enforce non error exit so validator report always goes to the stdout
-        tool_options.append("--exit-zero-always")
+        # Enforce non error exit in order that validator report always goes to
+        # the stdout so we can capture it
+        if "--exit-zero-always" not in tool_options:
+            tool_options.append("--exit-zero-always")
 
+        # Build command line from options
         command = self.get_validator_command(
-            path,
+            paths,
             interpreter_options=interpreter_options,
             tool_options=tool_options
         )
 
-        # NOTE: vnu does not throw error on unexisting files but still have
-        # error for invalid urls. Have to manage this case with reports
+        # Execute command process
         try:
             process = subprocess.check_output(command, stderr=subprocess.STDOUT)
         except FileNotFoundError as e:
-            raise ValidatorError("Unable to reach interpreter to run validator: {}".format(e))
+            msg = "Unable to reach interpreter to run validator: {}"
+            raise ValidatorError(msg.format(e))
         except subprocess.CalledProcessError as e:
-            raise ValidatorError("Validator execution failed: {}".format(e.output.decode("utf-8")))
+            msg = "Validator execution failed: {}"
+            raise ValidatorError(msg.format(e.output.decode("utf-8")))
 
         return self.parse_report(paths, process)

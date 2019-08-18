@@ -11,54 +11,6 @@ from html_checker.sitemap import Sitemap
 from html_checker.exceptions import PathInvalidError, SitemapInvalidError
 
 
-@pytest.mark.parametrize("path,expected", [
-    (
-        "http://perdu.com",
-        False,
-    ),
-    (
-        "https://perdu.com",
-        False,
-    ),
-    (
-        "/foo",
-        True,
-    ),
-    (
-        "/foo/",
-        True,
-    ),
-    (
-        "./foo",
-        True,
-    ),
-    (
-        "../foo",
-        True,
-    ),
-    (
-        "foo",
-        True,
-    ),
-    (
-        "foo/bar",
-        True,
-    ),
-    (
-        "foo/bar.txt",
-        True,
-    ),
-])
-def test_is_file(path, expected):
-    """
-    Should detect if given path is an url or a filepath
-    """
-
-    s = Sitemap()
-
-    assert expected == s.is_file(path)
-
-
 @pytest.mark.parametrize("path", [
     "foo.dqjdklqsjdlqk",
     "http://perdu.com",

@@ -9,6 +9,7 @@ from xml.etree import ElementTree
 import requests
 from requests.exceptions import RequestException
 
+from html_checker.utils import is_file
 from html_checker.exceptions import PathInvalidError, SitemapInvalidError
 
 
@@ -20,21 +21,6 @@ class Sitemap:
     def __init__(self, register=None):
         self.register = register
         self.log = logging.getLogger("py-html-checker")
-
-    def is_file(self, path):
-        """
-        Check if given path is an url path or a file path.
-
-        Arguments:
-            path (string): Ressource path.
-
-        Returns:
-            bool: True if file path, else False.
-        """
-        if not path.startswith("http://") and not path.startswith("https://"):
-            return True
-
-        return False
 
     def contenttype(self, path):
         """
@@ -158,7 +144,7 @@ class Sitemap:
         for item in root.iter('{}url'.format(ns)):
             location = item.find("{}loc".format(ns))
 
-            if location == None:
+            if location is None:
                 warnings += 1
             else:
                 urls.append(location.text)
@@ -179,9 +165,7 @@ class Sitemap:
         Returns:
             list: List of strings for urls.
         """
-        isfile = self.is_file(path)
-
-        if isfile:
+        if is_file(path):
             ressource = self.get_file_ressource(path)
         else:
             ressource = self.get_url_ressource(path)
