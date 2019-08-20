@@ -50,7 +50,7 @@ def test_get_interpreter_part(interpreter, options, expected):
         [],
         [],
         ["foo.html"],
-        ["java", "-jar", "{HTML_CHECKER}/vnujar/vnu.jar", "foo.html"],
+        ["java", "-jar", "{APPLICATION}/vnujar/vnu.jar", "foo.html"],
     ),
     (
         None,
@@ -87,7 +87,7 @@ def test_get_validator_command(settings, interpreter, validator,
 
     To avoid hardcoding absolute path in test parameters, expected paths is
     formatted to be prepend with application path if starting with
-    ``{HTML_CHECKER}``.
+    ``{APPLICATION}``.
     """
     v = ValidatorInterface()
 
@@ -97,34 +97,118 @@ def test_get_validator_command(settings, interpreter, validator,
     if validator is not None:
         v.VALIDATOR = validator
 
-    expected = [item.format(HTML_CHECKER=settings.application_path) for item in expected]
+    expected = [settings.format(item) for item in expected]
 
     cmd = v.get_validator_command(
         paths,
         interpreter_options=interpreter_options,
         tool_options=tool_options
     )
-    print(cmd)
 
     assert expected == cmd
+
+
+@pytest.mark.parametrize("paths,expected", [
+    # Url path
+    (
+        [
+            "http://perdu.com",
+        ],
+        [
+            ("http://perdu.com", None),
+        ],
+    ),
+    # Unexisting file path
+    (
+        [
+            "nope.html",
+        ],
+        [
+            ("nope.html", [{
+                "type": "critical",
+                "message": "File path does not exists."
+            }]),
+        ],
+    ),
+    # Unexisting absolute file path
+    (
+        [
+            "{FIXTURES}/nope.html",
+        ],
+        [
+            ("{FIXTURES}/nope.html", [{
+                "type": "critical",
+                "message": "File path does not exists."
+            }]),
+        ],
+    ),
+    # Relative file path
+    (
+        [
+            "tests/data_fixtures/html/valid.basic.html",
+        ],
+        [
+            ("{FIXTURES}/html/valid.basic.html", None),
+        ],
+    ),
+    # Absolute file path
+    (
+        [
+            "{FIXTURES}/html/valid.basic.html",
+        ],
+        [
+            ("{FIXTURES}/html/valid.basic.html", None),
+        ],
+    ),
+])
+def test_build_initial_registry(settings, paths, expected):
+    """
+    Should build a correct registry of initial values for required path.
+    """
+    v = ValidatorInterface()
+
+    paths = [settings.format(item) for item in paths]
+
+    expected = [(settings.format(k), v) for k,v in expected]
+
+    assert expected == v.build_initial_registry(paths)
 
 
 @pytest.mark.parametrize("paths,content,expected", [
     (
         ["foo.html"],
         b"""{"messages":[]}""",
-        OrderedDict([("foo.html", None)])
+        OrderedDict([
+            ("foo.html", [
+                {
+                    "type": "critical",
+                    "message": "File path does not exists."
+                },
+            ])
+        ])
     ),
     (
         ["foo.html"],
         b"""{"messages":[{"url": "http://perdu.com"}]}""",
-        OrderedDict([("foo.html", None)])
+        OrderedDict([
+            ("foo.html", [
+                {
+                    "type": "critical",
+                    "message": "File path does not exists."
+                },
+            ]),
+        ])
     ),
     (
         ["foo.html", "http://perdu.com"],
         b"""{"messages":[]}""",
         OrderedDict([
-            ("foo.html", None),
+            ("foo.html", [
+                {
+                    "type": "critical",
+                    "message": "File path does not exists."
+                },
+            ]),
             ("http://perdu.com", None),
         ])
     ),
@@ -132,7 +216,13 @@ def test_get_validator_command(settings, interpreter, validator,
         ["foo.html", "http://perdu.com"],
         b"""{"messages":[{"url": "foo.html"}, {"url": "http://perdu.com", "ping": "pong"}, {"url": "http://perdu.com", "pif": "paf"}]}""",
         OrderedDict([
-            ("foo.html", [{}]),
+            ("foo.html", [
+                {
+                    "type": "critical",
+                    "message": "File path does not exists."
+                },
+                {},
+            ]),
             ("http://perdu.com", [
                 {"ping": "pong"},
                 {"pif": "paf"},
@@ -140,7 +230,7 @@ def test_get_validator_command(settings, interpreter, validator,
         ])
     ),
 ])
-def test_parse_report(settings, paths, content, expected):
+def test_parse_report(paths, content, expected):
     """
     Path reports should be indexed on their path and contains their full report
     payload.
@@ -190,7 +280,7 @@ def test_validate_fail(settings, interpreter, validator,
     """
     v = ValidatorInterface()
 
-    paths = [item.format(FIXTURES=settings.fixtures_path) for item in paths]
+    paths = [settings.format(item) for item in paths]
 
     if interpreter is not None:
         v.INTERPRETER = interpreter
@@ -208,37 +298,51 @@ def test_validate_fail(settings, interpreter, validator,
     assert expected == str(excinfo.value)
 
 
-@pytest.mark.parametrize("interpreter,validator,interpreter_options,tool_options,paths,expected", [
+@pytest.mark.parametrize("interpreter_options,tool_options,paths,expected", [
     # Unexisting file dont fail, just return an empty item
     (
-        None,
-        None,
         [],
         [],
         ["foo.html"],
-        [('foo.html', None)],
+        [
+            ('foo.html', [
+                {
+                    "type": "critical",
+                    "message": "File path does not exists."
+                },
+            ]),
+        ],
     ),
     # Simple valid source just return an empty item
     (
-        None,
-        None,
         [],
         [],
         ["{FIXTURES}/html/valid.basic.html"],
         [('{FIXTURES}/html/valid.basic.html', None)],
     ),
+    #
+    (
+        [],
+        [],
+        ["tests/data_fixtures/html/valid.basic.html"],
+        [('{PACKAGE}/tests/data_fixtures/html/valid.basic.html', None)],
+    ),
     # Multiple sources either unexisting, valid or invalid
     (
-        None,
-        None,
         [],
         [],
-        ["foo.html", "{FIXTURES}/html/valid.basic.html", "{FIXTURES}/html/valid.warning.html"],
         [
-            (
-                "foo.html",
-                None
-            ),
+            "foo.html",
+            "{FIXTURES}/html/valid.basic.html",
+            "{FIXTURES}/html/valid.warning.html"
+        ],
+        [
+            ('foo.html', [
+                {
+                    "type": "critical",
+                    "message": "File path does not exists."
+                },
+            ]),
             (
                 "{FIXTURES}/html/valid.basic.html",
                 None
@@ -264,8 +368,6 @@ def test_validate_fail(settings, interpreter, validator,
     ),
     ## Test on an url path, maybe broken some day since it can change
     #(
-        #None,
-        #None,
         #[],
         #[],
         #["http://perdu.com"],
@@ -323,26 +425,20 @@ def test_validate_fail(settings, interpreter, validator,
         #]
     #),
 ])
-def test_validate_success(caplog, settings, interpreter, validator,
-                          interpreter_options, tool_options, paths, expected):
+def test_validate_success(caplog, settings, interpreter_options, tool_options,
+                          paths, expected):
     """
     Should get a correct report from validator tool process for given path list.
     """
     v = ValidatorInterface()
 
-    paths = [item.format(FIXTURES=settings.fixtures_path) for item in paths]
-
-    if interpreter is not None:
-        v.INTERPRETER = interpreter
-
-    if validator is not None:
-        v.VALIDATOR = validator
+    paths = [settings.format(item) for item in paths]
 
     # Rebuild expected data to include fixtures path
     final_expection = []
     for item_path, data in expected:
         final_expection.append(
-            (item_path.format(FIXTURES=settings.fixtures_path), data)
+            (settings.format(item_path), data)
         )
 
     report = v.validate(

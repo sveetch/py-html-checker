@@ -14,6 +14,13 @@ class HtmlCheckerBaseException(Exception):
     pass
 
 
+class ExportError(HtmlCheckerBaseException):
+    """
+    Exception to be raised when report export fail.
+    """
+    pass
+
+
 class PathInvalidError(HtmlCheckerBaseException):
     """
     Exception to be raised when given path is invalid.

@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 import html_checker
 from html_checker.exceptions import ReportError, ValidatorError
+from html_checker.utils import is_file
 
 
 class ValidatorInterface:
@@ -50,6 +51,16 @@ class ValidatorInterface:
                               tool_options=None):
         """
         Build full command line to execute validator tool on given path list.
+
+        Arguments:
+            paths (list): List of checkable paths to pass to command line.
+
+        Keyword Arguments:
+            interpreter_options (list): List of arguments to pass to interpreter.
+            tool_options (list): List of arguments to pass to validator tool.
+
+        Returns:
+            list: List of items to build full command line.
         """
         args = self.get_interpreter_part(options=interpreter_options)
 
@@ -58,7 +69,11 @@ class ValidatorInterface:
         )
 
         if self.VALIDATOR:
-            args.append(self.VALIDATOR.format(HTML_CHECKER=html_checker_application))
+            args.append(
+                self.VALIDATOR.format(
+                    HTML_CHECKER=html_checker_application
+                )
+            )
 
         if tool_options:
             for k in tool_options:
@@ -67,6 +82,44 @@ class ValidatorInterface:
         args.extend(paths)
 
         return args
+
+    def build_initial_registry(self, paths):
+        """
+        Build initial report registry for required paths.
+
+        To fit to validator behaviors, if a path is a file path and exists, it
+        will be resolved to its absolute path. If it does not exists, path is
+        left unchanged but it will have a log entry for a critical error about
+        unexisting file. URL paths are always left unchanged.
+
+        Arguments:
+            paths (list): List of page path(s) which have been required for
+                checking.
+
+        Returns:
+            list: Registry of required path with initial value ``None``,
+            except for unexisting file paths which will contain a critical
+            error log.
+        """
+        registry = []
+
+        for path in paths:
+            path_key = path
+            initial_value = None
+
+            if is_file(path):
+                if os.path.exists(path):
+                    # Resolve to absolute path
+                    path_key = os.path.abspath(path)
+                else:
+                    initial_value = [{
+                        "type": "critical",
+                        "message": "File path does not exists."
+                    }]
+
+            registry.append((path_key, initial_value))
+
+        return registry
 
     def parse_report(self, paths, content):
         """
@@ -82,7 +135,7 @@ class ValidatorInterface:
             list: List of reports for checked paths.
         """
         # Build initial registry of path reports
-        report = OrderedDict([(item, None) for item in paths])
+        report = OrderedDict(self.build_initial_registry(paths))
 
         # Decode returned byte string from process output JSON
         content = content.decode("utf-8").strip()
@@ -113,6 +166,10 @@ class ValidatorInterface:
                 if report[path] is None:
                     report[path] = []
                 report[path].append(item)
+            # TODO: Remove this or raise it once after loop end for a count of
+            # invalid paths (or make it critical ?), remember we need to let
+            # logging clean since it is used with default report that is
+            # logging output.
             else:
                 msg = "Validator report contains unknow path '{}'"
                 self.log.warning(msg.format(path))
@@ -131,6 +188,11 @@ class ValidatorInterface:
             collections.OrderedDict: Ordered dictionnary of checked pages from
             given path.
         """
+        if interpreter_options is None:
+            interpreter_options = []
+        if tool_options is None:
+            tool_options = []
+
         # Enforce JSON format
         if "--format" not in tool_options:
             tool_options.append("--format")

@@ -12,18 +12,32 @@ class FixturesSettingsTestMixin(object):
     def __init__(self):
         # Base fixture datas directory
         self.application_path = os.path.abspath(os.path.dirname(html_checker.__file__))
-        self.tests_dir = 'tests'
-        self.tests_path = os.path.normpath(
+        self.package_path = os.path.normpath(
             os.path.join(
                 os.path.abspath(os.path.dirname(html_checker.__file__)),
                 '..',
-                self.tests_dir,
             )
+        )
+        self.tests_dir = 'tests'
+        self.tests_path = os.path.join(
+            self.package_path,
+            self.tests_dir,
         )
         self.fixtures_dir = 'data_fixtures'
         self.fixtures_path = os.path.join(
             self.tests_path,
             self.fixtures_dir
+        )
+
+    def format(self, path):
+        """
+        Format given string to include various path related to this application
+        """
+        return path.format(
+            PACKAGE=self.package_path,
+            APPLICATION=self.application_path,
+            TESTS=self.tests_path,
+            FIXTURES=self.fixtures_path,
         )
 
 
