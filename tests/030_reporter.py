@@ -1,3 +1,4 @@
+import logging
 import os
 
 from collections import OrderedDict
@@ -49,7 +50,63 @@ def test_format_source_position(row, expected):
     assert expected == reporter.format_source_position(row)
 
 
-@pytest.mark.parametrize("report,expected", [
+@pytest.mark.parametrize("report,level,expected", [
+    (
+        [
+            ("/html/foo.html", [
+                {
+                    "type": "info",
+                    "message": "This is an info.",
+                },
+            ]),
+        ],
+        "DEBUG",
+        [
+            ("py-html-checker", 10, "====="),
+            (
+                "py-html-checker",
+                20,
+                "/html/foo.html"
+            ),
+            ("py-html-checker", 10, "-"),
+            (
+                "py-html-checker",
+                10,
+                "This is an info."
+            ),
+        ],
+    ),
+    (
+        [
+            ("/html/foo.html", None),
+            ("/html/bar.html", None),
+        ],
+        "DEBUG",
+        [
+            ("py-html-checker", 10, "====="),
+            (
+                "py-html-checker",
+                20,
+                "/html/foo.html"
+            ),
+            (
+                "py-html-checker",
+                10,
+                "There was not any log report for this path."
+            ),
+            ("py-html-checker", 10, "====="),
+            (
+                "py-html-checker",
+                20,
+                "/html/bar.html"
+            ),
+            (
+                "py-html-checker",
+                10,
+                "There was not any log report for this path."
+            ),
+        ],
+    ),
     (
         [
             ("foo.html", [
@@ -59,9 +116,10 @@ def test_format_source_position(row, expected):
                 }
             ]),
         ],
+        "WARNING",
         [
             (
-                'py-html-checker',
+                "py-html-checker",
                 40,
                 "File path does not exists."
             )
@@ -69,41 +127,137 @@ def test_format_source_position(row, expected):
     ),
     (
         [
-            ("{FIXTURES}/html/valid.warning.html", [
+            ("/html/foo.html", [
                 {
-                    "hiliteStart": 10,
                     "type": "error",
-                    "message": "End tag for  \u201cbody\u201d seen, but there were unclosed elements.",
+                    "lastLine": 10,
                     "firstColumn": 1,
-                    "hiliteLength": 7,
-                    "extract": "\n    </p>\n</body>\n</htm",
-                    "lastLine": 12,
-                    "lastColumn": 7
+                    "lastColumn": 2,
+                    "message": "This is an error.",
+                    "extract": "<some html>",
                 },
             ]),
         ],
+        "WARNING",
         [
             (
-                'py-html-checker',
+                "py-html-checker",
                 40,
-                "File path does not exists."
-            )
+                "From line 10 column 1 to line 10 column 2"
+            ),
+            (
+                "py-html-checker",
+                40,
+                "This is an error."
+            ),
+            (
+                "py-html-checker",
+                40,
+                "<some html>"
+            ),
+        ],
+    ),
+    (
+        [
+            ("/html/foo.html", [
+                {
+                    "type": "info",
+                    "subType": "warning",
+                    "message": "This is a warning.",
+                },
+            ]),
+        ],
+        "WARNING",
+        [
+            (
+                "py-html-checker",
+                30,
+                "This is a warning."
+            ),
+        ],
+    ),
+    (
+        [
+            ("/html/foo.html", [
+                {
+                    "type": "error",
+                    "firstLine": 10,
+                    "lastLine": 20,
+                    "firstColumn": 1,
+                    "lastColumn": 2,
+                    "message": "This\nis\ran\terror.",
+                    "extract": "<some html>",
+                },
+            ]),
+        ],
+        "WARNING",
+        [
+            (
+                "py-html-checker",
+                40,
+                "From line 10 column 1 to line 20 column 2"
+            ),
+            (
+                "py-html-checker",
+                40,
+                "This\nis\ran\terror."
+            ),
+            (
+                "py-html-checker",
+                40,
+                "<some html>"
+            ),
         ],
     ),
 ])
-def test_build(caplog, settings, report, expected):
+def test_build(caplog, report, level, expected):
     """
-    Expected logs should be printed to standard output for each messages
+    Expected logs should be printed to standard output for each messages and
+    depending the setted logging level.
     """
+    root_logger = logging.getLogger("py-html-checker")
+    root_logger.setLevel(level)
+
     reporter = LogExportBase()
 
-    # Rebuild report data to include fixtures path
-    final_report = []
-    for item_path, data in report:
-        final_report.append(
-            (settings.format(item_path), data)
-        )
+    reporter.build(OrderedDict(report))
 
-    reporter.build(OrderedDict(final_report))
+    print(caplog.record_tuples)
+
+    assert expected == caplog.record_tuples
+
+
+def test_build_disabled_dividers(caplog):
+    """
+    Expect logs without any divider
+    """
+    root_logger = logging.getLogger("py-html-checker")
+    root_logger.setLevel("DEBUG")
+
+    reporter = LogExportBase(dividers={})
+
+    reporter.build(OrderedDict([
+        ("/html/foo.html", [
+            {
+                "type": "info",
+                "message": "This is an info.",
+            },
+        ]),
+    ]))
+
+    print(caplog.record_tuples)
+
+    expected = [
+        (
+            "py-html-checker",
+            20,
+            "/html/foo.html"
+        ),
+        (
+            "py-html-checker",
+            10,
+            "This is an info."
+        ),
+    ]
 
     assert expected == caplog.record_tuples

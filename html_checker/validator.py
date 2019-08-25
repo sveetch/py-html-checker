@@ -13,10 +13,15 @@ from html_checker.utils import is_file
 class ValidatorInterface:
     """
     Interface for validator tool
+
+    Attributes:
+        INTERPRETER (string): Leading interpreter name to execute tool.
+        VALIDATOR (string): Path to validator tool to be executed by
+            interpreter. It can contain leading ``{HTML_CHECKER}`` pattern to
+            be replaced with absolute path to "py-html-checker" install.
+        log (logging): Logging object set to application "py-html-checker".
     """
-    # Leading interpreter to execute tool
     INTERPRETER = "java"
-    # Validator tool to be executed by interpreter
     VALIDATOR = "{HTML_CHECKER}/vnujar/vnu.jar"
 
     def __init__(self):
@@ -184,6 +189,16 @@ class ValidatorInterface:
         Arguments:
             paths (list): List of page path to validate.
 
+        Keyword Arguments:
+            interpreter_options (list): List of interpreter arguments to
+                include in commandline. Default is ``None``.
+            tool_options (list): List of validator tool arguments to
+                include in commandline. Default is ``None`` but some options
+                are defined for internal purposes if not given, such as
+                ``--format``, ``--exist-zero-always`` and ``--user-agent``.
+                Except the last one, you should not try to change them or you
+                will probably break the validator and reporter.
+
         Returns:
             collections.OrderedDict: Ordered dictionnary of checked pages from
             given path.
@@ -197,6 +212,12 @@ class ValidatorInterface:
         if "--format" not in tool_options:
             tool_options.append("--format")
             tool_options.append("json")
+
+        # Define default user-agent
+        if "--user-agent" not in tool_options:
+            ua = "Validator.nu/LV py-html-checker/{}"
+            tool_options.append("--user-agent")
+            tool_options.append(ua.format(html_checker.__version__))
 
         # Enforce non error exit in order that validator report always goes to
         # the stdout so we can capture it

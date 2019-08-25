@@ -22,7 +22,10 @@ class LogExportBase:
 
     def __init__(self, dividers=None):
         self.log = logging.getLogger("py-html-checker")
-        self.dividers = dividers or self.DIVIDERS
+
+        self.dividers = dividers
+        if self.dividers is None:
+            self.dividers = self.DIVIDERS
 
     def format_extract(self, row):
         """
@@ -93,10 +96,15 @@ class LogExportBase:
         """
         Build report export
         """
-        for path,messages in report.items():
-            if self.dividers.get("message", None):
+        for path, messages in report.items():
+            if self.dividers.get("row", None):
                 self.log.debug(self.dividers.get("row"))
-                self.log.info(path)
+
+            self.log.info(path)
+
+            if not messages:
+                self.log.debug("There was not any log report for this path.")
+                continue
 
             for row in messages:
                 # Row divider
