@@ -41,6 +41,10 @@ def test_contenttype_fail(path):
         "xml",
     ),
     (
+        "tests/data_fixtures/sitemap.xml",
+        "xml",
+    ),
+    (
         "./sitemap.json",
         "json",
     ),
@@ -189,7 +193,7 @@ def test_parse_sitemap_xml_fail(settings, path):
 ])
 def test_parse_sitemap_xml_success(settings, path, expected):
     """
-    Should return urls from XML sitemap
+    Should correctly parse sitemap and return every urls
     """
     s = Sitemap()
 
@@ -198,3 +202,44 @@ def test_parse_sitemap_xml_success(settings, path, expected):
     ressource = s.get_file_ressource(filepath)
 
     assert expected == s.parse_sitemap_xml(ressource)
+
+
+@pytest.mark.parametrize("path,expected", [
+    (
+        "sitemap.xml",
+        [
+            "http://perdu.com/",
+            "https://www.google.com/",
+        ]
+    ),
+    (
+        "sitemap.nonamespace.xml",
+        [
+            "http://perdu.com/",
+            "https://www.google.com/",
+        ]
+    ),
+    (
+        "sitemap.missingloc.xml",
+        [
+            "http://perdu.com/",
+            "https://www.google.com/",
+        ]
+    ),
+    (
+        "sitemap.json",
+        [
+            "http://perdu.com/",
+            "https://www.google.com/",
+        ]
+    ),
+])
+def test_get_urls(settings, path, expected):
+    """
+    Should return urls from XML sitemap
+    """
+    s = Sitemap()
+
+    filepath = os.path.join(settings.fixtures_path, path)
+
+    assert expected == s.get_urls(filepath)

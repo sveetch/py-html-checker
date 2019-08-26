@@ -157,20 +157,20 @@ class Sitemap:
 
     def get_urls(self, path):
         """
-        Parse given path to get urls.
+        Parse given sitemap to get urls.
 
         Arguments:
-            path (string): Ressource path.
+            path (string): Sitemap path.
 
         Returns:
-            list: List of strings for urls.
+            list: List of urls.
         """
         if is_file(path):
             ressource = self.get_file_ressource(path)
         else:
             ressource = self.get_url_ressource(path)
 
-        contenttype = self.contenttype(ressource)
+        contenttype = self.contenttype(path)
 
         if contenttype == "json":
             return self.parse_sitemap_json(ressource)

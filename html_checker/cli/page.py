@@ -5,8 +5,6 @@ import os
 
 import click
 
-from html_checker.exceptions import (PathInvalidError, SitemapInvalidError,
-                              ValidatorError)
 from html_checker.report import LogExportBase
 from html_checker.utils import is_file
 from html_checker.validator import ValidatorInterface

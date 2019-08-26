@@ -1,11 +1,11 @@
 .. _Nu Html Checker (v.Nu): https://github.com/validator/validator
-
+.. _Sitemap: http://www.sitemaps.org/
 
 Py Html Checker
 ===============
 
-Currently this tool use a ``sitemap.xml`` file (or JSON in a specific format)
-to know about web page to validate with the `Nu Html Checker (v.Nu)`_.
+This is an interface around `Nu Html Checker (v.Nu)`_ to check document
+validation either from a list of pages or a `Sitemap`_.
 
 Links
 *****
@@ -17,29 +17,40 @@ Requires
 ********
 
 * Python>=3.4;
-* Virtualenv;
-* Pip;
 * Java>=8 (openjdk8 or oraclejdk8);
+* Virtualenv (recommended but not mandatory);
+* Pip (recommended but not mandatory);
 
 Dependancies
 ************
 
 * ``requests``;
-* ``click>=7.0,<8.0`` (cli);
-* ``colorama`` (cli);
-* ``colorlog`` (cli);
+* ``click>=7.0,<8.0`` (CLI only);
+* ``colorama`` (CLI only);
+* ``colorlog`` (CLI only);
 
 Install
 *******
 
-``py-html-checker`` package is currently not released yet on Pypi so to
-install it you will need to do something like: ::
+::
+    pip install py-html-checker[cli]
+
+If you don't plan to use it from command line (like as a module) you can avoid
+the ``cli`` part: ::
 
     pip install py-html-checker
 
-However in this way it will only usable as Python module, you won't have
-command line requirements.
+Usage
+*****
 
-To have command line working you will need to do instead: ::
+For a list of documents, you may either give file paths or URL: ::
 
-    pip install py-html-checker[cli]
+    html-checker -v 5 page ping.html http://perdu.com foo/bar.html
+
+Or for all documents from a `Sitemap`_: ::
+
+    html-checker -v 5 site http://perdu.com/sitemap.xml
+
+The sitemap path can be either a filepath or an url. Note than from a sitemap
+file, documents file paths have to be absolute or relative to the current
+directory where you have executed the command line.
