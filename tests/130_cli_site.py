@@ -12,8 +12,6 @@ def test_site_missing_args(caplog):
     Invoked without any arguments fails because it need at least a path.
     """
     runner = CliRunner()
-
-    # Temporary isolated current dir
     with runner.isolated_filesystem():
         test_cwd = os.getcwd()
 
@@ -29,8 +27,6 @@ def test_site_invalid_sitemap_path(caplog):
     When sitemap path is invalid command is aborted.
     """
     runner = CliRunner()
-
-    # Temporary isolated current dir
     with runner.isolated_filesystem():
         test_cwd = os.getcwd()
 
@@ -52,8 +48,6 @@ def test_site_invalid_item_path(caplog, settings):
     When sitemap path contains invalid item filepath command is aborted.
     """
     runner = CliRunner()
-
-    # Temporary isolated current dir
     with runner.isolated_filesystem():
         test_cwd = os.getcwd()
 

@@ -33,6 +33,7 @@ Install
 *******
 
 ::
+
     pip install py-html-checker[cli]
 
 If you don't plan to use it from command line (like as a module) you can avoid

@@ -9,6 +9,43 @@ from html_checker.exceptions import (PathInvalidError, SitemapInvalidError,
                               ValidatorError)
 
 
+@pytest.mark.parametrize("options,expected", [
+    (
+        {
+            "--foo": "bar",
+        },
+        ["--foo", "bar"],
+    ),
+    (
+        {
+            "-f": None
+        },
+        ["-f"],
+    ),
+    (
+        OrderedDict([
+            ("--foo", "bar"),
+            ("-a", None),
+            ("--plip", "plop"),
+            ("-b", "c"),
+        ]),
+        [
+            "--foo", "bar",
+            "-a",
+            "--plip", "plop",
+            "-b", "c",
+        ],
+    ),
+])
+def test_compile_options(options, expected):
+    """
+    Should flatten to a list any kind of options
+    """
+    v = ValidatorInterface()
+
+    assert expected == v.compile_options(options)
+
+
 @pytest.mark.parametrize("interpreter,options,expected", [
     (
         "",
@@ -22,7 +59,7 @@ from html_checker.exceptions import (PathInvalidError, SitemapInvalidError,
     ),
     (
         None,
-        ["-Xss512k"],
+        {"-Xss512k": None},
         ["java", "-Xss512k", "-jar"],
     ),
     (
@@ -71,8 +108,8 @@ def test_get_interpreter_part(interpreter, options, expected):
     (
         "dummycli",
         "validate",
-        ["-v", "3"],
-        ["--foo", "bar"],
+        {"-v": "3"},
+        {"--foo": "bar"},
         ["foo.html", "bar.html"],
         ["dummycli", "-v", "3", "validate", "--foo", "bar", "foo.html",
          "bar.html"],
@@ -245,8 +282,8 @@ def test_parse_report(paths, content, expected):
     (
         "nietniet",
         None,
-        [],
-        [],
+        {},
+        {},
         ["http://perdu.com"],
         "Unable to reach interpreter to run validator: [Errno 2] No such file or directory: 'nietniet'",
     ),
@@ -254,8 +291,8 @@ def test_parse_report(paths, content, expected):
     (
         None,
         "nietniet",
-        [],
-        [],
+        {},
+        {},
         ["http://perdu.com"],
         "Validator execution failed: Error: Unable to access jarfile nietniet\n",
     ),
@@ -263,8 +300,8 @@ def test_parse_report(paths, content, expected):
     (
         None,
         None,
-        ["--bizarro"],
-        [],
+        {"--bizarro": None},
+        {},
         ["http://perdu.com"],
         ("Validator execution failed: Unrecognized option: --bizarro\n"
          "Error: Could not create the Java Virtual Machine.\n"
@@ -298,11 +335,9 @@ def test_validate_fail(settings, interpreter, validator,
     assert expected == str(excinfo.value)
 
 
-@pytest.mark.parametrize("interpreter_options,tool_options,paths,expected", [
+@pytest.mark.parametrize("paths,expected", [
     # Unexisting file dont fail, just return an empty item
     (
-        [],
-        [],
         ["foo.html"],
         [
             ('foo.html', [
@@ -315,22 +350,16 @@ def test_validate_fail(settings, interpreter, validator,
     ),
     # Simple valid source just return an empty item
     (
-        [],
-        [],
         ["{FIXTURES}/html/valid.basic.html"],
         [('{FIXTURES}/html/valid.basic.html', None)],
     ),
     #
     (
-        [],
-        [],
         ["tests/data_fixtures/html/valid.basic.html"],
         [('{PACKAGE}/tests/data_fixtures/html/valid.basic.html', None)],
     ),
     # Multiple sources either unexisting, valid or invalid
     (
-        [],
-        [],
         [
             "foo.html",
             "{FIXTURES}/html/valid.basic.html",
@@ -368,8 +397,6 @@ def test_validate_fail(settings, interpreter, validator,
     ),
     ## Test on an url path, maybe broken some day since it can change
     #(
-        #[],
-        #[],
         #["http://perdu.com"],
         #[
             #[
@@ -425,8 +452,7 @@ def test_validate_fail(settings, interpreter, validator,
         #]
     #),
 ])
-def test_validate_success(caplog, settings, interpreter_options, tool_options,
-                          paths, expected):
+def test_validate_success(caplog, settings, paths, expected):
     """
     Should get a correct report from validator tool process for given path list.
     """
@@ -441,10 +467,6 @@ def test_validate_success(caplog, settings, interpreter_options, tool_options,
             (settings.format(item_path), data)
         )
 
-    report = v.validate(
-        paths,
-        interpreter_options=interpreter_options,
-        tool_options=tool_options
-    )
+    report = v.validate(paths)
 
     assert OrderedDict(final_expection) == report
