@@ -52,5 +52,5 @@ tests:
 	$(PYTEST) -vv tests/
 .PHONY: tests
 
-quality: tests-all flake
+quality: tests flake
 .PHONY: quality

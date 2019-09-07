@@ -142,3 +142,47 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
+
+
+@pytest.mark.parametrize("command_name", [
+    "page",
+    "site",
+])
+def test_user_agent(monkeypatch, caplog, settings, command_name):
+    """
+    '--user-agent' option should be correctly added to every part.
+    """
+    monkeypatch.setattr(ValidatorInterface, "execute_validator",
+                        mock_validator_execute_validator)
+    monkeypatch.setattr(ValidatorInterface, "parse_report", mock_validator_parse_report)
+    monkeypatch.setattr(LogExportBase, "build", mock_export_build)
+    monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
+
+    commandline = (
+        "java"
+        " -jar {APPLICATION}/vnujar/vnu.jar"
+        " --user-agent Foobar"
+        " --format json"
+        " --exit-zero-always"
+        " http://perdu.com"
+    )
+    expected = [
+        ("py-html-checker", 20, settings.format(commandline)),
+    ]
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        test_cwd = os.getcwd()
+
+        result = runner.invoke(cli_frontend, [
+            command_name, "--user-agent", "Foobar", "http://perdu.com"
+        ])
+
+        print(result.output)
+        print(result.exception)
+        print()
+        print(expected)
+        print(caplog.record_tuples)
+
+        assert result.exit_code == 0
+        assert expected == caplog.record_tuples

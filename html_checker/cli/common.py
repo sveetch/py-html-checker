@@ -3,6 +3,43 @@ import os
 from html_checker.utils import is_file
 
 
+# Shared options
+COMMON_OPTIONS = {
+    "xss": {
+        "args": ('--Xss',),
+        "kwargs": {
+            "metavar": "SIZE",
+            "help": (
+                "Java thread stack size. Useful in some case where you "
+                "encounter error 'StackOverflowError' from validator. Set it "
+                "to something like '512k'."
+            ),
+            "default": None,
+        }
+    },
+    "no-stream": {
+        "args": ('--no-stream',),
+        "kwargs": {
+            "is_flag": True,
+            "help": (
+                "Forces all documents to be be parsed in buffered mode instead "
+                "of streaming mode (causes some parse errors to be treated as "
+                "non-fatal document errors instead of as fatal document errors)."
+            ),
+        }
+    },
+    "user-agent": {
+        "args": ('--user-agent',),
+        "kwargs": {
+            "metavar": "STRING",
+            "help": (
+                "A customer user-agent to use for every possible requests."
+            ),
+        }
+    },
+}
+
+
 def validate_paths(logger, paths):
     """
     Validate file paths.
@@ -28,7 +65,6 @@ def validate_paths(logger, paths):
                 errors += 1
 
     return errors
-
 
 
 def validate_sitemap_path(logger, path):

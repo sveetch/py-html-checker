@@ -9,6 +9,7 @@ from xml.etree import ElementTree
 import requests
 from requests.exceptions import RequestException
 
+from html_checker import USER_AGENT
 from html_checker.utils import is_file
 from html_checker.exceptions import PathInvalidError, SitemapInvalidError
 
@@ -18,9 +19,21 @@ class Sitemap:
     Sitemap reader is able to get and read sitemap from a file path or an url
     either in XML or JSON format.
     """
-    def __init__(self, register=None):
+    def __init__(self, register=None, user_agent=None):
         self.register = register
+        self.user_agent = user_agent or USER_AGENT
         self.log = logging.getLogger("py-html-checker")
+
+    def get_headers(self):
+        """
+        Return headers to pass through request.
+
+        Returns:
+            dict: Dictionnary of headers.
+        """
+        return {
+            "User-Agent": self.user_agent,
+        }
 
     def contenttype(self, path):
         """
@@ -78,7 +91,7 @@ class Sitemap:
             string: Document content.
         """
         try:
-            r = requests.get(path)
+            r = requests.get(path, headers=self.get_headers())
         except RequestException as e:
             msg = "Unable to reach sitemap url: {}"
             raise PathInvalidError(msg.format(e))

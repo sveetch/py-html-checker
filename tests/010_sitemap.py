@@ -5,10 +5,72 @@ NOTE: Ressource URLs are not tested to avoid depending from a webserver
 import os
 
 import pytest
+import requests
 
+from html_checker import USER_AGENT
+from html_checker.exceptions import PathInvalidError, SitemapInvalidError
 from html_checker.sitemap import Sitemap
 
-from html_checker.exceptions import PathInvalidError, SitemapInvalidError
+
+class FakeResponse:
+    """
+    Simulate a successful requests response
+    """
+    status_code = 200
+
+    def __init__(self, *args, **kwargs):
+        self.passed_args = args
+        self.passed_kwargs = kwargs
+
+    @property
+    def content(self):
+        return {
+            "args": self.passed_args,
+            "kwargs": self.passed_kwargs,
+        }
+
+
+def mock_requests_get(*args, **kwargs):
+    """
+    Mock requests get method to return a fake response object with only some
+    passed values but does not perform any request.
+    """
+    return FakeResponse(*args, **kwargs)
+
+
+@pytest.mark.parametrize("path,user_agent,expected", [
+    (
+        "http://perdu.com",
+        None,
+        {
+            "args": ("http://perdu.com",),
+            "kwargs": {
+                "headers": {"User-Agent": USER_AGENT}
+            },
+        },
+    ),
+    (
+        "http://perdu.com",
+        "Foobar",
+        {
+            "args": ("http://perdu.com",),
+            "kwargs": {
+                "headers": {"User-Agent": "Foobar"}
+            },
+        },
+    ),
+])
+def test_custom_user_agent(monkeypatch, path, user_agent, expected):
+    """
+    Default or custom user agent should be correctly set to a request
+    """
+    monkeypatch.setattr(requests, "get", mock_requests_get)
+
+    s = Sitemap(user_agent=user_agent)
+
+    response = s.get_url_ressource(path)
+    print(response)
+    assert expected == response
 
 
 @pytest.mark.parametrize("path", [

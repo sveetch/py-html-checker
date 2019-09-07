@@ -1,25 +1,27 @@
 # -*- coding: utf-8 -*-
-import json
 import logging
-import os
 
 from collections import OrderedDict
 
 import click
 
-from html_checker.cli.common import validate_paths, validate_sitemap_path
+from html_checker.cli.common import (COMMON_OPTIONS, validate_paths,
+                                     validate_sitemap_path)
 from html_checker.report import LogExportBase
 from html_checker.sitemap import Sitemap
-from html_checker.utils import is_file
 from html_checker.validator import ValidatorInterface
 
 
 @click.command()
-@click.option('--Xss', metavar="SIZE", help="Java thread stack size. Useful in some case where you encounter error 'StackOverflowError' from validator. Set it to something like '512k'.", default=None)
-@click.option('--no-stream', is_flag=True, help="Forces all documents to be be parsed in buffered mode instead of streaming mode (causes some parse errors to be treated as non-fatal document errors instead of as fatal document errors).")
+@click.option(*COMMON_OPTIONS["xss"]["args"],
+              **COMMON_OPTIONS["xss"]["kwargs"])
+@click.option(*COMMON_OPTIONS["no-stream"]["args"],
+              **COMMON_OPTIONS["no-stream"]["kwargs"])
+@click.option(*COMMON_OPTIONS["user-agent"]["args"],
+              **COMMON_OPTIONS["user-agent"]["kwargs"])
 @click.argument('path', required=True)
 @click.pass_context
-def site_command(context, xss, no_stream, path):
+def site_command(context, xss, no_stream, user_agent, path):
     """
     Validate pages from given sitemap.
 
@@ -34,20 +36,25 @@ def site_command(context, xss, no_stream, path):
     if errors > 0:
         raise click.Abort()
 
-    # Open sitemap to get paths
-    parser = Sitemap()
-    paths = parser.get_urls(path)
-
     # Compile options
+    sitemap_options = {}
     interpreter_options = OrderedDict([])
     tool_options = OrderedDict([])
 
     if no_stream:
         tool_options["--no-stream"] = None
 
+    if user_agent:
+        sitemap_options["user_agent"] = user_agent
+        tool_options["--user-agent"] = user_agent
+
     if xss:
         key = "-Xss{}".format(xss)
         interpreter_options[key] = None
+
+    # Open sitemap to get paths
+    parser = Sitemap(**sitemap_options)
+    paths = parser.get_urls(path)
 
     logger.debug("Launching validation for {} paths".format(len(paths)))
 
@@ -61,9 +68,9 @@ def site_command(context, xss, no_stream, path):
     report = v.validate(paths, interpreter_options=interpreter_options,
                         tool_options=tool_options)
 
-    #print()
-    #print(json.dumps(report, indent=4))
-    #print()
+    # print()
+    # print(json.dumps(report, indent=4))
+    # print()
 
     # Export report
     exporter = LogExportBase()

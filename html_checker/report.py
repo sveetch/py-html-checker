@@ -40,7 +40,8 @@ class LogExportBase:
             string: Formated string for extracted code if any or None.
         """
         if "extract" in row:
-            return row["extract"].replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+            return row["extract"].replace("\n", "\\n").replace("\r", "\\r")\
+                    .replace("\t", "\\t")
 
         return None
 

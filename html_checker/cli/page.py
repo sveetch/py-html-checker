@@ -1,23 +1,25 @@
 # -*- coding: utf-8 -*-
-import json
 import logging
-import os
 
 from collections import OrderedDict
 
 import click
 
-from html_checker.cli.common import validate_paths
+from html_checker.cli.common import COMMON_OPTIONS, validate_paths
 from html_checker.report import LogExportBase
 from html_checker.validator import ValidatorInterface
 
 
 @click.command()
-@click.option('--Xss', metavar="SIZE", help="Java thread stack size. Useful in some case where you encounter error 'StackOverflowError' from validator. Set it to something like '512k'.", default=None)
-@click.option('--no-stream', is_flag=True, help="Forces all documents to be be parsed in buffered mode instead of streaming mode (causes some parse errors to be treated as non-fatal document errors instead of as fatal document errors).")
+@click.option(*COMMON_OPTIONS["xss"]["args"],
+              **COMMON_OPTIONS["xss"]["kwargs"])
+@click.option(*COMMON_OPTIONS["no-stream"]["args"],
+              **COMMON_OPTIONS["no-stream"]["kwargs"])
+@click.option(*COMMON_OPTIONS["user-agent"]["args"],
+              **COMMON_OPTIONS["user-agent"]["kwargs"])
 @click.argument('paths', nargs=-1, required=True)
 @click.pass_context
-def page_command(context, xss, no_stream, paths):
+def page_command(context, xss, no_stream, user_agent, paths):
     """
     Validate pages from given paths.
 
@@ -41,6 +43,9 @@ def page_command(context, xss, no_stream, paths):
     if no_stream:
         tool_options["--no-stream"] = None
 
+    if user_agent:
+        tool_options["--user-agent"] = user_agent
+
     if xss:
         key = "-Xss{}".format(xss)
         interpreter_options[key] = None
@@ -50,9 +55,9 @@ def page_command(context, xss, no_stream, paths):
     report = v.validate(paths, interpreter_options=interpreter_options,
                         tool_options=tool_options)
 
-    #print()
-    #print(json.dumps(report, indent=4))
-    #print()
+    # print()
+    # print(json.dumps(report, indent=4))
+    # print()
 
     # Export report
     exporter = LogExportBase()

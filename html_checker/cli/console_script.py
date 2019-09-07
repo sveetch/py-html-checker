@@ -15,20 +15,25 @@ else:
     from html_checker.cli.site import site_command
     from html_checker.cli.page import page_command
 
-
     # Help alias on '-h' argument
     CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
     # Default logger conf
-    HTML_CHECKER_LOGGER_CONF = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL', None)
-
+    HTML_CHECKER_LOGGER_CONF = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL',
+                                None)
 
     @click.group(context_settings=CONTEXT_SETTINGS)
-    @click.option('-v', '--verbose', type=click.IntRange(min=0, max=5), default=4,
-                metavar='INTEGER',
-                help="An integer between 0 and 5, where '0' make a totaly "
-                "silent output and '5' set level to DEBUG (the most verbose "
-                "level). Default to '4' (Info level).")
+    @click.option(
+        '-v', '--verbose',
+        type=click.IntRange(min=0, max=5),
+        default=4,
+        metavar='INTEGER',
+        help=(
+            "An integer between 0 and 5, where '0' make a totaly "
+            "silent output and '5' set level to DEBUG (the most verbose "
+            "level). Default to '4' (Info level)."
+        )
+    )
     @click.pass_context
     def cli_frontend(ctx, verbose):
         """
@@ -44,14 +49,13 @@ else:
         levels.reverse()
         # Init the logger config
         root_logger = init_logger("py-html-checker", levels[verbose],
-                                printout=printout)
+                                  printout=printout)
 
         # Init the default context that will be passed to commands
         ctx.obj = {
             'verbosity': verbose,
             'logger': root_logger,
         }
-
 
     # Attach commands methods to the main grouper
     cli_frontend.add_command(version_command, name="version")

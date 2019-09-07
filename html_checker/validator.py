@@ -41,7 +41,7 @@ class ValidatorInterface:
         """
         opts = []
 
-        for name,value in options.items():
+        for name, value in options.items():
             if name:
                 opts.append(name)
 
@@ -204,8 +204,7 @@ class ValidatorInterface:
 
         # Define default user-agent
         if "--user-agent" not in tool_options:
-            ua = "Validator.nu/LV py-html-checker/{}"
-            tool_options["--user-agent"] = ua.format(html_checker.__version__)
+            tool_options["--user-agent"] = html_checker.USER_AGENT
 
         return interpreter_options, tool_options
 
