@@ -7,7 +7,9 @@ from html_checker.exceptions import ExportError
 
 class LogExportBase:
     """
-    Report exporter base
+    Report exporter base.
+
+    Just output every report messages to logging.
 
     Based on vnu validator behavior from JSON report documentation:
 

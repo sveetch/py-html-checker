@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 import pytest
 
-from html_checker.report import LogExportBase
+from html_checker.export import LogExportBase
 from html_checker.exceptions import ReportError, ExportError
 
 

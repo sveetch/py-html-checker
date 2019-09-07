@@ -10,7 +10,7 @@ import pytest
 from click.testing import CliRunner
 
 from html_checker.cli.console_script import cli_frontend
-from html_checker.report import LogExportBase
+from html_checker.export import LogExportBase
 from html_checker.validator import ValidatorInterface
 from html_checker.sitemap import Sitemap
 

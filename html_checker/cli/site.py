@@ -7,7 +7,7 @@ import click
 
 from html_checker.cli.common import (COMMON_OPTIONS, validate_paths,
                                      validate_sitemap_path)
-from html_checker.report import LogExportBase
+from html_checker.export import LogExportBase
 from html_checker.sitemap import Sitemap
 from html_checker.validator import ValidatorInterface
 

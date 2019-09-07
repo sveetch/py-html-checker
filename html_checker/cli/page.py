@@ -6,7 +6,7 @@ from collections import OrderedDict
 import click
 
 from html_checker.cli.common import COMMON_OPTIONS, validate_paths
-from html_checker.report import LogExportBase
+from html_checker.export import LogExportBase
 from html_checker.validator import ValidatorInterface
 
 
