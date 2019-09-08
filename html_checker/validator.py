@@ -239,6 +239,9 @@ class ValidatorInterface:
                        "'messages' list of checked pages.")
                 raise ReportError(msg)
 
+        # To retain already outputed error messages for unknow paths
+        already_seen_errors = []
+
         # Walk report to find message about required path to check and store
         # them
         for item in content["messages"]:
@@ -253,13 +256,11 @@ class ValidatorInterface:
                 if report[path] is None:
                     report[path] = []
                 report[path].append(item)
-            # TODO: Remove this or raise it once after loop end for a count of
-            # invalid paths (or make it critical ?), remember we need to let
-            # logging clean since it is used with default report that is
-            # logging output.
             else:
-                msg = "Validator report contains unknow path '{}'"
-                self.log.warning(msg.format(path))
+                msg = "Validator report contains unknow path '{}'".format(path)
+                if msg not in already_seen_errors:
+                    already_seen_errors.append(msg)
+                    self.log.warning(msg)
 
         return report
 

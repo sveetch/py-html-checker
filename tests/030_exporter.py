@@ -62,16 +62,16 @@ def test_format_source_position(row, expected):
         ],
         "DEBUG",
         [
-            ("py-html-checker", 10, "====="),
+            ("py-html-checker", logging.DEBUG, "====="),
             (
                 "py-html-checker",
-                20,
+                logging.INFO,
                 "/html/foo.html"
             ),
-            ("py-html-checker", 10, "-"),
+            ("py-html-checker", logging.DEBUG, "-"),
             (
                 "py-html-checker",
-                10,
+                logging.DEBUG,
                 "This is an info."
             ),
         ],
@@ -83,26 +83,26 @@ def test_format_source_position(row, expected):
         ],
         "DEBUG",
         [
-            ("py-html-checker", 10, "====="),
+            ("py-html-checker", logging.DEBUG, "====="),
             (
                 "py-html-checker",
-                20,
+                logging.INFO,
                 "/html/foo.html"
             ),
             (
                 "py-html-checker",
-                10,
+                logging.DEBUG,
                 "There was not any log report for this path."
             ),
-            ("py-html-checker", 10, "====="),
+            ("py-html-checker", logging.DEBUG, "====="),
             (
                 "py-html-checker",
-                20,
+                logging.INFO,
                 "/html/bar.html"
             ),
             (
                 "py-html-checker",
-                10,
+                logging.DEBUG,
                 "There was not any log report for this path."
             ),
         ],
@@ -120,7 +120,7 @@ def test_format_source_position(row, expected):
         [
             (
                 "py-html-checker",
-                40,
+                logging.ERROR,
                 "File path does not exists."
             )
         ],
@@ -142,17 +142,17 @@ def test_format_source_position(row, expected):
         [
             (
                 "py-html-checker",
-                40,
+                logging.ERROR,
                 "From line 10 column 1 to line 10 column 2"
             ),
             (
                 "py-html-checker",
-                40,
+                logging.ERROR,
                 "This is an error."
             ),
             (
                 "py-html-checker",
-                40,
+                logging.ERROR,
                 "<some html>"
             ),
         ],
@@ -171,7 +171,7 @@ def test_format_source_position(row, expected):
         [
             (
                 "py-html-checker",
-                30,
+                logging.WARNING,
                 "This is a warning."
             ),
         ],
@@ -194,17 +194,17 @@ def test_format_source_position(row, expected):
         [
             (
                 "py-html-checker",
-                40,
+                logging.ERROR,
                 "From line 10 column 1 to line 20 column 2"
             ),
             (
                 "py-html-checker",
-                40,
+                logging.ERROR,
                 "This\nis\ran\terror."
             ),
             (
                 "py-html-checker",
-                40,
+                logging.ERROR,
                 "<some html>"
             ),
         ],
@@ -215,8 +215,7 @@ def test_build(caplog, report, level, expected):
     Expected logs should be printed to standard output for each messages and
     depending the setted logging level.
     """
-    root_logger = logging.getLogger("py-html-checker")
-    root_logger.setLevel(level)
+    caplog.set_level(level, logger="py-html-checker")
 
     reporter = LogExportBase()
 
@@ -231,8 +230,7 @@ def test_build_disabled_dividers(caplog):
     """
     Expect logs without any divider
     """
-    root_logger = logging.getLogger("py-html-checker")
-    root_logger.setLevel("DEBUG")
+    caplog.set_level(logging.DEBUG, logger="py-html-checker")
 
     reporter = LogExportBase(dividers={})
 
@@ -250,12 +248,12 @@ def test_build_disabled_dividers(caplog):
     expected = [
         (
             "py-html-checker",
-            20,
+            logging.INFO,
             "/html/foo.html"
         ),
         (
             "py-html-checker",
-            10,
+            logging.DEBUG,
             "This is an info."
         ),
     ]

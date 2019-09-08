@@ -19,13 +19,19 @@ from html_checker.validator import ValidatorInterface
               **COMMON_OPTIONS["no-stream"]["kwargs"])
 @click.option(*COMMON_OPTIONS["user-agent"]["args"],
               **COMMON_OPTIONS["user-agent"]["kwargs"])
+@click.option(*COMMON_OPTIONS["safe"]["args"],
+              **COMMON_OPTIONS["safe"]["kwargs"])
 @click.argument('path', required=True)
 @click.pass_context
-def site_command(context, xss, no_stream, user_agent, path):
+def site_command(context, xss, no_stream, user_agent, safe, path):
     """
     Validate pages from given sitemap.
 
-    Sitemap path can be an url starting with 'http://' or 'https://' or a file path.
+    Sitemap path can be an url starting with 'http://' or 'https://' or a
+    file path.
+
+    Note than invalid sitemap path still raise error even with '--safe' option
+    is enabled.
     """
     logger = logging.getLogger("py-html-checker")
 
@@ -60,7 +66,7 @@ def site_command(context, xss, no_stream, user_agent, path):
 
     # Validate paths from sitemap
     errors = validate_paths(logger, paths)
-    if errors > 0:
+    if not safe and errors > 0:
         raise click.Abort()
 
     # Get report from validator process

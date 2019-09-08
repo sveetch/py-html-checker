@@ -37,6 +37,16 @@ COMMON_OPTIONS = {
             ),
         }
     },
+    "safe": {
+        "args": ('--safe',),
+        "kwargs": {
+            "is_flag": True,
+            "help": (
+                "Invalid paths won't break execution of script "
+                "and it will be able to continue to the end."
+            ),
+        }
+    },
 }
 
 

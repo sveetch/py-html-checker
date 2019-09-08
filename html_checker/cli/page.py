@@ -17,9 +17,11 @@ from html_checker.validator import ValidatorInterface
               **COMMON_OPTIONS["no-stream"]["kwargs"])
 @click.option(*COMMON_OPTIONS["user-agent"]["args"],
               **COMMON_OPTIONS["user-agent"]["kwargs"])
+@click.option(*COMMON_OPTIONS["safe"]["args"],
+              **COMMON_OPTIONS["safe"]["kwargs"])
 @click.argument('paths', nargs=-1, required=True)
 @click.pass_context
-def page_command(context, xss, no_stream, user_agent, paths):
+def page_command(context, xss, no_stream, user_agent, safe, paths):
     """
     Validate pages from given paths.
 
@@ -33,7 +35,7 @@ def page_command(context, xss, no_stream, user_agent, paths):
 
     # Validate paths
     errors = validate_paths(logger, paths)
-    if errors > 0:
+    if not safe and errors > 0:
         raise click.Abort()
 
     # Compile options
