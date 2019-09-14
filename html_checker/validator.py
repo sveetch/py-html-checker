@@ -7,7 +7,7 @@ from collections import OrderedDict
 
 import html_checker
 from html_checker.exceptions import ReportError, ValidatorError
-from html_checker.utils import is_file
+from html_checker.utils import is_file, reduce_unique
 
 
 class ValidatorInterface:
@@ -289,7 +289,7 @@ class ValidatorInterface:
 
         # Build command line from options
         command = self.get_validator_command(
-            paths,
+            reduce_unique(paths),
             interpreter_options=interpreter_options,
             tool_options=tool_options
         )

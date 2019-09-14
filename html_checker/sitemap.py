@@ -110,7 +110,7 @@ class Sitemap:
             ressource (string): Ressource content.
 
         Returns:
-            list: List of strings for urls.
+            list: List of paths.
         """
         try:
             content = json.loads(ressource)
@@ -132,9 +132,9 @@ class Sitemap:
             ressource (string): Ressource content.
 
         Returns:
-            list: List of strings for urls.
+            list: List of paths.
         """
-        urls = []
+        paths = []
 
         try:
             root = ElementTree.fromstring(ressource)
@@ -160,13 +160,13 @@ class Sitemap:
             if location is None:
                 warnings += 1
             else:
-                urls.append(location.text)
+                paths.append(location.text)
 
         if warnings > 0:
             msg = "There was {} url item(s) without a <loc> element."
             self.log.warning(msg.format(warnings))
 
-        return urls
+        return paths
 
     def get_urls(self, path):
         """

@@ -28,3 +28,18 @@ def is_url(path):
         return True
 
     return False
+
+
+def reduce_unique(items):
+    """
+    Reduce given list to a list of unique values and respecting original order
+    base on first value occurences.
+
+    Arguments:
+        items (list): List of element to reduce.
+
+    Returns:
+        list: List of unique values.
+    """
+    used = set()
+    return [x for x in items if x not in used and (used.add(x) or True)]
