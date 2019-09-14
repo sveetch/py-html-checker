@@ -21,9 +21,11 @@ from html_checker.validator import ValidatorInterface
               **COMMON_OPTIONS["user-agent"]["kwargs"])
 @click.option(*COMMON_OPTIONS["safe"]["args"],
               **COMMON_OPTIONS["safe"]["kwargs"])
+@click.option(*COMMON_OPTIONS["split"]["args"],
+              **COMMON_OPTIONS["split"]["kwargs"])
 @click.argument('path', required=True)
 @click.pass_context
-def site_command(context, xss, no_stream, user_agent, safe, path):
+def site_command(context, xss, no_stream, user_agent, safe, split, path):
     """
     Validate pages from given sitemap.
 
@@ -69,15 +71,19 @@ def site_command(context, xss, no_stream, user_agent, safe, path):
     if not safe and errors > 0:
         raise click.Abort()
 
-    # Get report from validator process
     v = ValidatorInterface()
-    report = v.validate(paths, interpreter_options=interpreter_options,
-                        tool_options=tool_options)
-
-    # print()
-    # print(json.dumps(report, indent=4))
-    # print()
-
-    # Export report
     exporter = LogExportBase()
-    exporter.build(report)
+
+    # Regroup path depending split mode is enabled or not
+    if split:
+        paths = [[v] for v in paths]
+    else:
+        paths = [paths]
+
+    # Get report from validator process
+    for item in paths:
+        report = v.validate(item, interpreter_options=interpreter_options,
+                            tool_options=tool_options)
+
+        # Export report
+        exporter.build(report)

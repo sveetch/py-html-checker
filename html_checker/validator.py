@@ -210,7 +210,7 @@ class ValidatorInterface:
 
     def parse_report(self, paths, content):
         """
-        From given validator report return an usable and normalized report.
+        From given validator report content return an usable and normalized report.
 
         Arguments:
             paths (list): List of page path(s) which have been required for
@@ -295,6 +295,6 @@ class ValidatorInterface:
         )
 
         # Execute command process
-        process = self.execute_validator(command)
+        content = self.execute_validator(command)
 
-        return self.parse_report(paths, process)
+        return self.parse_report(paths, content)

@@ -3,7 +3,7 @@ import os
 from html_checker.utils import is_file
 
 
-# Shared options
+# Shared options arguments
 COMMON_OPTIONS = {
     "xss": {
         "args": ('--Xss',),
@@ -44,6 +44,19 @@ COMMON_OPTIONS = {
             "help": (
                 "Invalid paths won't break execution of script "
                 "and it will be able to continue to the end."
+            ),
+        }
+    },
+    "split": {
+        "args": ('--split',),
+        "kwargs": {
+            "is_flag": True,
+            "help": (
+                "Execute validation for each path in its own distinct instance. "
+                "Useful for very large path list which may take too long to "
+                "display anything until every path has been validated. However, "
+                "for small or moderate path list it will be longer than packed "
+                "execution."
             ),
         }
     },

@@ -470,3 +470,91 @@ def test_validate_success(caplog, settings, paths, expected):
     report = v.validate(paths)
 
     assert OrderedDict(final_expection) == report
+
+    #assert 1 == 42
+
+
+#@pytest.mark.parametrize("paths,splitted,expected", [
+    #(
+        #["foo.html"],
+        #False,
+        #OrderedDict([
+            #("foo.html", ["foo.html"]),
+        #]),
+    #),
+    #(
+        #["foo.html"],
+        #True,
+        #OrderedDict([
+            #("foo.html", ["foo.html"]),
+            #("bar.html", ["foo.bar"]),
+        #]),
+    #),
+    #(
+        #["foo.html", "bar.html"],
+        #False,
+        #[],
+    #),
+    #(
+        #["foo.html", "bar.html"],
+        #True,
+        #[],
+    #),
+#])
+#def test_validate_split(monkeypatch, caplog, settings, paths, splitted, expected):
+    #"""
+    # DEPRECATED: Useless, was done for 'split' in a wrong way leading to a dead
+    # end with reports
+    #"""
+    #def mock_validator_execute_validator(*args, **kwargs):
+        #"""
+        #Mock method to just return the passed paths.
+        #"""
+        #cls = args[0]
+        #paths = args[1]
+        #print("mock_validator_execute_validator:", paths)
+        #return paths
+
+    #def mock_validator_get_validator_command(*args, **kwargs):
+        #"""
+        #Mock method to just return the passed paths.
+        #"""
+        #cls = args[0]
+        #paths = args[1]
+        #print("mock_validator_get_validator_command:", paths)
+        #return paths
+
+    #def mock_validator_parse_report(*args, **kwargs):
+        #"""
+        #Mock method to just return the passed paths.
+        #"""
+        #cls = args[0]
+        #paths = args[1]
+        #passed_paths = args[2]
+        #print("mock_validator_parse_report:paths:", paths)
+        #print("mock_validator_parse_report:passed_paths:", passed_paths)
+        #return passed_paths
+
+
+    #monkeypatch.setattr(ValidatorInterface, "execute_validator",
+                        #mock_validator_execute_validator)
+    #monkeypatch.setattr(ValidatorInterface, "get_validator_command", mock_validator_get_validator_command)
+    #monkeypatch.setattr(ValidatorInterface, "new_parse_report", mock_validator_parse_report)
+    #print()
+    #v = ValidatorInterface()
+
+    #paths = [settings.format(item) for item in paths]
+
+    ## Rebuild expected data to include fixtures path
+    #final_expection = []
+    #for item_path, data in expected:
+        #final_expection.append(
+            #(settings.format(item_path), data)
+        #)
+
+    ##report = v.validate(paths)
+    #report = v.new_validate(paths, split=splitted)
+
+    #assert OrderedDict(final_expection) == report
+
+    #assert 1 == 42

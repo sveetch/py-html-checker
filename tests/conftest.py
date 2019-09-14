@@ -31,13 +31,16 @@ class FixturesSettingsTestMixin(object):
 
     def format(self, path):
         """
-        Format given string to include various path related to this application
+        Format given string to include various variables related to this
+        application, mostly paths.
         """
         return path.format(
             PACKAGE=self.package_path,
             APPLICATION=self.application_path,
             TESTS=self.tests_path,
             FIXTURES=self.fixtures_path,
+            VERSION=html_checker.__version__,
+            USER_AGENT=html_checker.USER_AGENT,
         )
 
 

@@ -27,7 +27,7 @@ def mock_validator_execute_validator(*args, **kwargs):
 
 def mock_validator_parse_report(*args, **kwargs):
     """
-    Mock method to just return the returned command line from
+    Mock method to just return the passed command line from
     ``execute_validator``.
     """
     cls = args[0]
@@ -76,7 +76,7 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
         " -jar {APPLICATION}/vnujar/vnu.jar"
         " --format json"
         " --exit-zero-always"
-        " --user-agent Validator.nu/LV py-html-checker/0.1.0"
+        " --user-agent {USER_AGENT}"
         " http://perdu.com"
     )
     expected = [
@@ -90,10 +90,6 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
         result = runner.invoke(cli_frontend, [
             command_name, "--Xss", "512k", "http://perdu.com"
         ])
-
-        print(result.output)
-        print(result.exception)
-        print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
@@ -119,7 +115,7 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
         " --no-stream"
         " --format json"
         " --exit-zero-always"
-        " --user-agent Validator.nu/LV py-html-checker/0.1.0"
+        " --user-agent {USER_AGENT}"
         " http://perdu.com"
     )
     expected = [
@@ -133,12 +129,6 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
         result = runner.invoke(cli_frontend, [
             command_name, "--no-stream", "http://perdu.com"
         ])
-
-        print(result.output)
-        print(result.exception)
-        print()
-        print(expected)
-        print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
@@ -178,11 +168,116 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
             command_name, "--user-agent", "Foobar", "http://perdu.com"
         ])
 
-        print(result.output)
-        print(result.exception)
-        print()
-        print(expected)
-        print(caplog.record_tuples)
+        assert result.exit_code == 0
+        assert expected == caplog.record_tuples
+
+
+@pytest.mark.parametrize("split,expected_paths", [
+    (False, ["http://foo.com http://bar.com"]),
+    (True, ["http://foo.com", "http://bar.com"]),
+])
+def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
+    """
+    '--split' option should cause executing a new validator instance on each
+    path and only one for all path when not enabled.
+    """
+    monkeypatch.setattr(ValidatorInterface, "execute_validator",
+                        mock_validator_execute_validator)
+    monkeypatch.setattr(ValidatorInterface, "parse_report", mock_validator_parse_report)
+    monkeypatch.setattr(LogExportBase, "build", mock_export_build)
+    monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
+
+    commandline = (
+        "java"
+        " -jar {APPLICATION}/vnujar/vnu.jar"
+        " --format json"
+        " --exit-zero-always"
+        " --user-agent {USER_AGENT}"
+        " "
+    )
+
+    # Build expected logs
+    expected = []
+    for p in expected_paths:
+        expected.append(
+            ("py-html-checker", 20, settings.format(commandline) + p)
+        ),
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        test_cwd = os.getcwd()
+
+        args = ["page"]
+        if split:
+            args.append("--split")
+        args.append("http://foo.com")
+        args.append("http://bar.com")
+
+        result = runner.invoke(cli_frontend, args)
+
+        assert result.exit_code == 0
+        assert expected == caplog.record_tuples
+
+
+@pytest.mark.parametrize("split,expected_paths", [
+    (False, ["http://foo.com http://bar.com"]),
+    (True, ["http://foo.com", "http://bar.com"]),
+])
+def test_site_split(monkeypatch, caplog, settings, split, expected_paths):
+    """
+    '--split' option should cause executing a new validator instance on each
+    path and only one for all path when not enabled.
+    """
+    def mock_sitemap_get_urls(*args, **kwargs):
+        """
+        Mock method to just return harcoded paths we expect from parsed sitemap
+        """
+        return ["http://foo.com", "http://bar.com"]
+
+    monkeypatch.setattr(ValidatorInterface, "execute_validator",
+                        mock_validator_execute_validator)
+    monkeypatch.setattr(ValidatorInterface, "parse_report", mock_validator_parse_report)
+    monkeypatch.setattr(LogExportBase, "build", mock_export_build)
+    monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
+
+    commandline = (
+        "java"
+        " -jar {APPLICATION}/vnujar/vnu.jar"
+        " --format json"
+        " --exit-zero-always"
+        " --user-agent {USER_AGENT}"
+        " "
+    )
+
+    # Build expected logs
+    expected = []
+    for p in expected_paths:
+        expected.append(
+            ("py-html-checker", 20, settings.format(commandline) + p)
+        ),
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        test_cwd = os.getcwd()
+
+        args = ["site"]
+        if split:
+            args.append("--split")
+        args.append("http://perdu.com/sitemap.xml")
+
+        result = runner.invoke(cli_frontend, args)
+
+        #print("=> result.output <=")
+        #print(result.output)
+        #print()
+        #print("=> result.exception <=")
+        #print(result.exception)
+        #print()
+        #print("=> expected <=")
+        #print(expected)
+        #print()
+        #print("=> caplog.record_tuples <=")
+        #print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
