@@ -65,7 +65,7 @@ current location).
 
 Note than for a sitemap file, its referenced urls must be absolute or relative
 to your current location. For a sitemap url, its referenced urls must be an
-absolute url (with leading ``http``).
+absolute url (with leading ``http``): ::
 
     html-checker site sitemap.xml
     html-checker site http://perdu.com/sitemap.xml
