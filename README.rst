@@ -44,14 +44,51 @@ the ``cli`` part: ::
 Usage
 *****
 
-For a list of documents, you may either give file paths or URL: ::
+Validate one or many pages
+--------------------------
 
-    html-checker -v 5 page ping.html http://perdu.com foo/bar.html
+With the command ``page`` you can validate one or many pages. Command accept
+one or many path and each path can be either an URL or a filepath (absolute or
+relative from your current location): ::
 
-Or for all documents from a `Sitemap`_: ::
+    html-checker page ping.html
+    html-checker page http://perdu.com
+    html-checker page ping.html http://perdu.com foo/bar.html
 
-    html-checker -v 5 site http://perdu.com/sitemap.xml
+Validate all path from a sitemap
+--------------------------------
 
-The sitemap path can be either a filepath or an url. Note than from a sitemap
-file, documents file paths have to be absolute or relative to the current
-directory where you have executed the command line.
+With the command ``site`` you can validate every page referenced in a
+``sitemap.xml`` file. Command accept only one argument for the sitemap path
+which can be either an URL or a filepath (absolute or relative from your
+current location).
+
+Note than for a sitemap file, its referenced urls must be absolute or relative
+to your current location. For a sitemap url, its referenced urls must be an
+absolute url (with leading ``http``).
+
+    html-checker site sitemap.xml
+    html-checker site http://perdu.com/sitemap.xml
+
+Common page and site options
+----------------------------
+
+**--user-agent**
+    A customer user-agent to use for every possible requests.
+**--Xss**
+    Java thread stack size. Useful in some case where you encounter error
+    'StackOverflowError' from validator. Set it to something like '512k'.
+**--safe**
+    Invalid paths won't break execution of script and it will be able to
+    continue to the end.
+**--split**
+    Execute validation for each path in its own distinct instance. Useful for
+    very large path list which may take too long to display anything until
+    every path has been validated. However, for small or moderate path list it
+    will be longer than packed execution.
+
+See commandline helps for more options : ::
+
+    html-checker -h
+    html-checker page -h
+    html-checker site -h

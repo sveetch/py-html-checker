@@ -54,6 +54,10 @@ class LogExportBase:
         A row without "lastLine" item is assumed to not have any position
         informations.
 
+        If empty, the default value for "firstLine" is the "lastLine" value.
+        In the same way, default value for "firstColumn" is the "lastColumn"
+        value.
+
         Arguments:
             row (dict): Dictionnary with every message details.
 
@@ -67,10 +71,14 @@ class LogExportBase:
         if "firstLine" in row:
             firstLine = row["firstLine"]
 
+        firstColumn = row["lastColumn"]
+        if "firstColumn" in row:
+            firstColumn = row["firstColumn"]
+
         line_msg = self.LINE_TEMPLATE.format(
             linestart=firstLine,
             lineend=row["lastLine"],
-            colstart=row["firstColumn"],
+            colstart=firstColumn,
             colend=row["lastColumn"],
         )
 
@@ -98,6 +106,10 @@ class LogExportBase:
     def build(self, report):
         """
         Build report export
+
+        Arguments:
+            report (dict): Dictionnary of checked pages with their report
+                message rows.
         """
         for path, messages in report.items():
             if self.dividers.get("row", None):

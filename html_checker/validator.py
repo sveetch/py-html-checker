@@ -219,7 +219,8 @@ class ValidatorInterface:
                 expected.
 
         Returns:
-            list: List of reports for checked paths.
+            collections.OrderedDict: Ordered dictionnary of checked pages from
+            given paths.
         """
         # Build initial registry of path reports
         report = OrderedDict(self.build_initial_registry(paths))
@@ -280,7 +281,7 @@ class ValidatorInterface:
 
         Returns:
             collections.OrderedDict: Ordered dictionnary of checked pages from
-            given path.
+            given paths.
         """
         interpreter_options, tool_options = self.manage_options(
             interpreter_options,
