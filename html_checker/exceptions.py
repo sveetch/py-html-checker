@@ -7,6 +7,15 @@ Specific application exceptions.
 """
 
 
+class HtmlCheckerUnexpectedException(Exception):
+    """
+    An exceptions which should not never raise from code.
+
+    DON'T use this in code, this is reserved for tests purposes only.
+    """
+    pass
+
+
 class HtmlCheckerBaseException(Exception):
     """
     Base for every application exceptions.

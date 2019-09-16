@@ -67,6 +67,12 @@ def validate_paths(logger, paths):
     """
     Validate file paths.
 
+    Invalid file path is a no critical error which should not stop program
+    execution.
+
+    NOTE: This should return a list of invalid path, not a simple counter. This
+    way, invalid path could be passer to validator to ignore them.
+
     Arguments:
         logger (logging.logger): Logging object to output error messages.
         paths (list): List of path to validate, only filepaths are checked.
@@ -80,17 +86,33 @@ def validate_paths(logger, paths):
         if is_file(item):
             if not os.path.exists(item):
                 msg = "Given path does not exists: {}"
-                logger.critical(msg.format(item))
+                logger.error(msg.format(item))
                 errors += 1
             elif os.path.isdir(item):
                 msg = "Directory path are not supported: {}"
-                logger.critical(msg.format(item))
+                logger.error(msg.format(item))
                 errors += 1
 
     return errors
 
 
 def validate_sitemap_path(logger, path):
+    """
+    Validate sitemap file path.
+
+    Invalid sitemap file path is a critical error which should stop program
+    execution.
+
+    NOTE: Integer counter is not really accurate here since there will be
+    always a single path, it should just return a boolean.
+
+    Arguments:
+        logger (logging.logger): Logging object to output error messages.
+        paths (list): List of path to validate, only filepaths are checked.
+
+    Returns:
+        integer: Error counter.
+    """
     errors = 0
 
     if is_file(path):

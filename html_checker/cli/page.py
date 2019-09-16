@@ -6,6 +6,8 @@ from collections import OrderedDict
 import click
 
 from html_checker.cli.common import COMMON_OPTIONS, validate_paths
+from html_checker.exceptions import (HtmlCheckerUnexpectedException,
+                                     HtmlCheckerBaseException)
 from html_checker.export import LogExportBase
 from html_checker.validator import ValidatorInterface
 
@@ -34,6 +36,14 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
     logger = logging.getLogger("py-html-checker")
 
     logger.debug("Launching validation for {} paths".format(len(paths)))
+
+    # Safe mode enabled, catch all internal exceptions
+    if safe:
+        CatchedException = HtmlCheckerBaseException
+    # Safe mode disabled, watch for a dummy exception that won't never occurs
+    # so internal exception are still raised
+    else:
+        CatchedException = HtmlCheckerUnexpectedException
 
     # Validate paths
     errors = validate_paths(logger, paths)
@@ -65,8 +75,10 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
 
     # Get report from validator process
     for item in paths:
-        report = v.validate(item, interpreter_options=interpreter_options,
-                            tool_options=tool_options)
-
-        # Export report
-        exporter.build(report)
+        try:
+            report = v.validate(item, interpreter_options=interpreter_options,
+                                tool_options=tool_options)
+            exporter.build(report)
+        except CatchedException as e:
+            logger.error(e)
+            # TODO: Exporter should be notified about error on item
