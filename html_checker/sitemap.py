@@ -191,5 +191,6 @@ class Sitemap:
             return self.parse_sitemap_xml(ressource)
         # Should never occurs
         else:
-            msg = ("Unable to parse ressource from given path.")
+            msg = ("Unable to parse ressource from given path, unknowed "
+                   "content type: {}".format(contenttype))
             raise SitemapInvalidError(msg)

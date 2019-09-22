@@ -25,9 +25,13 @@ from html_checker.validator import ValidatorInterface
               **COMMON_OPTIONS["safe"]["kwargs"])
 @click.option(*COMMON_OPTIONS["split"]["args"],
               **COMMON_OPTIONS["split"]["kwargs"])
+@click.option('--dry-run', is_flag=True,
+              help=("Download and parse given Sitemap ressource and output "
+                    "informations but never try to valide its items."))
 @click.argument('path', required=True)
 @click.pass_context
-def site_command(context, xss, no_stream, user_agent, safe, split, path):
+def site_command(context, xss, no_stream, user_agent, safe, split, path,
+                 dry_run):
     """
     Validate pages from given sitemap.
 
@@ -78,28 +82,34 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path):
         logger.critical(e)
         raise click.Abort()
 
-    logger.debug("Launching validation for {} paths".format(len(paths)))
+    logger.debug("Sitemap have {} paths".format(len(paths)))
 
     # Validate paths from sitemap
     errors = validate_paths(logger, paths)
     if not safe and errors > 0:
         raise click.Abort()
 
-    v = ValidatorInterface()
-    exporter = LogExportBase()
+    # TODO: dry run mode does not have any test coverage yet
+    if not dry_run:
+        logger.debug("Launching validation for sitemap items")
 
-    # Regroup path depending split mode is enabled or not
-    if split:
-        paths = [[v] for v in paths]
-    else:
-        paths = [paths]
+        v = ValidatorInterface()
+        exporter = LogExportBase()
 
-    # Get report from validator process
-    for item in paths:
-        try:
-            report = v.validate(item, interpreter_options=interpreter_options,
-                                tool_options=tool_options)
-            exporter.build(report)
-        except CatchedException as e:
-            logger.error(e)
-            # TODO: Exporter should be notified about error on item
+        # Regroup path depending split mode is enabled or not
+        # TODO: split should be managed on validator level, exporter should be
+        # compatible with that behavior and new validator returns signature
+        if split:
+            paths = [[v] for v in paths]
+        else:
+            paths = [paths]
+
+        # Get report from validator process
+        for item in paths:
+            try:
+                report = v.validate(item, interpreter_options=interpreter_options,
+                                    tool_options=tool_options)
+                exporter.build(report)
+            except CatchedException as e:
+                logger.error(e)
+                # TODO: Exporter should be notified about error on item

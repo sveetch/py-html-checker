@@ -117,19 +117,6 @@ def test_site_nosafe_exception(monkeypatch, caplog, settings):
 
         result = runner.invoke(cli_frontend, ["site"] + args)
 
-        print("=> result.output <=")
-        print(result.output)
-        print()
-        print("=> result.exception <=")
-        print(type(result.exception))
-        print(result.exception)
-        #print()
-        #print("=> expected <=")
-        #print(expected)
-        print()
-        print("=> caplog.record_tuples <=")
-        print(caplog.record_tuples)
-
         assert isinstance(result.exception, HtmlCheckerBaseException) == True
 
         assert result.exit_code == 1

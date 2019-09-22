@@ -395,62 +395,6 @@ def test_validate_fail(settings, interpreter, validator,
             )
         ]
     ),
-    ## Test on an url path, maybe broken some day since it can change
-    #(
-        #["http://perdu.com"],
-        #[
-            #[
-                #"http://perdu.com",
-                #[
-                    #{
-                        #"type": "error",
-                        #"message": "The character encoding was not declared. Proceeding using \u201cwindows-1252\u201d."
-                    #},
-                    #{
-                        #"type": "error",
-                        #"message": "Start tag seen without seeing a doctype first. Expected \u201c<!DOCTYPE html>\u201d.",
-                        #"extract": "<html><head>",
-                        #"firstColumn": 1,
-                        #"lastLine": 1,
-                        #"hiliteLength": 6,
-                        #"lastColumn": 6,
-                        #"hiliteStart": 0
-                    #},
-                    #{
-                        #"type": "error",
-                        #"message": "Element \u201cpre\u201d not allowed as child of element \u201cstrong\u201d in this context. (Suppressing further errors from this subtree.)",
-                        #"extract": "2><strong><pre>    * ",
-                        #"firstColumn": 138,
-                        #"lastLine": 1,
-                        #"hiliteLength": 5,
-                        #"lastColumn": 142,
-                        #"hiliteStart": 10
-                    #},
-                    #{
-                        #"type": "error",
-                        #"message": "Bad character \u201c-\u201d after \u201c<\u201d. Probable cause: Unescaped \u201c<\u201d. Try escaping it as \u201c&lt;\u201d.",
-                        #"extract": "pre>    * <----- v",
-                        #"firstColumn": 149,
-                        #"lastLine": 1,
-                        #"hiliteLength": 2,
-                        #"lastColumn": 150,
-                        #"hiliteStart": 10
-                    #},
-                    #{
-                        #"type": "info",
-                        #"message": "Consider adding a \u201clang\u201d attribute to the \u201chtml\u201d start tag to declare the language of this document.",
-                        #"extract": "<html><head>",
-                        #"firstColumn": 1,
-                        #"lastLine": 1,
-                        #"subType": "warning",
-                        #"hiliteLength": 6,
-                        #"lastColumn": 6,
-                        #"hiliteStart": 0
-                    #}
-                #]
-            #]
-        #]
-    #),
 ])
 def test_validate_success(caplog, settings, paths, expected):
     """
