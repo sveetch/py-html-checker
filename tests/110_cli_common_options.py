@@ -15,6 +15,18 @@ from html_checker.validator import ValidatorInterface
 from html_checker.sitemap import Sitemap
 
 
+class DummyReport:
+    """
+    A dummy reporter to simulate ReportStore signatures but just to add
+    given paths in registry
+    """
+    def __init__(self, *args, **kwargs):
+        self.registry = []
+
+    def add(self, content):
+        self.registry.extend(content)
+
+
 def mock_validator_execute_validator(*args, **kwargs):
     """
     Mock method to just return the builded command line without
@@ -25,17 +37,6 @@ def mock_validator_execute_validator(*args, **kwargs):
     return command
 
 
-def mock_validator_parse_report(*args, **kwargs):
-    """
-    Mock method to just return the passed command line from
-    ``execute_validator``.
-    """
-    cls = args[0]
-    paths = args[1]
-    process = args[2]
-    return process
-
-
 def mock_export_build(*args, **kwargs):
     """
     Mock method to just print out the given command line in ``report``
@@ -43,7 +44,7 @@ def mock_export_build(*args, **kwargs):
     """
     cls = args[0]
     report = args[1]
-    cls.log.info(" ".join(report))
+    cls.log.info(" ".join(report.registry))
 
 
 def mock_sitemap_get_urls(*args, **kwargs):
@@ -66,7 +67,7 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
-    monkeypatch.setattr(ValidatorInterface, "parse_report", mock_validator_parse_report)
+    monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
     monkeypatch.setattr(LogExportBase, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
@@ -105,7 +106,7 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
-    monkeypatch.setattr(ValidatorInterface, "parse_report", mock_validator_parse_report)
+    monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
     monkeypatch.setattr(LogExportBase, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
@@ -144,7 +145,7 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
-    monkeypatch.setattr(ValidatorInterface, "parse_report", mock_validator_parse_report)
+    monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
     monkeypatch.setattr(LogExportBase, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
@@ -183,7 +184,7 @@ def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
-    monkeypatch.setattr(ValidatorInterface, "parse_report", mock_validator_parse_report)
+    monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
     monkeypatch.setattr(LogExportBase, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
@@ -236,7 +237,7 @@ def test_site_split(monkeypatch, caplog, settings, split, expected_paths):
 
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
-    monkeypatch.setattr(ValidatorInterface, "parse_report", mock_validator_parse_report)
+    monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
     monkeypatch.setattr(LogExportBase, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
@@ -265,19 +266,19 @@ def test_site_split(monkeypatch, caplog, settings, split, expected_paths):
             args.append("--split")
         args.append("http://perdu.com/sitemap.xml")
 
-        result = runner.invoke(cli_frontend, args)
+        result = runner.invoke(cli_frontend, args, catch_exceptions=False)
 
-        #print("=> result.output <=")
-        #print(result.output)
-        #print()
-        #print("=> result.exception <=")
-        #print(result.exception)
-        #print()
-        #print("=> expected <=")
-        #print(expected)
-        #print()
-        #print("=> caplog.record_tuples <=")
-        #print(caplog.record_tuples)
+        print("=> result.output <=")
+        print(result.output)
+        print()
+        print("=> result.exception <=")
+        print(result.exception)
+        print()
+        print("=> expected <=")
+        print(expected)
+        print()
+        print("=> caplog.record_tuples <=")
+        print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples

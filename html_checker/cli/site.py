@@ -96,20 +96,11 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
         v = ValidatorInterface()
         exporter = LogExportBase()
 
-        # Regroup path depending split mode is enabled or not
-        # TODO: split should be managed on validator level, exporter should be
-        # compatible with that behavior and new validator returns signature
-        if split:
-            paths = [[v] for v in paths]
-        else:
-            paths = [paths]
-
         # Get report from validator process
-        for item in paths:
-            try:
-                report = v.validate(item, interpreter_options=interpreter_options,
-                                    tool_options=tool_options)
-                exporter.build(report)
-            except CatchedException as e:
-                logger.error(e)
-                # TODO: Exporter should be notified about error on item
+        try:
+            report = v.validate(paths, interpreter_options=interpreter_options,
+                                tool_options=tool_options)
+            exporter.build(report)
+        except CatchedException as e:
+            logger.error(e)
+            # TODO: Exporter should be notified about error on paths

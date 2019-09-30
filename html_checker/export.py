@@ -108,10 +108,10 @@ class LogExportBase:
         Build report export
 
         Arguments:
-            report (dict): Dictionnary of checked pages with their report
-                message rows.
+            report (html_checker.reporter.ReportStore): Dictionnary of checked
+                pages with their report message rows.
         """
-        for path, messages in report.items():
+        for path, messages in report.registry.items():
             if self.dividers.get("row", None):
                 self.log.debug(self.dividers.get("row"))
 

@@ -8,6 +8,8 @@ from html_checker.validator import ValidatorInterface
 from html_checker.exceptions import (PathInvalidError, SitemapInvalidError,
                               ValidatorError)
 
+# TODO: Just moved report code to reporter tests
+
 
 @pytest.mark.parametrize("options,expected", [
     (
@@ -145,138 +147,6 @@ def test_get_validator_command(settings, interpreter, validator,
     assert expected == cmd
 
 
-@pytest.mark.parametrize("paths,expected", [
-    # Url path
-    (
-        [
-            "http://perdu.com",
-        ],
-        [
-            ("http://perdu.com", None),
-        ],
-    ),
-    # Unexisting file path
-    (
-        [
-            "nope.html",
-        ],
-        [
-            ("nope.html", [{
-                "type": "critical",
-                "message": "File path does not exists."
-            }]),
-        ],
-    ),
-    # Unexisting absolute file path
-    (
-        [
-            "{FIXTURES}/nope.html",
-        ],
-        [
-            ("{FIXTURES}/nope.html", [{
-                "type": "critical",
-                "message": "File path does not exists."
-            }]),
-        ],
-    ),
-    # Relative file path
-    (
-        [
-            "tests/data_fixtures/html/valid.basic.html",
-        ],
-        [
-            ("{FIXTURES}/html/valid.basic.html", None),
-        ],
-    ),
-    # Absolute file path
-    (
-        [
-            "{FIXTURES}/html/valid.basic.html",
-        ],
-        [
-            ("{FIXTURES}/html/valid.basic.html", None),
-        ],
-    ),
-])
-def test_build_initial_registry(settings, paths, expected):
-    """
-    Should build a correct registry of initial values for required path.
-    """
-    v = ValidatorInterface()
-
-    paths = [settings.format(item) for item in paths]
-
-    expected = [(settings.format(k), v) for k,v in expected]
-
-    assert expected == v.build_initial_registry(paths)
-
-
-@pytest.mark.parametrize("paths,content,expected", [
-    (
-        ["foo.html"],
-        b"""{"messages":[]}""",
-        OrderedDict([
-            ("foo.html", [
-                {
-                    "type": "critical",
-                    "message": "File path does not exists."
-                },
-            ])
-        ])
-    ),
-    (
-        ["foo.html"],
-        b"""{"messages":[{"url": "http://perdu.com"}]}""",
-        OrderedDict([
-            ("foo.html", [
-                {
-                    "type": "critical",
-                    "message": "File path does not exists."
-                },
-            ]),
-        ])
-    ),
-    (
-        ["foo.html", "http://perdu.com"],
-        b"""{"messages":[]}""",
-        OrderedDict([
-            ("foo.html", [
-                {
-                    "type": "critical",
-                    "message": "File path does not exists."
-                },
-            ]),
-            ("http://perdu.com", None),
-        ])
-    ),
-    (
-        ["foo.html", "http://perdu.com"],
-        b"""{"messages":[{"url": "foo.html"}, {"url": "http://perdu.com", "ping": "pong"}, {"url": "http://perdu.com", "pif": "paf"}]}""",
-        OrderedDict([
-            ("foo.html", [
-                {
-                    "type": "critical",
-                    "message": "File path does not exists."
-                },
-                {},
-            ]),
-            ("http://perdu.com", [
-                {"ping": "pong"},
-                {"pif": "paf"},
-            ])
-        ])
-    ),
-])
-def test_parse_report(paths, content, expected):
-    """
-    Path reports should be indexed on their path and contains their full report
-    payload.
-    """
-    v = ValidatorInterface()
-
-    assert expected == v.parse_report(paths, content)
-
-
 @pytest.mark.parametrize("interpreter,validator,interpreter_options,tool_options,paths,expected", [
     # Unreachable interpreter
     (
@@ -358,43 +228,6 @@ def test_validate_fail(settings, interpreter, validator,
         ["tests/data_fixtures/html/valid.basic.html"],
         [('{PACKAGE}/tests/data_fixtures/html/valid.basic.html', None)],
     ),
-    # Multiple sources either unexisting, valid or invalid
-    (
-        [
-            "foo.html",
-            "{FIXTURES}/html/valid.basic.html",
-            "{FIXTURES}/html/valid.warning.html"
-        ],
-        [
-            ('foo.html', [
-                {
-                    "type": "critical",
-                    "message": "File path does not exists."
-                },
-            ]),
-            (
-                "{FIXTURES}/html/valid.basic.html",
-                None
-            ),
-            (
-                "{FIXTURES}/html/valid.warning.html",
-                [
-                    {
-                        "lastColumn": 6,
-                        "subType": "warning",
-                        "firstLine": 1,
-                        "extract": "type html>\n<html>\n<head",
-                        "hiliteStart": 10,
-                        "hiliteLength": 7,
-                        "message": "Consider adding a \u201clang\u201d attribute to the \u201chtml\u201d start tag to declare the language of this document.",
-                        "lastLine": 2,
-                        "type": "info",
-                        "firstColumn": 16
-                    }
-                ]
-            )
-        ]
-    ),
 ])
 def test_validate_success(caplog, settings, paths, expected):
     """
@@ -413,4 +246,100 @@ def test_validate_success(caplog, settings, paths, expected):
 
     report = v.validate(paths)
 
-    assert OrderedDict(final_expection) == report
+    assert OrderedDict(final_expection) == report.registry
+
+
+def test_validate_split_one_path(caplog, settings):
+    """
+    "validate" method return should return the same report for a single path
+    when split is enabled or disabled.
+    """
+    v = ValidatorInterface()
+
+    splitted = v.validate(
+        [settings.format("{FIXTURES}/html/valid.warning.html")],
+        split=True
+    )
+
+    single = v.validate(
+        [settings.format("{FIXTURES}/html/valid.warning.html")],
+        split=True
+    )
+
+    assert single.registry == OrderedDict([
+        (
+            settings.format("{FIXTURES}/html/valid.warning.html"),
+            [
+                {
+                    "lastColumn": 6,
+                    "subType": "warning",
+                    "firstLine": 1,
+                    "extract": "type html>\n<html>\n<head",
+                    "hiliteStart": 10,
+                    "hiliteLength": 7,
+                    "message": "Consider adding a \u201clang\u201d attribute to the \u201chtml\u201d start tag to declare the language of this document.",
+                    "lastLine": 2,
+                    "type": "info",
+                    "firstColumn": 16
+                }
+            ]
+        )
+    ])
+
+    assert splitted.registry == single.registry
+
+
+def test_validate_split_many_paths(caplog, settings):
+    """
+    "validate" method return should return the same report for multiple paths
+    when split is enabled or disabled.
+    """
+    v = ValidatorInterface()
+
+    paths = [
+        "foo.html",
+        settings.format("{FIXTURES}/html/valid.basic.html"),
+        settings.format("{FIXTURES}/html/valid.warning.html")
+    ]
+
+    splitted = v.validate(
+        paths,
+        split=True
+    )
+
+    single = v.validate(
+        paths,
+        split=True
+    )
+
+    assert single.registry == OrderedDict([
+        ('foo.html', [
+            {
+                "type": "critical",
+                "message": "File path does not exists."
+            },
+        ]),
+        (
+            settings.format("{FIXTURES}/html/valid.basic.html"),
+            None
+        ),
+        (
+            settings.format("{FIXTURES}/html/valid.warning.html"),
+            [
+                {
+                    "lastColumn": 6,
+                    "subType": "warning",
+                    "firstLine": 1,
+                    "extract": "type html>\n<html>\n<head",
+                    "hiliteStart": 10,
+                    "hiliteLength": 7,
+                    "message": "Consider adding a \u201clang\u201d attribute to the \u201chtml\u201d start tag to declare the language of this document.",
+                    "lastLine": 2,
+                    "type": "info",
+                    "firstColumn": 16
+                }
+            ]
+        )
+    ])
+
+    assert splitted.registry == single.registry

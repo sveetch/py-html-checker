@@ -7,6 +7,7 @@ import pytest
 
 from html_checker.export import LogExportBase
 from html_checker.exceptions import ReportError, ExportError
+from html_checker.reporter import ReportStore
 
 
 @pytest.mark.parametrize("row,expected", [
@@ -217,11 +218,15 @@ def test_build(caplog, report, level, expected):
     """
     caplog.set_level(level, logger="py-html-checker")
 
-    reporter = LogExportBase()
+    exporter = LogExportBase()
 
-    reporter.build(OrderedDict(report))
+    # Directly file report registry
+    r = ReportStore([])
+    r.registry = OrderedDict(report)
 
-    print(caplog.record_tuples)
+    exporter.build(r)
+
+    #print(caplog.record_tuples)
 
     assert expected == caplog.record_tuples
 
@@ -232,18 +237,22 @@ def test_build_disabled_dividers(caplog):
     """
     caplog.set_level(logging.DEBUG, logger="py-html-checker")
 
-    reporter = LogExportBase(dividers={})
+    exporter = LogExportBase(dividers={})
 
-    reporter.build(OrderedDict([
+    # Directly file report registry
+    r = ReportStore([])
+    r.registry = OrderedDict([
         ("/html/foo.html", [
             {
                 "type": "info",
                 "message": "This is an info.",
             },
         ]),
-    ]))
+    ])
 
-    print(caplog.record_tuples)
+    exporter.build(r)
+
+    #print(caplog.record_tuples)
 
     expected = [
         (

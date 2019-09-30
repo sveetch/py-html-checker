@@ -6,8 +6,9 @@ from collections import OrderedDict
 
 
 import html_checker
-from html_checker.exceptions import ReportError, ValidatorError
-from html_checker.utils import is_file, reduce_unique
+from html_checker.exceptions import ValidatorError
+from html_checker.reporter import ReportStore
+from html_checker.utils import reduce_unique
 
 
 class ValidatorInterface:
@@ -21,6 +22,7 @@ class ValidatorInterface:
             be replaced with absolute path to "py-html-checker" install.
         log (logging): Logging object set to application "py-html-checker".
     """
+    REPORT_CLASS = ReportStore
     INTERPRETER = "java"
     VALIDATOR = "{HTML_CHECKER}/vnujar/vnu.jar"
 
@@ -112,44 +114,6 @@ class ValidatorInterface:
 
         return args
 
-    def build_initial_registry(self, paths):
-        """
-        Build initial report registry for required paths.
-
-        To fit to validator behaviors, if a path is a file path and exists, it
-        will be resolved to its absolute path. If it does not exists, path is
-        left unchanged but it will have a log entry for a critical error about
-        unexisting file. URL paths are always left unchanged.
-
-        Arguments:
-            paths (list): List of page path(s) which have been required for
-                checking.
-
-        Returns:
-            list: Registry of required path with initial value ``None``,
-            except for unexisting file paths which will contain a critical
-            error log.
-        """
-        registry = []
-
-        for path in paths:
-            path_key = path
-            initial_value = None
-
-            if is_file(path):
-                if os.path.exists(path):
-                    # Resolve to absolute path
-                    path_key = os.path.abspath(path)
-                else:
-                    initial_value = [{
-                        "type": "critical",
-                        "message": "File path does not exists."
-                    }]
-
-            registry.append((path_key, initial_value))
-
-        return registry
-
     def execute_validator(self, command):
         """
         Execute validator process from given command.
@@ -208,67 +172,32 @@ class ValidatorInterface:
 
         return interpreter_options, tool_options
 
-    def parse_report(self, paths, content):
+    def validate_item(self, paths, interpreter_options, tool_options):
         """
-        From given validator report content return an usable and normalized report.
+        Validate a path with validator tool.
 
         Arguments:
-            paths (list): List of page path(s) which have been required for
-                checking.
-            content (string): Report return from validator, a JSON string is
-                expected.
+            paths (list): List of page path to validate.
+            interpreter_options (dict): Dict of interpreter arguments.
+            tool_options (dict): Dict of validator tool arguments.
 
         Returns:
-            collections.OrderedDict: Ordered dictionnary of checked pages from
-            given paths.
+            subprocess.CompletedProcess: Process output.
         """
-        # Build initial registry of path reports
-        report = OrderedDict(self.build_initial_registry(paths))
+        # Build command line from options
+        command = self.get_validator_command(
+            paths,
+            interpreter_options=interpreter_options,
+            tool_options=tool_options
+        )
 
-        # Decode returned byte string from process output JSON
-        content = content.decode("utf-8").strip()
-
-        # Try to load and validate report JSON
-        try:
-            content = json.loads(content)
-        except json.decoder.JSONDecodeError as e:
-            msg = "Invalid JSON report: {}"
-            raise ReportError(msg.format(e))
-        else:
-            if "messages" not in content:
-                msg = ("Invalid JSON validator report, it must contains a "
-                       "'messages' list of checked pages.")
-                raise ReportError(msg)
-
-        # To retain already outputed error messages for unknow paths
-        already_seen_errors = []
-
-        # Walk report to find message about required path to check and store
-        # them
-        for item in content["messages"]:
-            path = item.get("url")
-            item.pop("url")
-
-            # Clean prefix file path from reported path
-            if path.startswith("file:"):
-                path = path[len("file:"):]
-
-            if path in report:
-                if report[path] is None:
-                    report[path] = []
-                report[path].append(item)
-            else:
-                msg = "Validator report contains unknow path '{}'".format(path)
-                if msg not in already_seen_errors:
-                    already_seen_errors.append(msg)
-                    self.log.warning(msg)
-
-        return report
+        # Execute command process
+        return self.execute_validator(command)
 
     def validate(self, paths, interpreter_options=None,
-                 tool_options=None):
+                 tool_options=None, split=False):
         """
-        Perform validation with validator tool for given path.
+        Perform validation with validator tool for all given paths.
 
         Arguments:
             paths (list): List of page path to validate.
@@ -278,24 +207,33 @@ class ValidatorInterface:
                 include in commandline. Default is ``None``.
             tool_options (dict): Ordered dict of validator tool arguments to
                 include in commandline. Default is ``None``.
+            split (bool): If enabled, each path will be executed in its own
+                instance of validator. Else default behavior is to execute
+                validator once for all paths.
 
         Returns:
-            collections.OrderedDict: Ordered dictionnary of checked pages from
-            given paths.
+            html_checker.reporter.ReportStore: Builded report store.
         """
+        # Shared options for every validator command execution
         interpreter_options, tool_options = self.manage_options(
             interpreter_options,
             tool_options
         )
 
-        # Build command line from options
-        command = self.get_validator_command(
-            reduce_unique(paths),
-            interpreter_options=interpreter_options,
-            tool_options=tool_options
-        )
+        # Ensure uniqueness
+        paths = reduce_unique(paths)
 
-        # Execute command process
-        content = self.execute_validator(command)
+        # Init a new ReportStore object
+        report = self.REPORT_CLASS(paths)
 
-        return self.parse_report(paths, content)
+        # Validate every paths in a single validator execution
+        if not split:
+            content = self.validate_item(paths, interpreter_options, tool_options)
+            report.add(content)
+        # Validate each paths on its own validator execution
+        else:
+            for item in paths:
+                content = self.validate_item([item], interpreter_options, tool_options)
+                report.add(content)
+
+        return report

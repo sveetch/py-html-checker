@@ -167,7 +167,7 @@ def test_page_safe_exception(monkeypatch, caplog, settings):
     Use a mockup to force validator.execute_validator() method to raise a basic
     internal exception.
 
-    TODO: Finish (see cli.page)
+    TODO: Will be updated with new validator/reporter/exporter mechanics
 
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
