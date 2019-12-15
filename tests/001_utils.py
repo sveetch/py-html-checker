@@ -1,6 +1,6 @@
 import pytest
 
-from html_checker.utils import is_file, is_url, reduce_unique
+from html_checker.utils import is_local_ressource, is_url, reduce_unique
 
 
 @pytest.mark.parametrize("path,expected", [
@@ -45,11 +45,11 @@ from html_checker.utils import is_file, is_url, reduce_unique
         True,
     ),
 ])
-def test_is_file(path, expected):
+def test_is_local_ressource(path, expected):
     """
     Should detect if given path is a filepath.
     """
-    assert expected == is_file(path)
+    assert expected == is_local_ressource(path)
 
 
 @pytest.mark.parametrize("path,expected", [

@@ -99,7 +99,7 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
         # Get report from validator process
         try:
             report = v.validate(paths, interpreter_options=interpreter_options,
-                                tool_options=tool_options)
+                                tool_options=tool_options, split=split)
             exporter.build(report)
         except CatchedException as e:
             logger.error(e)

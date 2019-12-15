@@ -1,6 +1,6 @@
-def is_file(path):
+def is_local_ressource(path):
     """
-    Check if given path is a file path.
+    Check if given path is a local ressource.
 
     Arguments:
         path (string): Ressource path.

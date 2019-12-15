@@ -10,7 +10,7 @@ import requests
 from requests.exceptions import RequestException
 
 from html_checker import USER_AGENT
-from html_checker.utils import is_file
+from html_checker.utils import is_local_ressource
 from html_checker.exceptions import PathInvalidError, SitemapInvalidError
 
 
@@ -178,7 +178,7 @@ class Sitemap:
         Returns:
             list: List of urls.
         """
-        if is_file(path):
+        if is_local_ressource(path):
             ressource = self.get_file_ressource(path)
         else:
             ressource = self.get_url_ressource(path)

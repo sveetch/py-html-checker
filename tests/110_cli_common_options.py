@@ -1,6 +1,6 @@
 """
-These tests cover shared options for page and site command. They mockup some
-validator, exporter and sitemap method to just return command line without
+These tests cover shared options for page and site commands. They mockup some
+validator, exporter and sitemap methods to just return command lines without
 processing or executing anything else.
 """
 import os
@@ -24,7 +24,17 @@ class DummyReport:
         self.registry = []
 
     def add(self, content):
-        self.registry.extend(content)
+        print()
+        print("DummyReport: content")
+        print(content)
+        print()
+        print("DummyReport: registry before")
+        print(self.registry)
+        self.registry.append(content)
+        print()
+        print("DummyReport: registry after")
+        print(self.registry)
+        print()
 
 
 def mock_validator_execute_validator(*args, **kwargs):
@@ -39,18 +49,19 @@ def mock_validator_execute_validator(*args, **kwargs):
 
 def mock_export_build(*args, **kwargs):
     """
-    Mock method to just print out the given command line in ``report``
+    Mock method to just logging given command lines in ``report``
     argument (following validator mockups).
     """
     cls = args[0]
     report = args[1]
-    cls.log.info(" ".join(report.registry))
+    for item in report.registry:
+        cls.log.info(" ".join(item))
 
 
 def mock_sitemap_get_urls(*args, **kwargs):
     """
     Mock method to just return given url as argument so it can pass the dummy
-    url to validator without to read it like a sitemap
+    url to validator without to read it like a sitemap.
     """
     cls = args[0]
     path = args[1]
@@ -179,14 +190,13 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
 ])
 def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
     """
-    '--split' option should cause executing a new validator instance on each
-    path and only one for all path when not enabled.
+    '--split' option should cause executing a new nvu validator instance on
+    each path and only one for all path when not enabled.
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
     monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
     monkeypatch.setattr(LogExportBase, "build", mock_export_build)
-    monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
     commandline = (
         "java"
@@ -197,11 +207,12 @@ def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
         " "
     )
 
-    # Build expected logs
+    # Build expected logs from expected path items
     expected = []
     for p in expected_paths:
+        log = ("py-html-checker", 20, settings.format(commandline) + p)
         expected.append(
-            ("py-html-checker", 20, settings.format(commandline) + p)
+            log
         ),
 
     runner = CliRunner()
@@ -211,10 +222,22 @@ def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
         args = ["page"]
         if split:
             args.append("--split")
-        args.append("http://foo.com")
-        args.append("http://bar.com")
+        for item in expected_paths:
+            args.append(item)
 
         result = runner.invoke(cli_frontend, args)
+
+        #print("=> result.output <=")
+        #print(result.output)
+        #print()
+        #print("=> result.exception <=")
+        #print(result.exception)
+        #print()
+        #print("=> expected <=")
+        #print(expected)
+        #print()
+        #print("=> caplog.record_tuples <=")
+        #print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
@@ -226,12 +249,13 @@ def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
 ])
 def test_site_split(monkeypatch, caplog, settings, split, expected_paths):
     """
-    '--split' option should cause executing a new validator instance on each
-    path and only one for all path when not enabled.
+    '--split' option should cause executing a new vnu validator instance on
+    each path and only one for all path when not enabled.
     """
     def mock_sitemap_get_urls(*args, **kwargs):
         """
-        Mock method to just return harcoded paths we expect from parsed sitemap
+        Mock method to just return harcoded dummy paths we expect from parsed
+        sitemap
         """
         return ["http://foo.com", "http://bar.com"]
 
@@ -268,17 +292,17 @@ def test_site_split(monkeypatch, caplog, settings, split, expected_paths):
 
         result = runner.invoke(cli_frontend, args, catch_exceptions=False)
 
-        print("=> result.output <=")
-        print(result.output)
-        print()
-        print("=> result.exception <=")
-        print(result.exception)
-        print()
-        print("=> expected <=")
-        print(expected)
-        print()
-        print("=> caplog.record_tuples <=")
-        print(caplog.record_tuples)
+        #print("=> result.output <=")
+        #print(result.output)
+        #print()
+        #print("=> result.exception <=")
+        #print(result.exception)
+        #print()
+        #print("=> expected <=")
+        #print(expected)
+        #print()
+        #print("=> caplog.record_tuples <=")
+        #print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples

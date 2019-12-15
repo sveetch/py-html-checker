@@ -5,7 +5,7 @@ import os
 from collections import OrderedDict
 
 from html_checker.exceptions import ReportError
-from html_checker.utils import is_file
+from html_checker.utils import is_local_ressource
 
 
 class ReportStore:
@@ -46,7 +46,7 @@ class ReportStore:
             path_key = path
             initial_value = None
 
-            if is_file(path):
+            if is_local_ressource(path):
                 if os.path.exists(path):
                     # Resolve to absolute path
                     path_key = os.path.abspath(path)
@@ -63,6 +63,13 @@ class ReportStore:
     def parse(self, content):
         """
         Parse given JSON string to return a Python object.
+
+        Content must be a valid JSON string (byte or not) like this: ::
+
+            {"messages":[{"url": "http://perdu.com", "type": "info"}]}
+
+        It must be compatible with expected dict format from method
+        ``ReportStore.add``.
 
         Arguments:
             content (string): Report returned from validator, a JSON string is
@@ -88,16 +95,24 @@ class ReportStore:
 
         return content
 
-    def add(self, content):
+    def add(self, content, raw=True):
         """
         Add report messages from given content to registry.
 
         Arguments:
-            content (list): List of page path(s) which have been required for
-                checking.
+            content (string or list): JSON string of messages or list of message
+                dictionnaries, depending ``raw`` argument.
+
+        Keyword Arguments:
+            raw (bool): If true, will parse content as a JSON string, this is
+                the default behavior. If false, content is assumed to be a
+                list of dictonnary for each message.
         """
-        payload = self.parse(content)
-        messages = payload["messages"]
+        if raw:
+            payload = self.parse(content)
+            messages = payload["messages"]
+        else:
+            messages = content
 
         # To retain already outputed error messages for unknow paths
         already_seen_errors = []

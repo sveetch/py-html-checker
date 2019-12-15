@@ -1,6 +1,6 @@
 import os
 
-from html_checker.utils import is_file
+from html_checker.utils import is_local_ressource
 
 
 # Shared options arguments
@@ -65,9 +65,9 @@ COMMON_OPTIONS = {
 
 def validate_paths(logger, paths):
     """
-    Validate file paths.
+    Validate local file paths.
 
-    Invalid file path is a no critical error which should not stop program
+    Invalid file path is not a critical error which should not stop program
     execution.
 
     NOTE: This should return a list of invalid path, not a simple counter. This
@@ -78,12 +78,12 @@ def validate_paths(logger, paths):
         paths (list): List of path to validate, only filepaths are checked.
 
     Returns:
-        integer: Error counter.
+        list: List of erroneous paths.
     """
     errors = 0
 
     for item in paths:
-        if is_file(item):
+        if is_local_ressource(item):
             if not os.path.exists(item):
                 msg = "Given path does not exists: {}"
                 logger.error(msg.format(item))
@@ -115,7 +115,7 @@ def validate_sitemap_path(logger, path):
     """
     errors = 0
 
-    if is_file(path):
+    if is_local_ressource(path):
         if not os.path.exists(path):
             msg = "Given sitemap path does not exists: {}"
             logger.critical(msg.format(path))

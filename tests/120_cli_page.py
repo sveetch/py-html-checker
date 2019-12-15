@@ -10,11 +10,22 @@ from html_checker.exceptions import HtmlCheckerBaseException
 from html_checker.validator import ValidatorInterface
 
 
+EXCEPTION_PATH_TRIGGER = "http://localhost/trigger-exception"
+
+
 def mock_validator_execute_validator_for_base_exception(*args, **kwargs):
     """
-    Always raise an exception "HtmlCheckerBaseException" to exception catching
+    Raise an exception "HtmlCheckerBaseException" when a command contains
+    "http://localhost/trigger-exception" (using an http url instead of a path
+    ensure path validation won't occurs from reporter).
     """
-    raise HtmlCheckerBaseException("This is a basic exception.")
+    cls = args[0]
+    command = args[1]
+
+    if EXCEPTION_PATH_TRIGGER in command:
+        raise HtmlCheckerBaseException("This is a dummy exception.")
+
+    return cls.execute_validator(*args[1:], **kwargs)
 
 
 def test_page_missing_args(caplog):
@@ -130,28 +141,50 @@ def test_page_valid_paths(caplog, settings):
 
 def test_page_nosafe_exception(monkeypatch, caplog, settings):
     """
-    With safe mode not enabled, internal exception should not be catched and
-    abort program execution.
-
-    Use a mockup to force validator.execute_validator() method to raise a basic
-    internal exception.
+    With safe mode disabled, internal exception should not be catched and
+    will abort program execution.
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator_for_base_exception)
+
+    paths = [
+        settings.format("{FIXTURES}/html/valid.basic.html"),
+        EXCEPTION_PATH_TRIGGER,
+    ]
+
+    expected = []
 
     runner = CliRunner()
     with runner.isolated_filesystem():
         test_cwd = os.getcwd()
 
-        expected = [
-            # NOTE: Currently there cant be any log entry since we raise the
-            # exception before exporter can start anything
-            #("py-html-checker", logging.INFO, "http://localhost/nope"),
-        ]
-        expected = [(k, l, settings.format(v)) for k,l,v in expected]
+        # NOTE: No logs are created since we raise the exception before
+        # exporter can start anything
+        #expected = [
+            ##("py-html-checker", logging.INFO, "http://localhost/nope"),
+        #]
+        #expected = [(k, l, settings.format(v)) for k,l,v in expected]
 
-        result = runner.invoke(cli_frontend, ["page", "http://localhost/nope"])
+        result = runner.invoke(cli_frontend, ["page"] + paths)
 
+        #print("=> result.exit_code <=")
+        #print(result.exit_code)
+        #print()
+        #print("=> result.output <=")
+        #print(result.output)
+        #print()
+        #print("=> expected <=")
+        #print(expected)
+        #print()
+        #print("=> caplog.record_tuples <=")
+        #print(caplog.record_tuples)
+        #print()
+        #print("=> result.exception <=")
+        #print(type(result.exception))
+        #print(result.exception)
+        ##raise result.exception
+
+        assert (result.exception is not None) == True
         assert isinstance(result.exception, HtmlCheckerBaseException) == True
 
         assert result.exit_code == 1
@@ -159,41 +192,71 @@ def test_page_nosafe_exception(monkeypatch, caplog, settings):
         assert caplog.record_tuples == expected
 
 
-@pytest.mark.skip(reason="expected to fail until cli, validator and exporter have been refactored for cleaner split/path management.")
+#@pytest.mark.skip(reason="fail until i found why after 'machin' file does not exists, validator continue to validate 'machin'.")
 def test_page_safe_exception(monkeypatch, caplog, settings):
     """
     With safe mode enabled an internal exception should be catched.
 
-    Use a mockup to force validator.execute_validator() method to raise a basic
-    internal exception.
+    Need to be cloned for split mode.
 
-    TODO: Will be updated with new validator/reporter/exporter mechanics
+    TODO:
+
+    - Invalid file path is found from reporter init before validator is
+      executed and just return a log instead of exception.
+
+    - Error occured from validator does not break the validator execution
+      (vnu report it but does not break on)
+
+    So current tests can not find any exception. This was the purpose of the
+    "mock_validator_execute_validator_for_base_exception". Safe mode purpose is
+    to protect validator execution from exception to continue validation. Maybe
+    splitted test are not relevant ?
+
 
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator_for_base_exception)
 
+    paths = [
+        "machin",
+        "http://localhost/nope",
+        EXCEPTION_PATH_TRIGGER,
+        settings.format("{FIXTURES}/html/valid.basic.html"),
+    ]
+
+    expected = [
+        ("py-html-checker", logging.ERROR, "Given path does not exists: machin"), # This one should not be raised
+        ("py-html-checker", logging.INFO, "machin"),
+        ("py-html-checker", logging.ERROR, "File path does not exists."),
+        ("py-html-checker", logging.ERROR, "This is a dummy exception."),
+        ("py-html-checker", logging.INFO, "http://localhost/nope"),
+        ("py-html-checker", logging.ERROR, "This is a dummy exception."),
+        ("py-html-checker", logging.INFO, "http://localhost/trigger-exception"),
+        ("py-html-checker", logging.ERROR, "This is a dummy exception."),
+        ("py-html-checker", logging.INFO, settings.format("{FIXTURES}/html/valid.basic.html")),
+        ("py-html-checker", logging.ERROR, "This is a dummy exception."),
+    ]
+
     runner = CliRunner()
     with runner.isolated_filesystem():
         test_cwd = os.getcwd()
 
-        result = runner.invoke(cli_frontend, ["page", "--safe", "http://localhost/nope"])
-
-        expected = [
-            ("py-html-checker", logging.INFO, "http://localhost/nope"),
-            ("py-html-checker", logging.ERROR, "This is a basic exception."),
-        ]
+        result = runner.invoke(cli_frontend, ["page", "--safe"] + paths)
 
         print("=> result.output <=")
         print(result.output)
         print()
-        print("=> result.exception <=")
-        print(type(result.exception))
-        print(result.exception)
+        print("=> expected <=")
+        print(expected)
         print()
         print("=> caplog.record_tuples <=")
         print(caplog.record_tuples)
+        print()
+        print("=> result.exception <=")
+        print(result.exception)
+        #raise result.exception
 
         assert result.exit_code == 0
 
         assert expected == caplog.record_tuples
+        #assert 1 == 33

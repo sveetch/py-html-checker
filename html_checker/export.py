@@ -105,11 +105,11 @@ class LogExportBase:
 
     def build(self, report):
         """
-        Build report export
+        Build report export.
 
         Arguments:
-            report (html_checker.reporter.ReportStore): Dictionnary of checked
-                pages with their report message rows.
+            report (html_checker.reporter.ReportStore): Store object with
+                registry of pages with their report message rows.
         """
         for path, messages in report.registry.items():
             if self.dividers.get("row", None):
@@ -143,3 +143,12 @@ class LogExportBase:
                     raise ExportError("Unexpected message type:\n{}".format(
                         json.dumps(row, indent=4)
                     ))
+
+    def release(self):
+        """
+        Release export.
+
+        The default method does not do anything since it is a logging exporter
+        which directly release messages once built from ``LogExportBase.build``.
+        """
+        pass

@@ -8,8 +8,6 @@ from html_checker.validator import ValidatorInterface
 from html_checker.exceptions import (PathInvalidError, SitemapInvalidError,
                               ValidatorError)
 
-# TODO: Just moved report code to reporter tests
-
 
 @pytest.mark.parametrize("options,expected", [
     (

@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import subprocess
@@ -6,7 +5,7 @@ from collections import OrderedDict
 
 
 import html_checker
-from html_checker.exceptions import ValidatorError
+from html_checker.exceptions import HtmlCheckerUnexpectedException, ValidatorError
 from html_checker.reporter import ReportStore
 from html_checker.utils import reduce_unique
 
@@ -16,18 +15,51 @@ class ValidatorInterface:
     Interface for validator tool
 
     Attributes:
+        REPORT_CLASS (html_checker.reporter.ReportStore): Reporter store class
+            to use to build reports.
         INTERPRETER (string): Leading interpreter name to execute tool.
         VALIDATOR (string): Path to validator tool to be executed by
             interpreter. It can contain leading ``{HTML_CHECKER}`` pattern to
             be replaced with absolute path to "py-html-checker" install.
         log (logging): Logging object set to application "py-html-checker".
+
+    Arguments:
+        exception_class (object): An exception catch to class. Commonly it
+            should be a child of
+            ``html_checker.exceptions.HtmlCheckerBaseException``.
     """
     REPORT_CLASS = ReportStore
     INTERPRETER = "java"
     VALIDATOR = "{HTML_CHECKER}/vnujar/vnu.jar"
 
-    def __init__(self):
+    def __init__(self, exception_class=None):
         self.log = logging.getLogger("py-html-checker")
+        self.catched_exception = self.get_catched_exception(exception_class)
+        print()
+        print("🚑 self.catched_exception:", self.catched_exception)
+
+    def get_catched_exception(self, exception_class=None):
+        """
+        Return Exception to catch in ``validate`` method around each item.
+
+        Arguments:
+            exception_class (object): An exception catch to class. Commonly it
+                should be a child of
+                ``html_checker.exceptions.HtmlCheckerBaseException``.
+
+        Return
+            object: Given exception class if any, else
+            ``HtmlCheckerUnexpectedException`` which is an exception that
+            should never happend, so it won't never stop operation.
+        """
+        print()
+        print("🚑 get_catched_exception: exception_class:", exception_class)
+        if exception_class:
+            print("🚑 get_catched_exception: return custom exception")
+            return exception_class
+
+        print("🚑 get_catched_exception: return HtmlCheckerUnexpectedException")
+        return HtmlCheckerUnexpectedException
 
     def compile_options(self, options):
         """
@@ -124,6 +156,9 @@ class ValidatorInterface:
         Returns:
             subprocess.CompletedProcess: Process output.
         """
+        print()
+        print("🚑 exec:", command)
+
         try:
             process = subprocess.check_output(command, stderr=subprocess.STDOUT)
         except FileNotFoundError as e:
@@ -220,7 +255,7 @@ class ValidatorInterface:
             tool_options
         )
 
-        # Ensure uniqueness
+        # Ensure to always check a same path only once
         paths = reduce_unique(paths)
 
         # Init a new ReportStore object
@@ -228,12 +263,39 @@ class ValidatorInterface:
 
         # Validate every paths in a single validator execution
         if not split:
-            content = self.validate_item(paths, interpreter_options, tool_options)
-            report.add(content)
-        # Validate each paths on its own validator execution
+            try:
+                content = self.validate_item(paths, interpreter_options,
+                                             tool_options)
+                report.add(content)
+            except self.catched_exception as e:
+                print("🚑 Unique execution catched exception")
+                for item in paths:
+                    report.add([
+                        {
+                            "url": item,
+                            "type": "error",
+                            "message": e,
+                        },
+                    ], raw=False)
+            else:
+                print("🚑 Unique execution no exception catched")
+        # Validate each path on its own validator execution
         else:
             for item in paths:
-                content = self.validate_item([item], interpreter_options, tool_options)
-                report.add(content)
+                try:
+                    content = self.validate_item([item], interpreter_options,
+                                                 tool_options)
+                    report.add(content)
+                except self.catched_exception as e:
+                    print("🚑 Splitted executions catched exception")
+                    report.add([
+                        {
+                            "url": item,
+                            "type": "error",
+                            "message": e,
+                        },
+                    ], raw=False)
+                else:
+                    print("🚑 Splitted executions no exception catched")
 
         return report
