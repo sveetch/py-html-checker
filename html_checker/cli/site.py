@@ -5,8 +5,7 @@ from collections import OrderedDict
 
 import click
 
-from html_checker.cli.common import (COMMON_OPTIONS, check_local_paths,
-                                     validate_sitemap_path)
+from html_checker.cli.common import COMMON_OPTIONS, validate_sitemap_path
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
 from html_checker.export import LogExportBase
@@ -54,8 +53,8 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
         CatchedException = HtmlCheckerUnexpectedException
 
     # Validate sitemap path
-    errors = validate_sitemap_path(logger, path)
-    if errors > 0:
+    sitemap_file_status = validate_sitemap_path(logger, path)
+    if not sitemap_file_status:
         raise click.Abort()
 
     # Compile options
@@ -84,16 +83,10 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
 
     logger.debug("Sitemap have {} paths".format(len(paths)))
 
-    # Validate paths from sitemap
-    errors = check_local_paths(logger, paths)
-    if not safe and errors > 0:
-        raise click.Abort()
-
-    # TODO: dry run mode does not have any test coverage yet
     if not dry_run:
         logger.debug("Launching validation for sitemap items")
 
-        v = ValidatorInterface()
+        v = ValidatorInterface(exception_class=CatchedException)
         exporter = LogExportBase()
 
         # Get report from validator process
@@ -102,5 +95,11 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
                                 tool_options=tool_options, split=split)
             exporter.build(report)
         except CatchedException as e:
-            logger.error(e)
-            # TODO: Exporter should be notified about error on paths
+            exporter.build({
+                "all": [{
+                    "type": "critical",
+                    "message": e,
+                }]
+            })
+
+        exporter.release()

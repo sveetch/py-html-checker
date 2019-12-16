@@ -26,11 +26,9 @@ class ReportStore:
         """
         Build initial report registry from given paths.
 
-        TODO: Rewrite since behavior has changed
-        To fit to validator behaviors, if a path is a file path and exists, it
-        will be resolved to its absolute path. If it does not exists, path is
-        left unchanged but it will have a log entry for a critical error about
-        unexisting file. URL paths are always left unchanged.
+        To fit to validator behaviors, if a path is an existing local file path
+        will be resolved to its absolute path. If it does not exists or an URL
+        it is left unchanged.
 
         Arguments:
             paths (list): List of page path(s) which have been required for

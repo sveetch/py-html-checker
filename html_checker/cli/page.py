@@ -37,9 +37,6 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
 
     logger.debug("Launching validation for {} paths".format(len(paths)))
 
-    print()
-    print("CLI page: safe:", safe)
-
     # Safe mode enabled, catch all internal exceptions
     if safe:
         CatchedException = HtmlCheckerBaseException
@@ -69,20 +66,13 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
     try:
         report = v.validate(paths, interpreter_options=interpreter_options,
                             tool_options=tool_options, split=split)
-        logger.debug(report)
         exporter.build(report)
     except CatchedException as e:
-        # TODO: may be broken, would need to introduce a top level fake bug
-        # like wrong validator tool path and so can tests to implement critical
-        # top level error
-        print("🔥 CLI page catched exception")
         exporter.build({
             "all": [{
                 "type": "critical",
                 "message": e,
             }]
         })
-    else:
-        print("🔥 CLI page no exception catched")
 
     exporter.release()

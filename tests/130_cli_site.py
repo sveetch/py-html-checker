@@ -53,32 +53,9 @@ def test_site_invalid_sitemap_path(caplog):
         assert caplog.record_tuples == expected
 
 
-def test_site_nosafe_invalid_item_path(caplog, settings):
+def test_site_invalid_item_path(caplog, settings):
     """
-    When sitemap path contains invalid item filepath command is aborted.
-    """
-    runner = CliRunner()
-    with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
-
-        args = [os.path.join(settings.fixtures_path, "sitemap.invalidpath.xml")]
-
-        expected = [
-            ("py-html-checker", logging.ERROR, "Given path does not exists: foo.html"),
-            ("py-html-checker", logging.ERROR, "Given path does not exists: bar.html"),
-        ]
-        expected = [(k, l, settings.format(v)) for k,l,v in expected]
-
-        result = runner.invoke(cli_frontend, ["site"] + args)
-
-        assert result.exit_code == 1
-
-        assert caplog.record_tuples == expected
-
-
-def test_site_safe_invalid_item_path(caplog, settings):
-    """
-    With safe option, if sitemap path contains invalid item filepath command is
+    If sitemap path contains invalid item filepath command is
     NOT aborted and continue to the next item.
     """
     runner = CliRunner()
@@ -124,13 +101,18 @@ def test_site_nosafe_exception(monkeypatch, caplog, settings):
 
 def test_site_safe_exception(monkeypatch, caplog, settings):
     """
-    With safe mode enabled an internal exception should be catched.
-
-    Use a mockup to force validator.execute_validator() method to raise a basic
-    internal exception.
+    With safe mode enabled internal exceptions should be catched and don't
+    abort execution.
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator_for_base_exception)
+
+    expected = [
+        ("py-html-checker", logging.INFO, "http://perdu.com/"),
+        ("py-html-checker", logging.ERROR, "This is a basic exception."),
+        ("py-html-checker", logging.INFO, "https://www.google.com/"),
+        ("py-html-checker", logging.ERROR, "This is a basic exception.")
+    ]
 
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -141,19 +123,22 @@ def test_site_safe_exception(monkeypatch, caplog, settings):
 
         result = runner.invoke(cli_frontend, ["site"] + args)
 
+        print("=> result.exit_code <=")
+        print(result.exit_code)
+        print()
         print("=> result.output <=")
         print(result.output)
         print()
         print("=> result.exception <=")
-        print(type(result.exception))
         print(result.exception)
-        #print()
+        print()
         #print("=> expected <=")
         #print(expected)
-        print()
+        #print()
         print("=> caplog.record_tuples <=")
         print(caplog.record_tuples)
+        #raise result.exception
 
         assert result.exit_code == 0
 
-        assert [("py-html-checker", logging.ERROR, "This is a basic exception.")] == caplog.record_tuples
+        assert expected == caplog.record_tuples

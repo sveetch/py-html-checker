@@ -6,8 +6,7 @@ from collections import OrderedDict
 
 import html_checker
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
-                                     ValidatorError,
-                                     PathInvalidError)
+                                     ValidatorError)
 from html_checker.reporter import ReportStore
 from html_checker.utils import reduce_unique, is_local_ressource
 
@@ -37,8 +36,6 @@ class ValidatorInterface:
     def __init__(self, exception_class=None):
         self.log = logging.getLogger("py-html-checker")
         self.catched_exception = self.get_catched_exception(exception_class)
-        print()
-        print("🚑 self.catched_exception:", self.catched_exception)
 
     def get_catched_exception(self, exception_class=None):
         """
@@ -54,13 +51,9 @@ class ValidatorInterface:
             ``HtmlCheckerUnexpectedException`` which is an exception that
             should never happend, so it won't never stop operation.
         """
-        print()
-        print("🚑 get_catched_exception: exception_class:", exception_class)
         if exception_class:
-            print("🚑 get_catched_exception: return custom exception")
             return exception_class
 
-        print("🚑 get_catched_exception: return HtmlCheckerUnexpectedException")
         return HtmlCheckerUnexpectedException
 
     def compile_options(self, options):
@@ -158,8 +151,8 @@ class ValidatorInterface:
         Returns:
             subprocess.CompletedProcess: Process output.
         """
-        print()
-        print("🚑 exec:", command)
+        # print()
+        # print("🚑 exec:", command)
 
         try:
             process = subprocess.check_output(command, stderr=subprocess.STDOUT)
@@ -252,7 +245,6 @@ class ValidatorInterface:
 
         return False
 
-
     def validate(self, paths, interpreter_options=None,
                  tool_options=None, split=False):
         """
@@ -303,11 +295,13 @@ class ValidatorInterface:
             # Validate every paths in a single validator execution
             if not split:
                 try:
-                    content = self.validate_item(paths, interpreter_options,
-                                                tool_options)
+                    content = self.validate_item(
+                        paths,
+                        interpreter_options,
+                        tool_options
+                    )
                     report.add(content)
                 except self.catched_exception as e:
-                    print("🚑 Packed execution catched exception")
                     for item in paths:
                         report.add([
                             {
@@ -316,17 +310,17 @@ class ValidatorInterface:
                                 "message": e,
                             },
                         ], raw=False)
-                else:
-                    print("🚑 Packed execution no exception catched")
             # Validate each path on its own validator execution
             else:
                 for item in paths:
                     try:
-                        content = self.validate_item([item], interpreter_options,
-                                                    tool_options)
+                        content = self.validate_item(
+                            [item],
+                            interpreter_options,
+                            tool_options
+                        )
                         report.add(content)
                     except self.catched_exception as e:
-                        print("🚑 Splitted executions catched exception")
                         report.add([
                             {
                                 "url": item,
@@ -334,7 +328,5 @@ class ValidatorInterface:
                                 "message": e,
                             },
                         ], raw=False)
-                    else:
-                        print("🚑 Splitted executions no exception catched")
 
         return report

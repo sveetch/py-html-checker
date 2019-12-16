@@ -63,39 +63,6 @@ COMMON_OPTIONS = {
 }
 
 
-def check_local_paths(logger, paths):
-    """
-    Check local file paths exists and are not directory.
-
-    Invalid file path is not a critical error which should not stop program
-    execution.
-
-    NOTE: This should return a list of invalid path, not a simple counter. This
-    way, invalid path could be passer to validator to ignore them.
-
-    Arguments:
-        logger (logging.logger): Logging object to output error messages.
-        paths (list): List of path to validate, only filepaths are checked.
-
-    Returns:
-        list: List of tuple ``(path, message)`` for erroneous paths.
-    """
-    errors = 0
-
-    for item in paths:
-        if is_local_ressource(item):
-            if not os.path.exists(item):
-                msg = "Given path does not exists: {}"
-                logger.error(msg.format(item))
-                errors += 1
-            elif os.path.isdir(item):
-                msg = "Directory path are not supported: {}"
-                logger.error(msg.format(item))
-                errors += 1
-
-    return errors
-
-
 def validate_sitemap_path(logger, path):
     """
     Validate sitemap file path.
@@ -103,26 +70,22 @@ def validate_sitemap_path(logger, path):
     Invalid sitemap file path is a critical error which should stop program
     execution.
 
-    NOTE: Integer counter is not really accurate here since there will be
-    always a single path, it should just return a boolean.
-
     Arguments:
         logger (logging.logger): Logging object to output error messages.
         paths (list): List of path to validate, only filepaths are checked.
 
     Returns:
-        integer: Error counter.
+        bool: ``True`` if given filepath is a valid local path or an url, else
+        it returns ``False``.
     """
-    errors = 0
-
     if is_local_ressource(path):
         if not os.path.exists(path):
-            msg = "Given sitemap path does not exists: {}"
-            logger.critical(msg.format(path))
-            errors += 1
+            msg = "Given sitemap path does not exists: {}".format(path)
+            logger.critical(msg)
+            return False
         elif os.path.isdir(path):
-            msg = "Directory sitemap path are not supported: {}"
-            logger.critical(msg.format(path))
-            errors += 1
+            msg = "Directory sitemap path are not supported: {}".format(path)
+            logger.critical(msg)
+            return False
 
-    return errors
+    return True
