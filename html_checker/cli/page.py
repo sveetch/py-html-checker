@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 import click
 
-from html_checker.cli.common import COMMON_OPTIONS, validate_paths
+from html_checker.cli.common import COMMON_OPTIONS
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
 from html_checker.export import LogExportBase
@@ -48,11 +48,6 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
     else:
         CatchedException = HtmlCheckerUnexpectedException
 
-    # Validate paths
-    errors = validate_paths(logger, paths)
-    if not safe and errors > 0:
-        raise click.Abort()
-
     # Compile options
     interpreter_options = OrderedDict([])
     tool_options = OrderedDict([])
@@ -77,7 +72,6 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
         logger.debug(report)
         exporter.build(report)
     except CatchedException as e:
-        #logger.error(e)
         # TODO: may be broken, would need to introduce a top level fake bug
         # like wrong validator tool path and so can tests to implement critical
         # top level error

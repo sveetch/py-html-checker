@@ -26,6 +26,7 @@ class ReportStore:
         """
         Build initial report registry from given paths.
 
+        TODO: Rewrite since behavior has changed
         To fit to validator behaviors, if a path is a file path and exists, it
         will be resolved to its absolute path. If it does not exists, path is
         left unchanged but it will have a log entry for a critical error about
@@ -44,19 +45,12 @@ class ReportStore:
 
         for path in paths:
             path_key = path
-            initial_value = None
 
             if is_local_ressource(path):
                 if os.path.exists(path):
-                    # Resolve to absolute path
                     path_key = os.path.abspath(path)
-                else:
-                    initial_value = [{
-                        "type": "critical",
-                        "message": "File path does not exists."
-                    }]
 
-            registry.append((path_key, initial_value))
+            registry.append((path_key, None))
 
         return registry
 

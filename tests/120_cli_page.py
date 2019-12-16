@@ -45,8 +45,7 @@ def test_page_missing_args(caplog):
 
 def test_page_invalid_paths(caplog, settings):
     """
-    When there is one or more invalid path, command is aborted even if there
-    are some valid path.
+    Invalid local file paths does not abort program
     """
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -59,57 +58,26 @@ def test_page_invalid_paths(caplog, settings):
         expected = [
             ("py-html-checker", logging.ERROR, "Given path does not exists: foo.html"),
             ("py-html-checker", logging.ERROR, "Given path does not exists: bar.html"),
-            ("py-html-checker", logging.ERROR, "Directory path are not supported: {FIXTURES}/html/")
-        ]
-        expected = [(k, l, settings.format(v)) for k,l,v in expected]
-
-        result = runner.invoke(cli_frontend, ["page"] + args)
-
-        assert result.exit_code == 1
-
-        assert caplog.record_tuples == expected
-
-
-def test_page_safe_invalid_paths(caplog, settings):
-    """
-    Safe option avoid to abort script on invalid paths.
-    """
-    runner = CliRunner()
-    with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
-
-        args = ["--safe", "foo.html", "bar.html", "{FIXTURES}/html/",
-                "{FIXTURES}/html/valid.basic.html"]
-        args = [settings.format(item) for item in args]
-
-        expected = [
-            ("py-html-checker", logging.ERROR, "Given path does not exists: foo.html"),
-            ("py-html-checker", logging.ERROR, "Given path does not exists: bar.html"),
-            ("py-html-checker", logging.ERROR, "Directory path are not supported: {FIXTURES}/html/"),
-            # These ones should be removed further when validator+export workflow
-            # is refactored to ignore invalid files
-            ("py-html-checker", logging.ERROR, "File path does not exists."),
-            ("py-html-checker", logging.ERROR, "File path does not exists."),
         ]
         expected = [(k, l, settings.format(v)) for k,l,v in expected]
 
         # Lower logger to ERROR only, this test doesnt need to check everything
         result = runner.invoke(cli_frontend, ["-v", "2", "page"] + args)
 
-        print("=> result.exit_code <=")
-        print(result.exit_code)
-        print()
-        print("=> result.output <=")
-        print(result.output)
-        print()
-        print("=> result.exception <=")
-        print(result.exception)
-        print()
-        print("=> expected <=")
-        print(expected)
-        print()
-        print("=> caplog.record_tuples <=")
-        print(caplog.record_tuples)
+        #print("=> result.exit_code <=")
+        #print(result.exit_code)
+        #print()
+        #print("=> result.output <=")
+        #print(result.output)
+        #print()
+        #print("=> result.exception <=")
+        #print(result.exception)
+        #print()
+        #print("=> expected <=")
+        #print(expected)
+        #print()
+        #print("=> caplog.record_tuples <=")
+        #print(caplog.record_tuples)
 
         assert result.exit_code == 0
 
@@ -201,9 +169,6 @@ def test_page_safe_exception(monkeypatch, caplog, settings):
 
     TODO:
 
-    - Invalid file path is found from reporter init before validator is
-      executed and just return a log instead of exception.
-
     - Error occured from validator does not break the validator execution
       (vnu report it but does not break on)
 
@@ -225,10 +190,8 @@ def test_page_safe_exception(monkeypatch, caplog, settings):
     ]
 
     expected = [
-        ("py-html-checker", logging.ERROR, "Given path does not exists: machin"), # This one should not be raised
         ("py-html-checker", logging.INFO, "machin"),
-        ("py-html-checker", logging.ERROR, "File path does not exists."),
-        ("py-html-checker", logging.ERROR, "This is a dummy exception."),
+        ("py-html-checker", logging.ERROR, "Given path does not exists: machin"),
         ("py-html-checker", logging.INFO, "http://localhost/nope"),
         ("py-html-checker", logging.ERROR, "This is a dummy exception."),
         ("py-html-checker", logging.INFO, "http://localhost/trigger-exception"),

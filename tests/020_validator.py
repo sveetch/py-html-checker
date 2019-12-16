@@ -210,8 +210,8 @@ def test_validate_fail(settings, interpreter, validator,
         [
             ('foo.html', [
                 {
-                    "type": "critical",
-                    "message": "File path does not exists."
+                    "type": "error",
+                    "message": "Given path does not exists: foo.html"
                 },
             ]),
         ],
@@ -313,8 +313,8 @@ def test_validate_split_many_paths(caplog, settings):
     assert single.registry == OrderedDict([
         ('foo.html', [
             {
-                "type": "critical",
-                "message": "File path does not exists."
+                "type": "error",
+                "message": "Given path does not exists: foo.html"
             },
         ]),
         (

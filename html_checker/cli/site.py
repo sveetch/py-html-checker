@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 import click
 
-from html_checker.cli.common import (COMMON_OPTIONS, validate_paths,
+from html_checker.cli.common import (COMMON_OPTIONS, check_local_paths,
                                      validate_sitemap_path)
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
@@ -85,7 +85,7 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
     logger.debug("Sitemap have {} paths".format(len(paths)))
 
     # Validate paths from sitemap
-    errors = validate_paths(logger, paths)
+    errors = check_local_paths(logger, paths)
     if not safe and errors > 0:
         raise click.Abort()
 

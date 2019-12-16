@@ -5,9 +5,11 @@ from collections import OrderedDict
 
 
 import html_checker
-from html_checker.exceptions import HtmlCheckerUnexpectedException, ValidatorError
+from html_checker.exceptions import (HtmlCheckerUnexpectedException,
+                                     ValidatorError,
+                                     PathInvalidError)
 from html_checker.reporter import ReportStore
-from html_checker.utils import reduce_unique
+from html_checker.utils import reduce_unique, is_local_ressource
 
 
 class ValidatorInterface:
@@ -229,6 +231,28 @@ class ValidatorInterface:
         # Execute command process
         return self.execute_validator(command)
 
+    def check_local_filepath(self, path):
+        """
+        Check local file path exist and is not a directory.
+
+        NOTE: This should return a list of invalid path, not a simple counter. This
+        way, invalid path could be passer to validator to ignore them.
+
+        Arguments:
+            logger (logging.logger): Logging object to output error messages.
+            paths (list): List of path to validate, only filepaths are checked.
+        """
+        if is_local_ressource(path):
+            if not os.path.exists(path):
+                msg = "Given path does not exists: {}".format(path)
+                return msg
+            elif os.path.isdir(path):
+                msg = "Directory path are not supported: {}".format(path)
+                return msg
+
+        return False
+
+
     def validate(self, paths, interpreter_options=None,
                  tool_options=None, split=False):
         """
@@ -261,41 +285,56 @@ class ValidatorInterface:
         # Init a new ReportStore object
         report = self.REPORT_CLASS(paths)
 
-        # Validate every paths in a single validator execution
-        if not split:
-            try:
-                content = self.validate_item(paths, interpreter_options,
-                                             tool_options)
-                report.add(content)
-            except self.catched_exception as e:
-                print("🚑 Unique execution catched exception")
-                for item in paths:
-                    report.add([
-                        {
-                            "url": item,
-                            "type": "error",
-                            "message": e,
-                        },
-                    ], raw=False)
-            else:
-                print("🚑 Unique execution no exception catched")
-        # Validate each path on its own validator execution
-        else:
-            for item in paths:
+        # Check for local file path validity
+        for item in paths[:]:
+            error = self.check_local_filepath(item)
+            if error:
+                report.add([
+                    {
+                        "url": item,
+                        "type": "error",
+                        "message": error,
+                    },
+                ], raw=False)
+                # Purge erroneous path from paths to validate
+                paths.pop(paths.index(item))
+
+        if len(paths) > 0:
+            # Validate every paths in a single validator execution
+            if not split:
                 try:
-                    content = self.validate_item([item], interpreter_options,
-                                                 tool_options)
+                    content = self.validate_item(paths, interpreter_options,
+                                                tool_options)
                     report.add(content)
                 except self.catched_exception as e:
-                    print("🚑 Splitted executions catched exception")
-                    report.add([
-                        {
-                            "url": item,
-                            "type": "error",
-                            "message": e,
-                        },
-                    ], raw=False)
+                    print("🚑 Packed execution catched exception")
+                    for item in paths:
+                        report.add([
+                            {
+                                "url": item,
+                                "type": "error",
+                                "message": e,
+                            },
+                        ], raw=False)
                 else:
-                    print("🚑 Splitted executions no exception catched")
+                    print("🚑 Packed execution no exception catched")
+            # Validate each path on its own validator execution
+            else:
+                for item in paths:
+                    try:
+                        content = self.validate_item([item], interpreter_options,
+                                                    tool_options)
+                        report.add(content)
+                    except self.catched_exception as e:
+                        print("🚑 Splitted executions catched exception")
+                        report.add([
+                            {
+                                "url": item,
+                                "type": "error",
+                                "message": e,
+                            },
+                        ], raw=False)
+                    else:
+                        print("🚑 Splitted executions no exception catched")
 
         return report

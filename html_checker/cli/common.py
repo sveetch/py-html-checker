@@ -63,9 +63,9 @@ COMMON_OPTIONS = {
 }
 
 
-def validate_paths(logger, paths):
+def check_local_paths(logger, paths):
     """
-    Validate local file paths.
+    Check local file paths exists and are not directory.
 
     Invalid file path is not a critical error which should not stop program
     execution.
@@ -78,7 +78,7 @@ def validate_paths(logger, paths):
         paths (list): List of path to validate, only filepaths are checked.
 
     Returns:
-        list: List of erroneous paths.
+        list: List of tuple ``(path, message)`` for erroneous paths.
     """
     errors = 0
 

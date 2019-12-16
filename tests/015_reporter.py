@@ -23,10 +23,7 @@ from html_checker.reporter import ReportStore
             "nope.html",
         ],
         [
-            ("nope.html", [{
-                "type": "critical",
-                "message": "File path does not exists."
-            }]),
+            ("nope.html", None),
         ],
     ),
     # Unexisting absolute file path
@@ -35,10 +32,7 @@ from html_checker.reporter import ReportStore
             "{FIXTURES}/nope.html",
         ],
         [
-            ("{FIXTURES}/nope.html", [{
-                "type": "critical",
-                "message": "File path does not exists."
-            }]),
+            ("{FIXTURES}/nope.html", None),
         ],
     ),
     # Relative file path
@@ -123,12 +117,7 @@ def test_parse_success(content, expected):
             b"""{"messages":[]}""",
         ],
         [
-            ("foo.html", [
-                {
-                    "type": "critical",
-                    "message": "File path does not exists."
-                },
-            ])
+            ("foo.html", None)
         ]
     ),
     (
@@ -137,12 +126,7 @@ def test_parse_success(content, expected):
             b"""{"messages":[{"url": "http://perdu.com"}]}""",
         ],
         [
-            ("foo.html", [
-                {
-                    "type": "critical",
-                    "message": "File path does not exists."
-                },
-            ]),
+            ("foo.html", None),
         ]
     ),
     (
@@ -151,12 +135,7 @@ def test_parse_success(content, expected):
             b"""{"messages":[]}""",
         ],
         [
-            ("foo.html", [
-                {
-                    "type": "critical",
-                    "message": "File path does not exists."
-                },
-            ]),
+            ("foo.html", None),
             ("http://perdu.com", None),
         ]
     ),
@@ -168,13 +147,7 @@ def test_parse_success(content, expected):
             b"""{"messages":[{"url": "http://perdu.com", "pif": "paf"}]}""",
         ],
         [
-            ("foo.html", [
-                {
-                    "type": "critical",
-                    "message": "File path does not exists."
-                },
-                {},
-            ]),
+            ("foo.html", [{}]),
             ("http://perdu.com", [
                 {"ping": "pong"},
                 {"pif": "paf"},
