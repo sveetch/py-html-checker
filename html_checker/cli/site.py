@@ -24,13 +24,13 @@ from html_checker.validator import ValidatorInterface
               **COMMON_OPTIONS["safe"]["kwargs"])
 @click.option(*COMMON_OPTIONS["split"]["args"],
               **COMMON_OPTIONS["split"]["kwargs"])
-@click.option('--dry-run', is_flag=True,
+@click.option('--sitemap-only', is_flag=True,
               help=("Download and parse given Sitemap ressource and output "
                     "informations but never try to valide its items."))
 @click.argument('path', required=True)
 @click.pass_context
 def site_command(context, xss, no_stream, user_agent, safe, split, path,
-                 dry_run):
+                 sitemap_only):
     """
     Validate pages from given sitemap.
 
@@ -83,7 +83,7 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
 
     logger.debug("Sitemap have {} paths".format(len(paths)))
 
-    if not dry_run:
+    if not sitemap_only:
         logger.debug("Launching validation for sitemap items")
 
         v = ValidatorInterface(exception_class=CatchedException)

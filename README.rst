@@ -86,8 +86,12 @@ Common page and site options
     very large path list which may take too long to display anything until
     every path has been validated. However, for small or moderate path list it
     will be longer than packed execution.
+**--sitemap-only**
+    For ``site`` command only. This will only get and parse given sitemap path
+    but without validating its items, useful to validate a sitemap before
+    using it for validations.
 
-See commandline helps for more options : ::
+See commandline helps for more details : ::
 
     html-checker -h
     html-checker page -h
