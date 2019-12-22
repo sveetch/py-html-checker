@@ -111,6 +111,9 @@ def test_page_nosafe_exception(monkeypatch, caplog, settings):
     """
     With safe mode disabled, internal exception should not be catched and
     will abort program execution.
+
+    Also there is no expected log since we are not in split mode and mockup
+    for "execute_validator" raise dummy exception with a "if X in Y".
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator_for_base_exception)
@@ -120,52 +123,39 @@ def test_page_nosafe_exception(monkeypatch, caplog, settings):
         EXCEPTION_PATH_TRIGGER,
     ]
 
-    expected = []
-
     runner = CliRunner()
     with runner.isolated_filesystem():
         test_cwd = os.getcwd()
 
-        # NOTE: No logs are created since we raise the exception before
-        # exporter can start anything
-        #expected = [
-            ##("py-html-checker", logging.INFO, "http://localhost/nope"),
-        #]
-        #expected = [(k, l, settings.format(v)) for k,l,v in expected]
-
         result = runner.invoke(cli_frontend, ["page"] + paths)
 
-        #print("=> result.exit_code <=")
-        #print(result.exit_code)
-        #print()
-        #print("=> result.output <=")
-        #print(result.output)
-        #print()
-        #print("=> expected <=")
-        #print(expected)
-        #print()
-        #print("=> caplog.record_tuples <=")
-        #print(caplog.record_tuples)
-        #print()
-        #print("=> result.exception <=")
-        #print(type(result.exception))
-        #print(result.exception)
-        ##raise result.exception
+        print("=> result.exit_code <=")
+        print(result.exit_code)
+        print()
+        print("=> result.output <=")
+        print(result.output)
+        print()
+        print("=> caplog.record_tuples <=")
+        print(caplog.record_tuples)
+        print()
+        print("=> result.exception <=")
+        print(type(result.exception))
+        print(result.exception)
+        #if result.exception is not None:
+            #raise result.exception
 
         assert (result.exception is not None) == True
         assert isinstance(result.exception, HtmlCheckerBaseException) == True
 
         assert result.exit_code == 1
 
-        assert caplog.record_tuples == expected
+        assert caplog.record_tuples == []
 
 
 #@pytest.mark.skip(reason="fail until i found why after 'machin' file does not exists, validator continue to validate 'machin'.")
 def test_page_safe_exception(monkeypatch, caplog, settings):
     """
     With safe mode enabled an internal exception should be catched.
-
-    Need to be cloned for split mode.
 
     TODO:
 

@@ -151,8 +151,8 @@ class ValidatorInterface:
         Returns:
             subprocess.CompletedProcess: Process output.
         """
-        # print()
-        # print("🚑 exec:", command)
+        print()
+        print("🚑 exec:", command)
 
         try:
             process = subprocess.check_output(command, stderr=subprocess.STDOUT)
@@ -204,7 +204,7 @@ class ValidatorInterface:
 
     def validate_item(self, paths, interpreter_options, tool_options):
         """
-        Validate a path with validator tool.
+        Validate paths with validator tool.
 
         Arguments:
             paths (list): List of page path to validate.
@@ -228,9 +228,6 @@ class ValidatorInterface:
         """
         Check local file path exist and is not a directory.
 
-        NOTE: This should return a list of invalid path, not a simple counter. This
-        way, invalid path could be passer to validator to ignore them.
-
         Arguments:
             logger (logging.logger): Logging object to output error messages.
             paths (list): List of path to validate, only filepaths are checked.
@@ -245,8 +242,8 @@ class ValidatorInterface:
 
         return False
 
-    def validate(self, paths, interpreter_options=None,
-                 tool_options=None, split=False):
+    def validate(self, paths, interpreter_options=None, tool_options=None,
+                 split=False):
         """
         Perform validation with validator tool for all given paths.
 
@@ -292,41 +289,21 @@ class ValidatorInterface:
                 paths.pop(paths.index(item))
 
         if len(paths) > 0:
-            # Validate every paths in a single validator execution
-            if not split:
-                try:
-                    content = self.validate_item(
-                        paths,
-                        interpreter_options,
-                        tool_options
-                    )
-                    report.add(content)
-                except self.catched_exception as e:
-                    for item in paths:
-                        report.add([
-                            {
-                                "url": item,
-                                "type": "error",
-                                "message": e,
-                            },
-                        ], raw=False)
-            # Validate each path on its own validator execution
-            else:
+            try:
+                content = self.validate_item(
+                    paths,
+                    interpreter_options,
+                    tool_options
+                )
+                report.add(content)
+            except self.catched_exception as e:
                 for item in paths:
-                    try:
-                        content = self.validate_item(
-                            [item],
-                            interpreter_options,
-                            tool_options
-                        )
-                        report.add(content)
-                    except self.catched_exception as e:
-                        report.add([
-                            {
-                                "url": item,
-                                "type": "error",
-                                "message": e,
-                            },
-                        ], raw=False)
+                    report.add([
+                        {
+                            "url": item,
+                            "type": "error",
+                            "message": e,
+                        },
+                    ], raw=False)
 
         return report

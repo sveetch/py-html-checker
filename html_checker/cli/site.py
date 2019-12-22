@@ -57,7 +57,7 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
     if not sitemap_file_status:
         raise click.Abort()
 
-    # Compile options
+    # Initial tools options
     sitemap_options = {}
     interpreter_options = OrderedDict([])
     tool_options = OrderedDict([])
@@ -89,17 +89,22 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
         v = ValidatorInterface(exception_class=CatchedException)
         exporter = LogExportBase()
 
+        routines = [paths[:]]
+        if split:
+            routines = [[v] for v in paths]
+
         # Get report from validator process
-        try:
-            report = v.validate(paths, interpreter_options=interpreter_options,
-                                tool_options=tool_options, split=split)
-            exporter.build(report)
-        except CatchedException as e:
-            exporter.build({
-                "all": [{
-                    "type": "critical",
-                    "message": e,
-                }]
-            })
+        for item in routines:
+            try:
+                report = v.validate(item, interpreter_options=interpreter_options,
+                                    tool_options=tool_options)
+                exporter.build(report)
+            except CatchedException as e:
+                exporter.build({
+                    "all": [{
+                        "type": "critical",
+                        "message": e,
+                    }]
+                })
 
         exporter.release()
