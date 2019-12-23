@@ -151,8 +151,8 @@ class ValidatorInterface:
         Returns:
             subprocess.CompletedProcess: Process output.
         """
-        print()
-        print("🚑 exec:", command)
+        # print()
+        # print("🚑 exec:", command)
 
         try:
             process = subprocess.check_output(command, stderr=subprocess.STDOUT)

@@ -224,7 +224,7 @@ def test_build(caplog, report, level, expected):
     r = ReportStore([])
     r.registry = OrderedDict(report)
 
-    exporter.build(r)
+    exporter.build(r.registry)
 
     #print(caplog.record_tuples)
 
@@ -250,7 +250,7 @@ def test_build_disabled_dividers(caplog):
         ]),
     ])
 
-    exporter.build(r)
+    exporter.build(r.registry)
 
     #print(caplog.record_tuples)
 

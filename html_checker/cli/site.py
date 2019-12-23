@@ -81,8 +81,9 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
         logger.critical(e)
         raise click.Abort()
 
-    logger.debug("Sitemap have {} paths".format(len(paths)))
+    logger.info("Sitemap have {} paths".format(len(paths)))
 
+    # Proceed to path validations
     if not sitemap_only:
         logger.debug("Launching validation for sitemap items")
 
@@ -98,7 +99,7 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
             try:
                 report = v.validate(item, interpreter_options=interpreter_options,
                                     tool_options=tool_options)
-                exporter.build(report)
+                exporter.build(report.registry)
             except CatchedException as e:
                 exporter.build({
                     "all": [{
@@ -108,3 +109,14 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
                 })
 
         exporter.release()
+    # Don't valid anything just list paths
+    else:
+        logger.debug("Listing available paths from sitemap")
+
+        # Count digits from total path counter
+        digits = len(str(len(paths)))
+
+        for i, item in enumerate(paths, start=1):
+            # Justify indice number with zero(s)
+            indice = str(i).rjust(digits, "0")
+            logger.info("{}) {}".format(indice, item))

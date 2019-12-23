@@ -29,8 +29,6 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
     """
     Validate pages from given paths.
 
-    NOTE: NEXT GENERATION ATTEMPT
-
     Path can be an url starting with 'http://' or 'https://' or a file path.
 
     You can give many paths to validate each one.
@@ -73,7 +71,7 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
         try:
             report = v.validate(item, interpreter_options=interpreter_options,
                                 tool_options=tool_options)
-            exporter.build(report)
+            exporter.build(report.registry)
         except CatchedException as e:
             exporter.build({
                 "all": [{

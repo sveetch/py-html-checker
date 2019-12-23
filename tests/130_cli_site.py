@@ -123,6 +123,7 @@ def test_site_safe_exception(monkeypatch, caplog, settings):
                         mock_validator_execute_validator_for_base_exception)
 
     expected = [
+        ("py-html-checker", logging.INFO, "Sitemap have 2 paths"),
         ("py-html-checker", logging.INFO, "http://perdu.com/"),
         ("py-html-checker", logging.ERROR, "This is a basic exception."),
         ("py-html-checker", logging.INFO, "https://www.google.com/"),

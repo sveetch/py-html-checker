@@ -3,6 +3,7 @@ These tests cover shared options for page and site commands. They mockup some
 validator, exporter and sitemap methods to just return command lines without
 processing or executing anything else.
 """
+import logging
 import os
 
 import pytest
@@ -54,8 +55,8 @@ def mock_export_build(*args, **kwargs):
     """
     cls = args[0]
     report = args[1]
-    for item in report.registry:
-        cls.log.info(" ".join(item))
+    for k in report:
+        cls.log.info(" ".join(k))
 
 
 def mock_sitemap_get_urls(*args, **kwargs):
@@ -91,9 +92,15 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
         " --user-agent {USER_AGENT}"
         " http://perdu.com"
     )
-    expected = [
-        ("py-html-checker", 20, settings.format(commandline)),
-    ]
+
+    expected = []
+    if command_name == "site":
+        expected.append(
+            ("py-html-checker", logging.INFO, "Sitemap have 1 paths"),
+        )
+    expected.append(
+        ("py-html-checker", logging.INFO, settings.format(commandline)),
+    )
 
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -102,6 +109,20 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
         result = runner.invoke(cli_frontend, [
             command_name, "--Xss", "512k", "http://perdu.com"
         ])
+
+        print("=> result.output <=")
+        print(result.output)
+        print()
+        print("=> expected <=")
+        print(expected)
+        print()
+        print("=> caplog.record_tuples <=")
+        print(caplog.record_tuples)
+        print()
+        print("=> result.exception <=")
+        print(result.exception)
+        if result.exception is not None:
+            raise result.exception
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
@@ -130,9 +151,15 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
         " --user-agent {USER_AGENT}"
         " http://perdu.com"
     )
-    expected = [
-        ("py-html-checker", 20, settings.format(commandline)),
-    ]
+
+    expected = []
+    if command_name == "site":
+        expected.append(
+            ("py-html-checker", logging.INFO, "Sitemap have 1 paths"),
+        )
+    expected.append(
+        ("py-html-checker", logging.INFO, settings.format(commandline)),
+    )
 
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -168,9 +195,15 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
         " --exit-zero-always"
         " http://perdu.com"
     )
-    expected = [
-        ("py-html-checker", 20, settings.format(commandline)),
-    ]
+
+    expected = []
+    if command_name == "site":
+        expected.append(
+            ("py-html-checker", logging.INFO, "Sitemap have 1 paths"),
+        )
+    expected.append(
+        ("py-html-checker", logging.INFO, settings.format(commandline)),
+    )
 
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -210,7 +243,7 @@ def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
     # Build expected logs from expected path items
     expected = []
     for p in expected_paths:
-        log = ("py-html-checker", 20, settings.format(commandline) + p)
+        log = ("py-html-checker", logging.INFO, settings.format(commandline) + p)
         expected.append(
             log
         ),
@@ -243,11 +276,20 @@ def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
         assert expected == caplog.record_tuples
 
 
-@pytest.mark.parametrize("split,expected_paths", [
-    (False, ["http://foo.com http://bar.com"]),
-    (True, ["http://foo.com", "http://bar.com"]),
+@pytest.mark.parametrize("split,expected_paths,path_counter", [
+    (
+        False,
+        ["http://foo.com http://bar.com"],
+        2
+    ),
+    (
+        True,
+        ["http://foo.com", "http://bar.com"],
+        2
+    ),
 ])
-def test_site_split(monkeypatch, caplog, settings, split, expected_paths):
+def test_site_split(monkeypatch, caplog, settings, split, expected_paths,
+                    path_counter):
     """
     '--split' option should cause executing a new vnu validator instance on
     each path and only one for all path when not enabled.
@@ -275,10 +317,12 @@ def test_site_split(monkeypatch, caplog, settings, split, expected_paths):
     )
 
     # Build expected logs
-    expected = []
+    expected = [
+        ("py-html-checker", logging.INFO, "Sitemap have {} paths".format(path_counter)),
+    ]
     for p in expected_paths:
         expected.append(
-            ("py-html-checker", 20, settings.format(commandline) + p)
+            ("py-html-checker", logging.INFO, settings.format(commandline) + p)
         ),
 
     runner = CliRunner()
