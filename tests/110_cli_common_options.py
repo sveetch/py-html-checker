@@ -98,6 +98,11 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
         expected.append(
             ("py-html-checker", logging.INFO, "Sitemap have 1 paths"),
         )
+    else:
+        expected.append(
+            ("py-html-checker", logging.INFO, "Launching validation for 1 paths"),
+        )
+
     expected.append(
         ("py-html-checker", logging.INFO, settings.format(commandline)),
     )
@@ -157,6 +162,11 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
         expected.append(
             ("py-html-checker", logging.INFO, "Sitemap have 1 paths"),
         )
+    else:
+        expected.append(
+            ("py-html-checker", logging.INFO, "Launching validation for 1 paths"),
+        )
+
     expected.append(
         ("py-html-checker", logging.INFO, settings.format(commandline)),
     )
@@ -201,6 +211,11 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
         expected.append(
             ("py-html-checker", logging.INFO, "Sitemap have 1 paths"),
         )
+    else:
+        expected.append(
+            ("py-html-checker", logging.INFO, "Launching validation for 1 paths"),
+        )
+
     expected.append(
         ("py-html-checker", logging.INFO, settings.format(commandline)),
     )
@@ -217,11 +232,17 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
         assert expected == caplog.record_tuples
 
 
-@pytest.mark.parametrize("split,expected_paths", [
-    (False, ["http://foo.com http://bar.com"]),
-    (True, ["http://foo.com", "http://bar.com"]),
+@pytest.mark.parametrize("split,paths", [
+    (
+        False,
+        ["http://foo.com", "http://bar.com"],
+    ),
+    (
+        True,
+        ["http://foo.com", "http://bar.com"],
+    ),
 ])
-def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
+def test_page_split(monkeypatch, caplog, settings, split, paths):
     """
     '--split' option should cause executing a new nvu validator instance on
     each path and only one for all path when not enabled.
@@ -231,21 +252,32 @@ def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
     monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
     monkeypatch.setattr(LogExportBase, "build", mock_export_build)
 
-    commandline = (
+    commandline = settings.format((
         "java"
         " -jar {APPLICATION}/vnujar/vnu.jar"
         " --format json"
         " --exit-zero-always"
         " --user-agent {USER_AGENT}"
         " "
-    )
+    ))
 
-    # Build expected logs from expected path items
-    expected = []
-    for p in expected_paths:
-        log = ("py-html-checker", logging.INFO, settings.format(commandline) + p)
+    # Build expected logs depending split option
+    initial_msg = "Launching validation for {} paths"
+    expected = [
+        ("py-html-checker", logging.INFO, initial_msg.format(len(paths))),
+    ]
+
+    # In split mode, there should one command line for each path
+    if split:
+        for p in paths:
+            log = ("py-html-checker", logging.INFO, commandline + p)
+            expected.append(
+                log
+            ),
+    # Else there should be only one command line for all paths
+    else:
         expected.append(
-            log
+            ("py-html-checker", logging.INFO, commandline + " ".join(paths))
         ),
 
     runner = CliRunner()
@@ -255,41 +287,38 @@ def test_page_split(monkeypatch, caplog, settings, split, expected_paths):
         args = ["page"]
         if split:
             args.append("--split")
-        for item in expected_paths:
+        for item in paths:
             args.append(item)
 
         result = runner.invoke(cli_frontend, args)
 
-        #print("=> result.output <=")
-        #print(result.output)
-        #print()
-        #print("=> result.exception <=")
-        #print(result.exception)
-        #print()
-        #print("=> expected <=")
-        #print(expected)
-        #print()
-        #print("=> caplog.record_tuples <=")
-        #print(caplog.record_tuples)
+        print("=> result.output <=")
+        print(result.output)
+        print()
+        print("=> result.exception <=")
+        print(result.exception)
+        print()
+        print("=> expected <=")
+        print(expected)
+        print()
+        print("=> caplog.record_tuples <=")
+        print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
 
 
-@pytest.mark.parametrize("split,expected_paths,path_counter", [
+@pytest.mark.parametrize("split,paths", [
     (
         False,
-        ["http://foo.com http://bar.com"],
-        2
+        ["http://foo.com", "http://bar.com"],
     ),
     (
         True,
         ["http://foo.com", "http://bar.com"],
-        2
     ),
 ])
-def test_site_split(monkeypatch, caplog, settings, split, expected_paths,
-                    path_counter):
+def test_site_split(monkeypatch, caplog, settings, split, paths):
     """
     '--split' option should cause executing a new vnu validator instance on
     each path and only one for all path when not enabled.
@@ -307,22 +336,32 @@ def test_site_split(monkeypatch, caplog, settings, split, expected_paths,
     monkeypatch.setattr(LogExportBase, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
-    commandline = (
+    commandline = settings.format((
         "java"
         " -jar {APPLICATION}/vnujar/vnu.jar"
         " --format json"
         " --exit-zero-always"
         " --user-agent {USER_AGENT}"
         " "
-    )
+    ))
 
     # Build expected logs
+    initial_msg = "Sitemap have {} paths"
     expected = [
-        ("py-html-checker", logging.INFO, "Sitemap have {} paths".format(path_counter)),
+        ("py-html-checker", logging.INFO, initial_msg.format(len(paths))),
     ]
-    for p in expected_paths:
+
+    # In split mode, there should one command line for each path
+    if split:
+        for p in paths:
+            log = ("py-html-checker", logging.INFO, commandline + p)
+            expected.append(
+                log
+            ),
+    # Else there should be only one command line for all paths
+    else:
         expected.append(
-            ("py-html-checker", logging.INFO, settings.format(commandline) + p)
+            ("py-html-checker", logging.INFO, commandline + " ".join(paths))
         ),
 
     runner = CliRunner()

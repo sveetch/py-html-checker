@@ -11,6 +11,7 @@ from html_checker.exceptions import (HtmlCheckerUnexpectedException,
 from html_checker.export import LogExportBase
 from html_checker.sitemap import Sitemap
 from html_checker.validator import ValidatorInterface
+from html_checker.utils import reduce_unique
 
 
 @click.command()
@@ -81,18 +82,30 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
         logger.critical(e)
         raise click.Abort()
 
-    logger.info("Sitemap have {} paths".format(len(paths)))
+    # Ensure to always check a same path only once
+    reduced_paths = reduce_unique(paths)
+
+    if len(paths) > len(reduced_paths):
+        msg = "Sitemap have {reduced} paths (plus {tweens} ignored duplications)"
+        logger.info(msg.format(**{
+            "reduced": len(reduced_paths),
+            "tweens": len(paths) - len(reduced_paths),
+        }))
+    else:
+        logger.info("Sitemap have {} paths".format(len(reduced_paths)))
 
     # Proceed to path validations
     if not sitemap_only:
         logger.debug("Launching validation for sitemap items")
 
+        # Start validator interface and exporter instances
         v = ValidatorInterface(exception_class=CatchedException)
         exporter = LogExportBase()
 
-        routines = [paths[:]]
+        # Keep packed paths or split them depending 'split' option
+        routines = [reduced_paths[:]]
         if split:
-            routines = [[v] for v in paths]
+            routines = [[v] for v in reduced_paths]
 
         # Get report from validator process
         for item in routines:
@@ -114,9 +127,9 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
         logger.debug("Listing available paths from sitemap")
 
         # Count digits from total path counter
-        digits = len(str(len(paths)))
+        digits = len(str(len(reduced_paths)))
 
-        for i, item in enumerate(paths, start=1):
+        for i, item in enumerate(reduced_paths, start=1):
             # Justify indice number with zero(s)
             indice = str(i).rjust(digits, "0")
             logger.info("{}) {}".format(indice, item))

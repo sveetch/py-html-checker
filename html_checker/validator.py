@@ -8,7 +8,7 @@ import html_checker
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      ValidatorError)
 from html_checker.reporter import ReportStore
-from html_checker.utils import reduce_unique, is_local_ressource
+from html_checker.utils import is_local_ressource
 
 
 class ValidatorInterface:
@@ -242,8 +242,7 @@ class ValidatorInterface:
 
         return False
 
-    def validate(self, paths, interpreter_options=None, tool_options=None,
-                 split=False):
+    def validate(self, paths, interpreter_options=None, tool_options=None):
         """
         Perform validation with validator tool for all given paths.
 
@@ -255,9 +254,6 @@ class ValidatorInterface:
                 include in commandline. Default is ``None``.
             tool_options (dict): Ordered dict of validator tool arguments to
                 include in commandline. Default is ``None``.
-            split (bool): If enabled, each path will be executed in its own
-                instance of validator. Else default behavior is to execute
-                validator once for all paths.
 
         Returns:
             html_checker.reporter.ReportStore: Builded report store.
@@ -267,9 +263,6 @@ class ValidatorInterface:
             interpreter_options,
             tool_options
         )
-
-        # Ensure to always check a same path only once
-        paths = reduce_unique(paths)
 
         # Init a new ReportStore object
         report = self.REPORT_CLASS(paths)

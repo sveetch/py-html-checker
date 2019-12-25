@@ -10,6 +10,7 @@ from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
 from html_checker.export import LogExportBase
 from html_checker.validator import ValidatorInterface
+from html_checker.utils import reduce_unique
 
 
 @click.command()
@@ -35,7 +36,19 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
     """
     logger = logging.getLogger("py-html-checker")
 
-    logger.debug("Launching validation for {} paths".format(len(paths)))
+    # Ensure to always check a same path only once
+    reduced_paths = reduce_unique(paths)
+
+    if len(paths) > len(reduced_paths):
+        msg = ("Launching validation for {reduced} paths ({tweens} "
+               "ignored duplications)")
+        logger.info(msg.format(**{
+            "reduced": len(reduced_paths),
+            "tweens": len(paths) - len(reduced_paths),
+        }))
+    else:
+        msg = "Launching validation for {} paths"
+        logger.info(msg.format(len(reduced_paths)))
 
     # Safe mode enabled, catch all internal exceptions
     if safe:
@@ -45,7 +58,7 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
     else:
         CatchedException = HtmlCheckerUnexpectedException
 
-    # Initial tools options
+    # Tools options
     interpreter_options = OrderedDict([])
     tool_options = OrderedDict([])
 
@@ -59,12 +72,14 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
         key = "-Xss{}".format(xss)
         interpreter_options[key] = None
 
+    # Start validator interface and exporter instances
     v = ValidatorInterface(exception_class=CatchedException)
     exporter = LogExportBase()
 
-    routines = [paths[:]]
+    # Keep packed paths or split them depending 'split' option
+    routines = [reduced_paths[:]]
     if split:
-        routines = [[v] for v in paths]
+        routines = [[v] for v in reduced_paths]
 
     # Get report from validator process
     for item in routines:

@@ -96,6 +96,7 @@ def test_page_valid_paths(caplog, settings):
         args = [settings.format(item) for item in args]
 
         expected = [
+            ("py-html-checker", logging.INFO, "Launching validation for 1 paths"),
             ("py-html-checker", logging.INFO, "{FIXTURES}/html/valid.basic.html"),
         ]
         expected = [(k, l, settings.format(v)) for k,l,v in expected]
@@ -149,25 +150,16 @@ def test_page_nosafe_exception(monkeypatch, caplog, settings):
 
         assert result.exit_code == 1
 
-        assert caplog.record_tuples == []
+        assert caplog.record_tuples == [
+            ("py-html-checker",
+             logging.INFO,
+             "Launching validation for {} paths".format(len(paths))),
+        ]
 
 
-#@pytest.mark.skip(reason="fail until i found why after 'machin' file does not exists, validator continue to validate 'machin'.")
 def test_page_safe_exception(monkeypatch, caplog, settings):
     """
     With safe mode enabled an internal exception should be catched.
-
-    TODO:
-
-    - Error occured from validator does not break the validator execution
-      (vnu report it but does not break on)
-
-    So current tests can not find any exception. This was the purpose of the
-    "mock_validator_execute_validator_for_base_exception". Safe mode purpose is
-    to protect validator execution from exception to continue validation. Maybe
-    splitted test are not relevant ?
-
-
     """
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator_for_base_exception)
@@ -180,6 +172,7 @@ def test_page_safe_exception(monkeypatch, caplog, settings):
     ]
 
     expected = [
+        ("py-html-checker", logging.INFO, "Launching validation for {} paths".format(len(paths))),
         ("py-html-checker", logging.INFO, "machin"),
         ("py-html-checker", logging.ERROR, "Given path does not exists: machin"),
         ("py-html-checker", logging.INFO, "http://localhost/nope"),
