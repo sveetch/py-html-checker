@@ -1,57 +1,15 @@
 import logging
-import os
 
 from collections import OrderedDict
 
 import pytest
 
 from html_checker.export import LogExportBase
-from html_checker.exceptions import ReportError, ExportError
 from html_checker.reporter import ReportStore
 
 
-@pytest.mark.parametrize("row,expected", [
-    (
-        {},
-        None,
-    ),
-    (
-        {
-            "extract": "foo",
-            "firstLine": "bar",
-            "firstColumn": "ping",
-            "lastColumn": "pong",
-        },
-        None,
-    ),
-    (
-        {
-            "firstLine": "foo",
-            "lastLine": "bar",
-            "firstColumn": "ping",
-            "lastColumn": "pong",
-        },
-        "From line foo column ping to line bar column pong",
-    ),
-    (
-        {
-            "lastLine": "bar",
-            "firstColumn": "ping",
-            "lastColumn": "pong",
-        },
-        "From line bar column ping to line bar column pong",
-    ),
-])
-def test_format_source_position(row, expected):
-    """
-    Format source position should support every cases.
-    """
-    reporter = LogExportBase()
-
-    assert expected == reporter.format_source_position(row)
-
-
 @pytest.mark.parametrize("report,level,expected", [
+    # With dividers
     (
         [
             ("/html/foo.html", [
@@ -72,7 +30,7 @@ def test_format_source_position(row, expected):
             ("py-html-checker", logging.DEBUG, "-"),
             (
                 "py-html-checker",
-                logging.DEBUG,
+                logging.INFO,
                 "This is an info."
             ),
         ],
@@ -108,6 +66,7 @@ def test_format_source_position(row, expected):
             ),
         ],
     ),
+    # Without dividers
     (
         [
             ("foo.html", [
@@ -262,7 +221,7 @@ def test_build_disabled_dividers(caplog):
         ),
         (
             "py-html-checker",
-            logging.DEBUG,
+            logging.INFO,
             "This is an info."
         ),
     ]

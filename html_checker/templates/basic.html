@@ -1,0 +1,21 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en"> <![endif]-->
+<html class="no-js" lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>{{ created }}</title>
+    <meta name="robots" content="follow, all">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div class="page-header block short">
+        <h1>{{ created }}</h1>
+    </div>
+
+    <div class="page-content">
+        {% block content -%}{%- endblock content %}
+    </div>
+</body>
+</html>

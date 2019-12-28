@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 import json
-import logging
 
 from html_checker.exceptions import ExportError
+from html_checker.export.base import ExporterBase
 
 
-class LogExportBase:
+class LogExportBase(ExporterBase):
     """
-    Report exporter base.
+    Logging exporter.
 
-    Just output every report messages to logging.
+    Output every report messages to logging.
 
-    Based on vnu validator behavior from JSON report documentation:
-
-        https://github.com/validator/validator/wiki/Output-%C2%BB-JSON
+    Keyword Arguments:
+        dividers (dict): Dict of available dividers string use to divide
+            content. It have to contain an item for ``row`` and ``message``.
+            Default to value from attribute ``DIVIDERS``.
     """
+    klassname = __qualname__ # Required to be paste in every exporter class
+    FORMAT_NAME = "logging"
     LINE_TEMPLATE = ("From line {linestart} column {colstart} to "
                      "line {lineend} column {colend}")
     DIVIDERS = {
@@ -22,12 +25,13 @@ class LogExportBase:
         "message": "-",
     }
 
-    def __init__(self, dividers=None):
-        self.log = logging.getLogger("py-html-checker")
+    def __init__(self, *args, **kwargs):
+        self.dividers = kwargs.pop("dividers", None)
 
-        self.dividers = dividers
         if self.dividers is None:
             self.dividers = self.DIVIDERS
+
+        super().__init__(*args, **kwargs)
 
     def format_extract(self, row):
         """
@@ -64,25 +68,12 @@ class LogExportBase:
         Returns:
             string: Formated string including positions infos if any or None.
         """
-        if "lastLine" not in row:
+        context = super().format_source_position(row)
+
+        if context is None:
             return None
 
-        firstLine = row["lastLine"]
-        if "firstLine" in row:
-            firstLine = row["firstLine"]
-
-        firstColumn = row["lastColumn"]
-        if "firstColumn" in row:
-            firstColumn = row["firstColumn"]
-
-        line_msg = self.LINE_TEMPLATE.format(
-            linestart=firstLine,
-            lineend=row["lastLine"],
-            colstart=firstColumn,
-            colend=row["lastColumn"],
-        )
-
-        return line_msg
+        return self.LINE_TEMPLATE.format(**context)
 
     def output_row(self, method, row):
         """
@@ -122,33 +113,9 @@ class LogExportBase:
                 continue
 
             for row in messages:
-                # Row divider
+                # Row divider is directly outputted to logging at debug level
                 if self.dividers.get("message", None):
                     self.log.debug(self.dividers.get("message"))
 
-                # Until we faced every case from validator logs to be sure to not
-                # miss any edge case
-                if "type" not in row:
-                    print(json.dumps(path, indent=4))
-                    raise NotImplementedError
-
-                # Output message following its type
-                if row["type"] in ["error", "critical", "non-document-error"]:
-                    self.output_row(self.log.error, row)
-                elif row["type"] == "info" and row.get("subType", None) == "warning":
-                    self.output_row(self.log.warning, row)
-                elif row["type"] == "info":
-                    self.output_row(self.log.debug, row)
-                else:
-                    raise ExportError("Unexpected message type:\n{}".format(
-                        json.dumps(row, indent=4)
-                    ))
-
-    def release(self):
-        """
-        Release export.
-
-        The default method does not do anything since it is a logging exporter
-        which directly release messages once built from ``LogExportBase.build``.
-        """
-        pass
+                level, row = self.parse_row_level(path, row)
+                self.output_row(getattr(self.log, level), row)

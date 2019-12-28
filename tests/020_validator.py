@@ -5,8 +5,7 @@ import pytest
 
 from html_checker.validator import ValidatorInterface
 
-from html_checker.exceptions import (PathInvalidError, SitemapInvalidError,
-                              ValidatorError)
+from html_checker.exceptions import ValidatorError
 
 
 @pytest.mark.parametrize("options,expected", [

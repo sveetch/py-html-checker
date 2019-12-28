@@ -1,20 +1,33 @@
 import os
 
+import click
+
 from html_checker.utils import is_local_ressource
+
+from html_checker.export import EXPORTER_CHOICES
 
 
 # Shared options arguments
 COMMON_OPTIONS = {
-    "xss": {
-        "args": ('--Xss',),
+    "destination": {
+        "args": ('--destination',),
+        "type": click.Path(),
         "kwargs": {
-            "metavar": "SIZE",
+            "metavar": "FILEPATH",
             "help": (
-                "Java thread stack size. Useful in some case where you "
-                "encounter error 'StackOverflowError' from validator. Set it "
-                "to something like '512k'."
+                "Filepath for export destination."
             ),
             "default": None,
+        }
+    },
+    "exporter": {
+        "args": ('--exporter',),
+        "kwargs": {
+            "type": click.Choice(EXPORTER_CHOICES, case_sensitive=False),
+            "help": (
+                "Select export format."
+            ),
+            "default": "logging",
         }
     },
     "no-stream": {
@@ -25,15 +38,6 @@ COMMON_OPTIONS = {
                 "Forces all documents to be be parsed in buffered mode instead "
                 "of streaming mode (causes some parse errors to be treated as "
                 "non-fatal document errors instead of as fatal document errors)."
-            ),
-        }
-    },
-    "user-agent": {
-        "args": ('--user-agent',),
-        "kwargs": {
-            "metavar": "STRING",
-            "help": (
-                "A customer user-agent to use for every possible requests."
             ),
         }
     },
@@ -58,6 +62,27 @@ COMMON_OPTIONS = {
                 "for small or moderate path list it will be longer than packed "
                 "execution."
             ),
+        }
+    },
+    "user-agent": {
+        "args": ('--user-agent',),
+        "kwargs": {
+            "metavar": "STRING",
+            "help": (
+                "A customer user-agent to use for every possible requests."
+            ),
+        }
+    },
+    "xss": {
+        "args": ('--Xss',),
+        "kwargs": {
+            "metavar": "SIZE",
+            "help": (
+                "Java thread stack size. Useful in some case where you "
+                "encounter error 'StackOverflowError' from validator. Set it "
+                "to something like '512k'."
+            ),
+            "default": None,
         }
     },
 }

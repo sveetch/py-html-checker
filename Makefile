@@ -41,7 +41,7 @@ venv:
 .PHONY: venv
 
 install: venv
-	$(PIP) install -e .[cli,dev]
+	$(PIP) install -e .[cli,jinja,dev]
 .PHONY: install
 
 flake:

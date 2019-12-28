@@ -28,16 +28,17 @@ Dependancies
 * ``click>=7.0,<8.0`` (CLI only);
 * ``colorama`` (CLI only);
 * ``colorlog`` (CLI only);
+* ``Jinja2>=2.10,<3.0`` (Jinja only);
 
 Install
 *******
 
 ::
 
-    pip install py-html-checker[cli]
+    pip install py-html-checker[cli,jinja]
 
-If you don't plan to use it from command line (like as a module) you can avoid
-the ``cli`` part: ::
+If you don't plan to use it from command line (like as a module) or HTML export
+you can avoid the ``cli`` and ``jinja`` parts: ::
 
     pip install py-html-checker
 

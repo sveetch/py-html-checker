@@ -8,25 +8,30 @@ import click
 from html_checker.cli.common import COMMON_OPTIONS
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
-from html_checker.export import LogExportBase
+from html_checker.export import get_exporter
 from html_checker.validator import ValidatorInterface
 from html_checker.utils import reduce_unique
 
 
 @click.command()
-@click.option(*COMMON_OPTIONS["xss"]["args"],
-              **COMMON_OPTIONS["xss"]["kwargs"])
+@click.option(*COMMON_OPTIONS["destination"]["args"],
+              **COMMON_OPTIONS["destination"]["kwargs"])
+@click.option(*COMMON_OPTIONS["exporter"]["args"],
+              **COMMON_OPTIONS["exporter"]["kwargs"])
 @click.option(*COMMON_OPTIONS["no-stream"]["args"],
               **COMMON_OPTIONS["no-stream"]["kwargs"])
-@click.option(*COMMON_OPTIONS["user-agent"]["args"],
-              **COMMON_OPTIONS["user-agent"]["kwargs"])
 @click.option(*COMMON_OPTIONS["safe"]["args"],
               **COMMON_OPTIONS["safe"]["kwargs"])
 @click.option(*COMMON_OPTIONS["split"]["args"],
               **COMMON_OPTIONS["split"]["kwargs"])
+@click.option(*COMMON_OPTIONS["user-agent"]["args"],
+              **COMMON_OPTIONS["user-agent"]["kwargs"])
+@click.option(*COMMON_OPTIONS["xss"]["args"],
+              **COMMON_OPTIONS["xss"]["kwargs"])
 @click.argument('paths', nargs=-1, required=True)
 @click.pass_context
-def page_command(context, xss, no_stream, user_agent, safe, split, paths):
+def page_command(context, destination, exporter, no_stream, safe, split,
+                 user_agent, xss, paths):
     """
     Validate pages from given paths.
 
@@ -74,7 +79,7 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
 
     # Start validator interface and exporter instances
     v = ValidatorInterface(exception_class=CatchedException)
-    exporter = LogExportBase()
+    exporter = get_exporter(exporter)()
 
     # Keep packed paths or split them depending 'split' option
     routines = [reduced_paths[:]]
@@ -95,4 +100,4 @@ def page_command(context, xss, no_stream, user_agent, safe, split, paths):
                 }]
             })
 
-    exporter.release()
+    exporter.release(destination=destination)
