@@ -1,3 +1,10 @@
+import os
+import subprocess
+
+import html_checker
+from html_checker.exceptions import HtmlCheckerBaseException
+
+
 def is_local_ressource(path):
     """
     Check if given path is a local ressource.
@@ -43,3 +50,88 @@ def reduce_unique(items):
     """
     used = set()
     return [x for x in items if x not in used and (used.add(x) or True)]
+
+
+def execute_command(command):
+    """
+    Execute a process for given command.
+
+    Arguments:
+        command (list): List of command elements.
+
+    Raises:
+        HtmlCheckerBaseException: If subprocess encounter any error kind.
+
+    Returns:
+        subprocess.CompletedProcess: Process output.
+    """
+    try:
+        process = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    except FileNotFoundError as e:
+        msg = "Unable to reach interpreter to run validator: {}"
+        raise HtmlCheckerBaseException(msg.format(e))
+    except subprocess.CalledProcessError as e:
+        msg = "Validator execution failed: {}"
+        raise HtmlCheckerBaseException(msg.format(e.output.decode("utf-8")))
+
+    return process
+
+
+def get_application_path():
+    """
+    Return path to Py Html Checker module.
+
+    Returns:
+        string: Absolute path to application module.
+    """
+    return os.path.abspath(
+        os.path.dirname(html_checker.__file__)
+    )
+
+
+def get_vnu_version():
+    """
+    Return the included validator "Nu Html Checker" version.
+
+    Returns:
+        string: Returned version string from validator execution with
+        ``--version`` argument.
+    """
+    try:
+        response = execute_command([
+            html_checker.DEFAULT_INTERPRETER,
+            "-jar",
+            html_checker.DEFAULT_VALIDATOR.format(
+                HTML_CHECKER=get_application_path()
+            ),
+            "--version",
+        ])
+    except HtmlCheckerBaseException as e:
+        raise e
+    else:
+        return response.decode("utf-8").strip()
+
+
+def merge_compute(left, right):
+    """
+    Merge two dictionnaries but computing integer values instead of overriding.
+
+    Left override every right values except when both left and right value are
+    integers then right value will be incremented by left value.
+
+    Arguments:
+        left (dict): The dict to merge into right.
+        right (dict): The merge in the left dict.
+
+    Returns:
+        dict: Merged dict from left to right.
+    """
+    for k, v in left.items():
+        # Only compute item if both left and right values are integers, else
+        # left override right value
+        if k in right and type(v) is int and type(right[k]) is int:
+            right[k] += v
+        else:
+            right[k] = v
+
+    return right

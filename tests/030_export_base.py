@@ -8,7 +8,7 @@ from html_checker.export.base import ExporterBase
 @pytest.mark.parametrize("name,expected", [
     (
         "logging",
-        "LogExportBase",
+        "LoggingExport",
     ),
     (
         "html",

@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 import pytest
 
-from html_checker.export import LogExportBase
+from html_checker.export import LoggingExport
 from html_checker.reporter import ReportStore
 
 
@@ -177,7 +177,7 @@ def test_build(caplog, report, level, expected):
     """
     caplog.set_level(level, logger="py-html-checker")
 
-    exporter = LogExportBase()
+    exporter = LoggingExport()
 
     # Directly file report registry
     r = ReportStore([])
@@ -196,7 +196,7 @@ def test_build_disabled_dividers(caplog):
     """
     caplog.set_level(logging.DEBUG, logger="py-html-checker")
 
-    exporter = LogExportBase(dividers={})
+    exporter = LoggingExport(dividers={})
 
     # Directly file report registry
     r = ReportStore([])

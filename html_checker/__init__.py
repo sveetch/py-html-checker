@@ -25,3 +25,5 @@ def _extract_version(package_name):
 
 __version__ = _extract_version("py-html-checker")
 USER_AGENT = "Validator.nu/LV py-html-checker/{}".format(__version__)
+DEFAULT_INTERPRETER = "java"
+DEFAULT_VALIDATOR = "{HTML_CHECKER}/vnujar/vnu.jar"

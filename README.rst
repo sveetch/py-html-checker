@@ -29,6 +29,7 @@ Dependancies
 * ``colorama`` (CLI only);
 * ``colorlog`` (CLI only);
 * ``Jinja2>=2.10,<3.0`` (Jinja only);
+* ``Pygments`` (Jinja only);
 
 Install
 *******

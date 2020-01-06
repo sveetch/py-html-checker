@@ -109,14 +109,11 @@ class ExporterBase(object):
             for row in messages:
                 level, row = self.parse_row_level(path, row)
 
-    def release(self, destination=None):
+    def release(self, *args, **kwargs):
         """
         Release export.
 
-        This base method does not do anything.
-
-        Keyword Arguments:
-            destination (string): Filepath where the exporter reports will be
-                writted to.
+        This base method does not do anything, it only exists to support
+        identical signature from all exporters.
         """
         pass

@@ -1,10 +1,11 @@
-from .logs import LogExportBase
+from .logs import LoggingExport
 
 from html_checker.exceptions import ExportError
 
-
+# We do not expose base exporters which have no specific format and able to
+# build something concrete
 __all__ = [
-    "LogExportBase",
+    "LoggingExport",
 ]
 
 

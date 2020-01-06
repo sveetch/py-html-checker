@@ -8,7 +8,7 @@ import html_checker
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      ValidatorError)
 from html_checker.reporter import ReportStore
-from html_checker.utils import is_local_ressource
+from html_checker.utils import is_local_ressource, get_application_path
 
 
 class ValidatorInterface:
@@ -30,8 +30,8 @@ class ValidatorInterface:
             ``html_checker.exceptions.HtmlCheckerBaseException``.
     """
     REPORT_CLASS = ReportStore
-    INTERPRETER = "java"
-    VALIDATOR = "{HTML_CHECKER}/vnujar/vnu.jar"
+    INTERPRETER = html_checker.DEFAULT_INTERPRETER
+    VALIDATOR = html_checker.DEFAULT_VALIDATOR
 
     def __init__(self, exception_class=None):
         self.log = logging.getLogger("py-html-checker")
@@ -123,15 +123,9 @@ class ValidatorInterface:
         """
         args = self.get_interpreter_part(options=interpreter_options)
 
-        html_checker_application = os.path.abspath(
-            os.path.dirname(html_checker.__file__)
-        )
-
         if self.VALIDATOR:
             args.append(
-                self.VALIDATOR.format(
-                    HTML_CHECKER=html_checker_application
-                )
+                self.VALIDATOR.format(HTML_CHECKER=get_application_path())
             )
 
         if tool_options:
@@ -199,6 +193,10 @@ class ValidatorInterface:
         # Define default user-agent
         if "--user-agent" not in tool_options:
             tool_options["--user-agent"] = html_checker.USER_AGENT
+
+        ## TODO: Get the checked source
+        #if "--showsource" not in tool_options:
+            #tool_options["--showsource"] = "yes"
 
         return interpreter_options, tool_options
 

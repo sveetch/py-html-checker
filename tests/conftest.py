@@ -55,3 +55,26 @@ def temp_builds_dir(tmpdir_factory):
 def settings():
     """Initialize and return settings (mostly paths) for fixtures"""
     return FixturesSettingsTestMixin()
+
+
+@pytest.fixture(scope="module")
+def filter_export_payload():
+    """
+    Return a function to filter out items which are not computed datas
+    from a given export payload.
+
+    Arguments:
+        payload (dict): Payload from exporter.
+
+    Keyword Arguments:
+        keep (list): List of top level item names to keep. Default only keep
+            the "reports" and "statistics" items.
+    """
+    def internal_filter(payload, keep=["reports", "statistics"]):
+        for key in list(payload.keys()):
+            if key not in keep:
+                del payload[key]
+
+        return payload
+
+    return internal_filter

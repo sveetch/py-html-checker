@@ -11,7 +11,7 @@ import pytest
 from click.testing import CliRunner
 
 from html_checker.cli.entrypoint import cli_frontend
-from html_checker.export import LogExportBase
+from html_checker.export import LoggingExport
 from html_checker.validator import ValidatorInterface
 from html_checker.sitemap import Sitemap
 
@@ -80,7 +80,7 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
     monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
-    monkeypatch.setattr(LogExportBase, "build", mock_export_build)
+    monkeypatch.setattr(LoggingExport, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
     commandline = (
@@ -144,7 +144,7 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
     monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
-    monkeypatch.setattr(LogExportBase, "build", mock_export_build)
+    monkeypatch.setattr(LoggingExport, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
     commandline = (
@@ -194,7 +194,7 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
     monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
-    monkeypatch.setattr(LogExportBase, "build", mock_export_build)
+    monkeypatch.setattr(LoggingExport, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
     commandline = (
@@ -250,7 +250,7 @@ def test_page_split(monkeypatch, caplog, settings, split, paths):
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
     monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
-    monkeypatch.setattr(LogExportBase, "build", mock_export_build)
+    monkeypatch.setattr(LoggingExport, "build", mock_export_build)
 
     commandline = settings.format((
         "java"
@@ -333,7 +333,7 @@ def test_site_split(monkeypatch, caplog, settings, split, paths):
     monkeypatch.setattr(ValidatorInterface, "execute_validator",
                         mock_validator_execute_validator)
     monkeypatch.setattr(ValidatorInterface, "REPORT_CLASS", DummyReport)
-    monkeypatch.setattr(LogExportBase, "build", mock_export_build)
+    monkeypatch.setattr(LoggingExport, "build", mock_export_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
     commandline = settings.format((

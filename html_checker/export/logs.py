@@ -5,11 +5,11 @@ from html_checker.exceptions import ExportError
 from html_checker.export.base import ExporterBase
 
 
-class LogExportBase(ExporterBase):
+class LoggingExport(ExporterBase):
     """
     Logging exporter.
 
-    Output every report messages to logging.
+    Output directly every report messages to logging.
 
     Keyword Arguments:
         dividers (dict): Dict of available dividers string use to divide

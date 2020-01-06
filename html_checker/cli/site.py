@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+TODO: Must be updated to use the new way of getting exporter format
+"""
 import logging
 
 from collections import OrderedDict
@@ -8,7 +11,7 @@ import click
 from html_checker.cli.common import COMMON_OPTIONS, validate_sitemap_path
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
-from html_checker.export import LogExportBase
+from html_checker.export import LoggingExport
 from html_checker.sitemap import Sitemap
 from html_checker.validator import ValidatorInterface
 from html_checker.utils import reduce_unique
@@ -100,7 +103,7 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
 
         # Start validator interface and exporter instances
         v = ValidatorInterface(exception_class=CatchedException)
-        exporter = LogExportBase()
+        exporter = LoggingExport()
 
         # Keep packed paths or split them depending 'split' option
         routines = [reduced_paths[:]]

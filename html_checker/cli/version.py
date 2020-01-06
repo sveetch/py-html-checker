@@ -4,6 +4,8 @@ from shutil import which
 import click
 
 from html_checker import __version__
+from html_checker.exceptions import HtmlCheckerBaseException
+from html_checker.utils import get_vnu_version
 
 
 @click.command()
@@ -17,5 +19,7 @@ def version_command(context):
     java = which("java")
     if java:
         click.echo("└── Java found at: {}".format(java))
+        vnu = get_vnu_version()
+        click.echo("└── Nu Html Checker (v.Nu) {}".format(vnu))
     else:
         click.echo("└── Unable to find Java binary on your system.")
