@@ -1,4 +1,5 @@
 from .logs import LoggingExport
+from .json import JsonExport
 
 from html_checker.exceptions import ExportError
 
@@ -6,10 +7,11 @@ from html_checker.exceptions import ExportError
 # build something concrete
 __all__ = [
     "LoggingExport",
+    "JsonExport",
 ]
 
 
-EXPORTER_CHOICES = ["logging"]
+EXPORTER_CHOICES = ["logging", "json"]
 
 
 # Enable HTML format if Jinja is installed

@@ -91,12 +91,10 @@ from html_checker.reporter import ReportStore
         },
     ),
 ])
-def test_format_row(caplog, row, expected):
+def test_format_row(row, expected):
     """
     Method should return a correctly formated context of message row.
     """
-    caplog.set_level("DEBUG", logger="py-html-checker")
-
     exporter = ExporterRenderer()
 
     result = exporter.format_row("dummy.html", row)
@@ -280,13 +278,11 @@ def test_format_row(caplog, row, expected):
         },
     ),
 ])
-def test_build(caplog, filter_export_payload, report, expected):
+def test_build(filter_export_payload, report, expected):
     """
     Method should update ``ExporterRenderer.store`` with path
     validation datas.
     """
-    caplog.set_level("DEBUG", logger="py-html-checker")
-
     exporter = ExporterRenderer()
 
     # Directly fill report registry
@@ -304,14 +300,12 @@ def test_build(caplog, filter_export_payload, report, expected):
                                              keep=["reports"])
 
 
-def test_build_many(caplog, filter_export_payload):
+def test_build_many(filter_export_payload):
     """
     Successive usage of ``build`` should add them all to render context
     without any lost and global statistics should be correctly computed from
     all data.
     """
-    caplog.set_level("DEBUG", logger="py-html-checker")
-
     # Each report to build
     report_1 = [
         ("/html/foo.html", [
@@ -456,7 +450,7 @@ def test_build_many(caplog, filter_export_payload):
     assert expected == filter_export_payload(exporter.store)
 
 
-def test_modelize_summary(caplog):
+def test_modelize_summary():
     """
     Report document should be correctly modelized from given report
     """
@@ -525,7 +519,7 @@ def test_modelize_summary(caplog):
     assert doc == expected
 
 
-def test_modelize_report(caplog):
+def test_modelize_report():
     """
     Report document should be correctly modelized from given report
     """
@@ -571,7 +565,7 @@ def test_modelize_report(caplog):
     assert doc == expected
 
 
-def test_modelize_audit(caplog):
+def test_modelize_audit():
     """
     Audit document should be correctly modelized from given reports
     """
@@ -805,7 +799,7 @@ def test_modelize_audit(caplog):
         ],
     ),
 ])
-def test_release(caplog, multiple_files, expected):
+def test_release(multiple_files, expected):
     """
     In single release mode, only one document with all reports should be
     returned.
