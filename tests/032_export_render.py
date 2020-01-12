@@ -483,6 +483,9 @@ def test_modelize_summary():
         "document": "foo.html",
         "context": {
             "kind": "summary",
+            "metas": {
+                "pac": "man",
+            },
             "statistics": {
                 "foo": 1,
                 "bar": 2
@@ -510,7 +513,7 @@ def test_modelize_summary():
 
     exporter = ExporterRenderer()
 
-    doc = exporter.modelize_summary("foo.html", reports)
+    doc = exporter.modelize_summary("foo.html", reports, {"pac": "man"})
 
     #print()
     #print(json.dumps(doc, indent=4, default=str))
@@ -540,6 +543,9 @@ def test_modelize_report():
         "context": {
             "name": "/html/foo.html",
             "kind": "report",
+            "metas": {
+                "pac": "man",
+            },
             "statistics": {
                 "bar": 1,
                 "foo": 1
@@ -556,7 +562,7 @@ def test_modelize_report():
 
     exporter = ExporterRenderer()
 
-    doc = exporter.modelize_report("foo.html", report)
+    doc = exporter.modelize_report("foo.html", report, {"pac": "man"})
 
     #print()
     #print(json.dumps(doc, indent=4, default=str))
@@ -599,6 +605,9 @@ def test_modelize_audit():
         "context": {
             "data": None,
             "kind": "audit",
+            "metas": {
+                "pac": "man",
+            },
             "statistics": {
                 "foo": 1,
                 "bar": 2
@@ -642,7 +651,7 @@ def test_modelize_audit():
 
     exporter = ExporterRenderer()
 
-    doc = exporter.modelize_audit("foo.html", reports)
+    doc = exporter.modelize_audit("foo.html", reports, {"pac": "man"})
 
     #print()
     #print(json.dumps(doc, indent=4, default=str))
@@ -659,6 +668,9 @@ def test_modelize_audit():
                 "document": "index.html",
                 "context": {
                     "kind": "audit",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "statistics": {
                         "toast": 3,
                         "foo": 1,
@@ -714,6 +726,9 @@ def test_modelize_audit():
                 "context": {
                     "name": "/html/foo.html",
                     "kind": "report",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "statistics": {
                         "foo": 1,
                         "toast": 1,
@@ -729,6 +744,9 @@ def test_modelize_audit():
                 "context": {
                     "name": "/html/bar.html",
                     "kind": "report",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "statistics": {
                         "bar": 1,
                         "nope": 0,
@@ -744,6 +762,9 @@ def test_modelize_audit():
                 "context": {
                     "name": "http://ping",
                     "kind": "report",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "statistics": {
                         "nope": 0,
                         "toast": 1,
@@ -758,6 +779,9 @@ def test_modelize_audit():
                 "document": "index.html",
                 "context": {
                     "kind": "summary",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "paths": [
                         {
                             "path": "path-1.html",
@@ -811,6 +835,9 @@ def test_release(multiple_files, expected):
 
     # Dummy store payload
     exporter.store = {
+        "metas": {
+            "pac": "man",
+        },
         "reports": [
             (
                 "/html/foo.html",

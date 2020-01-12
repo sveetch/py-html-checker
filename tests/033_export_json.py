@@ -6,8 +6,8 @@ from html_checker.export.json import JsonExport
 
 def test_render():
     """
-    Render should return a dict with document name and JSON content from
-    document context.
+    Render should return a dict with document name (as "document" item) and
+    document context (as "content" item).
     """
     data = {
         "document": "foo.html",
@@ -41,6 +41,9 @@ def test_render():
                 "document": "index.html",
                 "content": {
                     "kind": "audit",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "statistics": {
                         "foo": 1,
                         "ping": 1,
@@ -96,6 +99,9 @@ def test_render():
                 "content": {
                     "name": "/html/foo.html",
                     "kind": "report",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "statistics": {
                         "nope": 0,
                         "foo": 1,
@@ -111,6 +117,9 @@ def test_render():
                 "content": {
                     "name": "/html/bar.html",
                     "kind": "report",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "statistics": {
                         "nope": 0,
                         "bar": 1,
@@ -126,6 +135,9 @@ def test_render():
                 "content": {
                     "name": "http://ping",
                     "kind": "report",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "statistics": {
                         "nope": 0,
                         "toast": 1,
@@ -140,6 +152,9 @@ def test_render():
                 "document": "index.html",
                 "content": {
                     "kind": "summary",
+                    "metas": {
+                        "pac": "man",
+                    },
                     "statistics": {
                         "nope": 0,
                         "toast": 3,
@@ -194,6 +209,10 @@ def test_release(multiple_files, expected):
 
     # Dummy store payload
     exporter.store = {
+        "metas": {
+            "pac": "man",
+        },
+        "statistics": {},
         "reports": [
             (
                 "/html/foo.html",
@@ -229,7 +248,6 @@ def test_release(multiple_files, expected):
                 }
             ),
         ],
-        "statistics": {}
     }
 
     results = exporter.release(multiple_files=multiple_files)

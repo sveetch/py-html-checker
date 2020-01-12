@@ -13,7 +13,7 @@ class ExporterRenderer(ExporterBase):
     Exporter with rendering context.
 
     This is a more advanced exporter than the base one. It build some
-    rendering context which can be used to render report to documents.
+    rendering context which can be used to render reports to documents.
 
     Also it compute some statistic about messages and include them in builded
     context.
@@ -28,9 +28,11 @@ class ExporterRenderer(ExporterBase):
     def __init__(self, *args, **kwargs):
         # Initial global context
         self.store = {
-            "created": datetime.datetime.now(),
-            "generator": html_checker.__version__,
-            "vnu": get_vnu_version(),
+            "metas": {
+                "created": datetime.datetime.now(),
+                "generator": html_checker.__version__,
+                "vnu": get_vnu_version(),
+            },
             "reports": [],
         }
 
@@ -158,7 +160,7 @@ class ExporterRenderer(ExporterBase):
         """
         return context
 
-    def modelize_report(self, document_path, context):
+    def modelize_report(self, document_path, context, metas=None):
         """
         Make a report document type.
 
@@ -198,11 +200,12 @@ class ExporterRenderer(ExporterBase):
                 "kind": "report",
                 "statistics": stats,
                 "name": name,
+                "metas": metas or {},
                 "data": data,
             }
         })
 
-    def modelize_audit(self, document_path, context):
+    def modelize_audit(self, document_path, context, metas=None):
         """
         Make an audit document type.
 
@@ -260,13 +263,14 @@ class ExporterRenderer(ExporterBase):
             "document": document_path,
             "context": {
                 "kind": "audit",
+                "metas": metas or {},
                 "statistics": global_stats,
                 "paths": paths,
                 "data": global_data or None,
             }
         })
 
-    def modelize_summary(self, document_path, context):
+    def modelize_summary(self, document_path, context, metas=None):
         """
         Make a summary document type.
 
@@ -322,6 +326,7 @@ class ExporterRenderer(ExporterBase):
             "document": document_path,
             "context": {
                 "kind": "summary",
+                "metas": metas or {},
                 "statistics": global_stats,
                 "paths": paths,
             }
@@ -351,11 +356,23 @@ class ExporterRenderer(ExporterBase):
                                         start=1):
                 name, data = context
                 document_path = self.get_document_filepath(i, name, data)
-                documents.append(self.modelize_report(document_path, context))
+                documents.append(self.modelize_report(
+                    document_path,
+                    context,
+                    self.store["metas"]
+                ))
 
-            documents.append(self.modelize_summary("index.html", self.store["reports"]))
+            documents.append(self.modelize_summary(
+                "index.html",
+                self.store["reports"],
+                self.store["metas"]
+            ))
         else:
             document_path = "index.html"
-            documents.append(self.modelize_audit(document_path, self.store["reports"]))
+            documents.append(self.modelize_audit(
+                document_path,
+                self.store["reports"],
+                self.store["metas"]
+            ))
 
         return documents
