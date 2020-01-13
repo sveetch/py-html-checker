@@ -337,21 +337,25 @@ class ExporterRenderer(ExporterBase):
         Make all export documents.
 
         Keyword Arguments:
-            destination (string): Directory path where the exporter can create
-                files for report(s).
-            multiple_files (bool): If false, every report will be packed into a
-                single document. Else there will be a document for each report.
+            pack (bool): If false, every report will be packed into a single
+                document. Else there will be a document for each report.
                 Default is ``False``.
 
         Returns:
             list: List of documents.
         """
-        destination = kwargs.pop("destination", None) or os.getcwd()
-        multiple_files = kwargs.pop("multiple_files", False)
+        pack = kwargs.pop("pack", False)
 
         documents = []
 
-        if multiple_files:
+        if pack:
+            document_path = "index.html"
+            documents.append(self.modelize_audit(
+                document_path,
+                self.store["reports"],
+                self.store["metas"]
+            ))
+        else:
             for i, context in enumerate(self.store["reports"],
                                         start=1):
                 name, data = context
@@ -364,13 +368,6 @@ class ExporterRenderer(ExporterBase):
 
             documents.append(self.modelize_summary(
                 "index.html",
-                self.store["reports"],
-                self.store["metas"]
-            ))
-        else:
-            document_path = "index.html"
-            documents.append(self.modelize_audit(
-                document_path,
                 self.store["reports"],
                 self.store["metas"]
             ))

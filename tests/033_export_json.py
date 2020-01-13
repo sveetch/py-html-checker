@@ -33,9 +33,9 @@ def test_render():
     assert doc == expected
 
 
-@pytest.mark.parametrize("multiple_files,expected", [
+@pytest.mark.parametrize("pack,expected", [
     (
-        False,
+        True,
         [
             {
                 "document": "index.html",
@@ -92,7 +92,7 @@ def test_render():
         ],
     ),
     (
-        True,
+        False,
         [
             {
                 "document": "path-1.html",
@@ -196,7 +196,7 @@ def test_render():
         ],
     ),
 ])
-def test_release(multiple_files, expected):
+def test_release(pack, expected):
     """
     In single release mode, only one document with all reports should be
     returned.
@@ -250,7 +250,7 @@ def test_release(multiple_files, expected):
         ],
     }
 
-    results = exporter.release(multiple_files=multiple_files)
+    results = exporter.release(pack=pack)
 
     assert len(results) == len(expected)
 

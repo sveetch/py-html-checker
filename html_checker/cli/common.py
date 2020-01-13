@@ -10,18 +10,33 @@ from html_checker.export import EXPORTER_CHOICES
 # Shared options arguments
 COMMON_OPTIONS = {
     "destination": {
-        "args": ('--destination',),
+        "args": ("--destination",),
         "type": click.Path(),
         "kwargs": {
             "metavar": "FILEPATH",
             "help": (
-                "Filepath for export destination."
+                "Filepath for export destination. If you don't plan to use "
+                "pack option, you should define a destination directory."
             ),
             "default": None,
         }
     },
+    "pack": {
+        "args": ("--pack/--no-pack",),
+        "kwargs": {
+            "default": True,
+            "help": (
+                "Pack reports into a single file or not. Default is to pack "
+                "everything in a single file. 'no-pack' will create a file "
+                "for each report and then an export summary."
+                "It is recommended to define a destination directory with "
+                "'--destination' if you don't plan to use packed export, else "
+                "every file will just be print in an unique output."
+            ),
+        }
+    },
     "exporter": {
-        "args": ('--exporter',),
+        "args": ("--exporter",),
         "kwargs": {
             "type": click.Choice(EXPORTER_CHOICES, case_sensitive=False),
             "help": (
@@ -31,7 +46,7 @@ COMMON_OPTIONS = {
         }
     },
     "no-stream": {
-        "args": ('--no-stream',),
+        "args": ("--no-stream",),
         "kwargs": {
             "is_flag": True,
             "help": (
@@ -42,7 +57,7 @@ COMMON_OPTIONS = {
         }
     },
     "safe": {
-        "args": ('--safe',),
+        "args": ("--safe",),
         "kwargs": {
             "is_flag": True,
             "help": (
@@ -52,20 +67,20 @@ COMMON_OPTIONS = {
         }
     },
     "split": {
-        "args": ('--split',),
+        "args": ("--split",),
         "kwargs": {
             "is_flag": True,
             "help": (
                 "Execute validation for each path in its own distinct instance. "
                 "Useful for very large path list which may take too long to "
                 "display anything until every path has been validated. However, "
-                "for small or moderate path list it will be longer than packed "
-                "execution."
+                "for small or moderate path list it will be longer than unique "
+                "instance."
             ),
         }
     },
     "user-agent": {
-        "args": ('--user-agent',),
+        "args": ("--user-agent",),
         "kwargs": {
             "metavar": "STRING",
             "help": (
@@ -74,7 +89,7 @@ COMMON_OPTIONS = {
         }
     },
     "xss": {
-        "args": ('--Xss',),
+        "args": ("--Xss",),
         "kwargs": {
             "metavar": "SIZE",
             "help": (

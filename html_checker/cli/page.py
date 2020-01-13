@@ -20,6 +20,8 @@ from html_checker.utils import reduce_unique
               **COMMON_OPTIONS["exporter"]["kwargs"])
 @click.option(*COMMON_OPTIONS["no-stream"]["args"],
               **COMMON_OPTIONS["no-stream"]["kwargs"])
+@click.option(*COMMON_OPTIONS["pack"]["args"],
+              **COMMON_OPTIONS["pack"]["kwargs"])
 @click.option(*COMMON_OPTIONS["safe"]["args"],
               **COMMON_OPTIONS["safe"]["kwargs"])
 @click.option(*COMMON_OPTIONS["split"]["args"],
@@ -30,7 +32,7 @@ from html_checker.utils import reduce_unique
               **COMMON_OPTIONS["xss"]["kwargs"])
 @click.argument('paths', nargs=-1, required=True)
 @click.pass_context
-def page_command(context, destination, exporter, no_stream, safe, split,
+def page_command(context, destination, exporter, no_stream, pack, safe, split,
                  user_agent, xss, paths):
     """
     Validate pages from given paths.
@@ -100,4 +102,16 @@ def page_command(context, destination, exporter, no_stream, safe, split,
                 }]
             })
 
-    exporter.release(destination=destination)
+    # TODO: Manage the --pack option to pass to release. Also destination is
+    # used here, it switch either to print out contents or write them to files.
+    export = exporter.release(pack=pack)
+
+    # Some exporter like logging won't return anything to output or write
+    if export:
+        if destination:
+            # should write every document to files in destination dir
+            pass
+        else:
+            # print out document
+            for doc in export:
+                click.echo(doc["content"])

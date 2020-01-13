@@ -35,5 +35,6 @@ class JsonExport(ExporterRenderer):
         """
         return {
             "document": context["document"],
-            "content": json.dumps(context["context"], indent=self.indent)
+            "content": json.dumps(context["context"], indent=self.indent,
+                                  default=str)
         }

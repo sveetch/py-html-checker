@@ -66,9 +66,13 @@ class JinjaExport(ExporterRenderer):
 
         return jinja_env.get_template(filepath)
 
-    def release(self, destination=None):
+    def release(self):
         """
         Release export to an HTML file.
+
+        TODO: Old way release method, not up to date with export renderer
+        which should return a list of rendered documents. If any writing file
+        is required it has to be done outside of release (like in the CLI).
         """
         document = self.get_template(self.template)
 
