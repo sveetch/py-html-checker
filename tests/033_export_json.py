@@ -38,7 +38,7 @@ def test_render():
         True,
         [
             {
-                "document": "index.html",
+                "document": "audit.json",
                 "content": {
                     "kind": "audit",
                     "metas": {
@@ -95,7 +95,7 @@ def test_render():
         False,
         [
             {
-                "document": "path-1.html",
+                "document": "path-1.json",
                 "content": {
                     "name": "/html/foo.html",
                     "kind": "report",
@@ -113,7 +113,7 @@ def test_render():
                 }
             },
             {
-                "document": "path-2.html",
+                "document": "path-2.json",
                 "content": {
                     "name": "/html/bar.html",
                     "kind": "report",
@@ -131,7 +131,7 @@ def test_render():
                 }
             },
             {
-                "document": "path-3.html",
+                "document": "path-3.json",
                 "content": {
                     "name": "http://ping",
                     "kind": "report",
@@ -149,7 +149,7 @@ def test_render():
                 }
             },
             {
-                "document": "index.html",
+                "document": "summary.json",
                 "content": {
                     "kind": "summary",
                     "metas": {
@@ -170,7 +170,7 @@ def test_render():
                                 "toast": 1
                             },
                             "name": "/html/foo.html",
-                            "path": "path-1.html"
+                            "path": "path-1.json"
                         },
                         {
                             "statistics": {
@@ -179,7 +179,7 @@ def test_render():
                                 "toast": 1
                             },
                             "name": "/html/bar.html",
-                            "path": "path-2.html"
+                            "path": "path-2.json"
                         },
                         {
                             "statistics": {
@@ -188,7 +188,7 @@ def test_render():
                                 "ping": 1
                             },
                             "name": "http://ping",
-                            "path": "path-3.html"
+                            "path": "path-3.json"
                         }
                     ]
                 }

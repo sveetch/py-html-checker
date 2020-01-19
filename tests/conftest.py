@@ -35,6 +35,7 @@ class FixturesSettingsTestMixin(object):
         application, mostly paths.
         """
         return path.format(
+            HOMEDIR=os.path.expanduser("~"),
             PACKAGE=self.package_path,
             APPLICATION=self.application_path,
             TESTS=self.tests_path,

@@ -24,6 +24,11 @@ class JinjaExport(ExporterRenderer):
     klassname = __qualname__
     FORMAT_NAME = "html"
     DEFAULT_TEMLATE = "basic.html"
+    DOCUMENT_FILENAMES = {
+        "audit": "index.html",
+        "summary": "index.html",
+        "report": "path-{}.html",
+    }
 
     def __init__(self, *args, **kwargs):
         template_dir = os.path.abspath(

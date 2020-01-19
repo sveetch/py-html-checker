@@ -10,7 +10,7 @@ from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
 from html_checker.export import get_exporter
 from html_checker.validator import ValidatorInterface
-from html_checker.utils import reduce_unique
+from html_checker.utils import reduce_unique, write_documents
 
 
 @click.command()
@@ -35,11 +35,13 @@ from html_checker.utils import reduce_unique
 def page_command(context, destination, exporter, no_stream, pack, safe, split,
                  user_agent, xss, paths):
     """
-    Validate pages from given paths.
+    Validate given page paths.
 
-    Path can be an url starting with 'http://' or 'https://' or a file path.
+    Page path can be an url starting with 'http://' or 'https://' or a file
+    path.
 
-    You can give many paths to validate each one.
+    You can give a single page path or many ones to validate. There is multiple
+    exporter formats.
     """
     logger = logging.getLogger("py-html-checker")
 
@@ -102,15 +104,17 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
                 }]
             })
 
-    # TODO: Manage the --pack option to pass to release. Also destination is
-    # used here, it switch either to print out contents or write them to files.
+    # Release documents if exporter support it
     export = exporter.release(pack=pack)
 
     # Some exporter like logging won't return anything to output or write
     if export:
         if destination:
-            # should write every document to files in destination dir
-            pass
+            # Write every document to files in destination directory
+            files = write_documents(destination, export)
+            for item in files:
+                msg = "Created file: {}".format(item)
+                logger.info(msg)
         else:
             # print out document
             for doc in export:

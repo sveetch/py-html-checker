@@ -1,3 +1,4 @@
+import io
 import os
 import subprocess
 
@@ -135,3 +136,57 @@ def merge_compute(left, right):
             right[k] = v
 
     return right
+
+
+def resolve_paths(*paths):
+    """
+    A shortand to join paths and resolve their combination to full absolute
+    path.
+
+    * Path normalization (for ``.`` and ``..``) is applied;
+    * ``~`` is resolved to user home directory;
+    * Path is turned to absolute path if not already done;
+
+    Arguments:
+        *args (list): Paths to combine and resolve into an absolute and
+            normalized path.
+
+    Returns:
+        string: Absolute path.
+    """
+    return os.path.abspath(
+        os.path.expanduser(
+            os.path.normpath(
+                os.path.join(*paths)
+            )
+        )
+    )
+
+
+def write_documents(destination, documents):
+    """
+    Write every given documents files into destination directory.
+
+    Arguments:
+        destination (string): Destination directory where to write files. If
+            given directory path does not exist, it will be created.
+        documents (list): List of document datas with item ``document`` for
+            document filepath where to write and item ``content`` for content
+            string to write to file.
+
+    Returns:
+        list: List of writed documents
+    """
+    files = []
+
+    if not os.path.exists(destination):
+        os.makedirs(destination)
+
+    for doc in documents:
+        file_destination = resolve_paths(destination, doc["document"])
+        files.append(file_destination)
+
+        with io.open(file_destination, 'w') as fp:
+            fp.write(doc["content"])
+
+    return files

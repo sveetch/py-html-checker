@@ -493,7 +493,7 @@ def test_modelize_summary():
             "paths": [
                 {
                     "name": "/html/foo.html",
-                    "path": "path-1.html",
+                    "path": "path-1.txt",
                     "statistics": {
                         "foo": 1,
                         "bar": 1
@@ -501,7 +501,7 @@ def test_modelize_summary():
                 },
                 {
                     "name": "/html/bar.html",
-                    "path": "path-2.html",
+                    "path": "path-2.txt",
                     "statistics": {
                         "foo": 0,
                         "bar": 1
@@ -665,7 +665,7 @@ def test_modelize_audit():
         True,
         [
             {
-                "document": "index.html",
+                "document": "audit.txt",
                 "context": {
                     "kind": "audit",
                     "metas": {
@@ -722,7 +722,7 @@ def test_modelize_audit():
         False,
         [
             {
-                "document": "path-1.html",
+                "document": "path-1.txt",
                 "context": {
                     "name": "/html/foo.html",
                     "kind": "report",
@@ -740,7 +740,7 @@ def test_modelize_audit():
                 }
             },
             {
-                "document": "path-2.html",
+                "document": "path-2.txt",
                 "context": {
                     "name": "/html/bar.html",
                     "kind": "report",
@@ -758,7 +758,7 @@ def test_modelize_audit():
                 }
             },
             {
-                "document": "path-3.html",
+                "document": "path-3.txt",
                 "context": {
                     "name": "http://ping",
                     "kind": "report",
@@ -776,7 +776,7 @@ def test_modelize_audit():
                 }
             },
             {
-                "document": "index.html",
+                "document": "summary.txt",
                 "context": {
                     "kind": "summary",
                     "metas": {
@@ -784,7 +784,7 @@ def test_modelize_audit():
                     },
                     "paths": [
                         {
-                            "path": "path-1.html",
+                            "path": "path-1.txt",
                             "name": "/html/foo.html",
                             "statistics": {
                                 "foo": 1,
@@ -793,7 +793,7 @@ def test_modelize_audit():
                             },
                         },
                         {
-                            "path": "path-2.html",
+                            "path": "path-2.txt",
                             "name": "/html/bar.html",
                             "statistics": {
                                 "bar": 1,
@@ -802,7 +802,7 @@ def test_modelize_audit():
                             },
                         },
                         {
-                            "path": "path-3.html",
+                            "path": "path-3.txt",
                             "name": "http://ping",
                             "statistics": {
                                 "nope": 0,

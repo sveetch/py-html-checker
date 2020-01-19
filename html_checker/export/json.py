@@ -12,6 +12,11 @@ class JsonExport(ExporterRenderer):
     """
     klassname = __qualname__
     FORMAT_NAME = "json"
+    DOCUMENT_FILENAMES = {
+        "audit": "audit.json",
+        "summary": "summary.json",
+        "report": "path-{}.json",
+    }
 
     def __init__(self, *args, **kwargs):
         self.indent = kwargs.pop("indent", 4)

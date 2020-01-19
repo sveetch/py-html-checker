@@ -1,7 +1,9 @@
+import io
+import json
 import pytest
 
 from html_checker.utils import (is_local_ressource, is_url, reduce_unique,
-                                merge_compute)
+                                merge_compute, resolve_paths, write_documents)
 
 
 @pytest.mark.parametrize("path,expected", [
@@ -187,6 +189,104 @@ def test_reduce_unique(items, expected):
 ])
 def test_merge_compute(left_dict, right_dict, expected):
     """
-
+    Given left and right dict should be merged as expected.
     """
     assert expected == merge_compute(left_dict, right_dict)
+
+
+@pytest.mark.parametrize("paths,expected", [
+    (
+        [
+            "foo.html",
+        ],
+        "{PACKAGE}/foo.html",
+    ),
+    (
+        [
+            ".",
+            "foo.html",
+        ],
+        "{PACKAGE}/foo.html",
+    ),
+    (
+        [
+            ".",
+            "bar/../foo.html",
+        ],
+        "{PACKAGE}/foo.html",
+    ),
+    (
+        [
+            "/home/foo",
+            "foo.html",
+        ],
+        "/home/foo/foo.html",
+    ),
+    (
+        [
+            "~",
+            "foo.html",
+        ],
+        "{HOMEDIR}/foo.html",
+    ),
+    (
+        [
+            ".",
+            "foo/~bar/ping.html",
+        ],
+        "{PACKAGE}/foo/~bar/ping.html",
+    ),
+])
+def test_resolve_paths(settings, paths, expected):
+    """
+    Given path should be combined correctly to an absolute normalized path.
+    """
+    assert settings.format(expected) == resolve_paths(*paths)
+
+
+@pytest.mark.parametrize("documents,expected", [
+    (
+        [
+            {
+                "document": "foo.html",
+                "content": "<html><foo>bar</foo></html>",
+            },
+        ],
+        ["{TMPDIR}/foo.html"],
+    ),
+    (
+        [
+            {
+                "document": "bar.html",
+                "content": "<html><bar>foo</bar></html>",
+            },
+            {
+                "document": "ping.json",
+                "content": json.dumps({"ping": "pong", "blah": True}),
+            },
+        ],
+        [
+            "{TMPDIR}/bar.html",
+            "{TMPDIR}/ping.json",
+        ],
+    ),
+])
+def test_write_documents(temp_builds_dir, documents, expected):
+    """
+    Given documents should be written into destination directory.
+
+    NOTE: Every files are created in the same temp directory, so take caution
+    to use different files from all tests parametrizes.
+    """
+    destination = temp_builds_dir.join('write_documents').strpath
+
+    docs = write_documents(destination, documents)
+
+    assert [item.format(TMPDIR=destination) for item in expected] == docs
+
+    # Check writed files contents
+    for doc in documents:
+        with io.open(resolve_paths(destination, doc["document"]), 'r') as fp:
+            content = fp.read()
+        assert content == doc["content"]
+

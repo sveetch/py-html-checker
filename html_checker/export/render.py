@@ -24,6 +24,11 @@ class ExporterRenderer(ExporterBase):
     """
     klassname = __qualname__ # Required to be paste in every exporter class
     FORMAT_NAME = None
+    DOCUMENT_FILENAMES = {
+        "audit": "audit.txt",
+        "summary": "summary.txt",
+        "report": "path-{}.txt",
+    }
 
     def __init__(self, *args, **kwargs):
         # Initial global context
@@ -130,7 +135,7 @@ class ExporterRenderer(ExporterBase):
                 },
             ))
 
-    def get_document_filepath(self, i, name, data):
+    def get_report_filepath(self, i, name, data):
         """
         Return filepath for a report document.
 
@@ -142,7 +147,7 @@ class ExporterRenderer(ExporterBase):
         Returns:
             string: Document filepath.
         """
-        return "path-{}.html".format(i)
+        return self.DOCUMENT_FILENAMES["report"].format(i)
 
     def render(self, context):
         """
@@ -318,7 +323,7 @@ class ExporterRenderer(ExporterBase):
             global_stats = merge_compute(stats, global_stats)
             paths.append({
                 "name": name,
-                "path": self.get_document_filepath(i, name, data),
+                "path": self.get_report_filepath(i, name, data),
                 "statistics": stats,
             })
 
@@ -349,7 +354,7 @@ class ExporterRenderer(ExporterBase):
         documents = []
 
         if pack:
-            document_path = "index.html"
+            document_path = self.DOCUMENT_FILENAMES["audit"]
             documents.append(self.modelize_audit(
                 document_path,
                 self.store["reports"],
@@ -359,7 +364,7 @@ class ExporterRenderer(ExporterBase):
             for i, context in enumerate(self.store["reports"],
                                         start=1):
                 name, data = context
-                document_path = self.get_document_filepath(i, name, data)
+                document_path = self.get_report_filepath(i, name, data)
                 documents.append(self.modelize_report(
                     document_path,
                     context,
@@ -367,7 +372,7 @@ class ExporterRenderer(ExporterBase):
                 ))
 
             documents.append(self.modelize_summary(
-                "index.html",
+                self.DOCUMENT_FILENAMES["summary"],
                 self.store["reports"],
                 self.store["metas"]
             ))

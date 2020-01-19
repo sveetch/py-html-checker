@@ -15,8 +15,11 @@ COMMON_OPTIONS = {
         "kwargs": {
             "metavar": "FILEPATH",
             "help": (
-                "Filepath for export destination. If you don't plan to use "
-                "pack option, you should define a destination directory."
+                "Directory path where to write report files. If destination "
+                "is not given, every files will be printed out. You can use a "
+                "dot to write files to your current directory, a relative "
+                "path or an absolute path. Path can start with '~' to point "
+                "to your user home directory."
             ),
             "default": None,
         }
@@ -31,7 +34,7 @@ COMMON_OPTIONS = {
                 "for each report and then an export summary."
                 "It is recommended to define a destination directory with "
                 "'--destination' if you don't plan to use packed export, else "
-                "every file will just be print in an unique output."
+                "every files will just be printed out in an unique output."
             ),
         }
     },
