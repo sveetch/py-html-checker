@@ -116,6 +116,6 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
                 msg = "Created file: {}".format(item)
                 logger.info(msg)
         else:
-            # print out document
+            # Print out document
             for doc in export:
                 click.echo(doc["content"])

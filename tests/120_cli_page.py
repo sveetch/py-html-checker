@@ -1,3 +1,5 @@
+import io
+import json
 import logging
 import os
 
@@ -130,18 +132,18 @@ def test_page_nosafe_exception(monkeypatch, caplog, settings):
 
         result = runner.invoke(cli_frontend, ["page"] + paths)
 
-        print("=> result.exit_code <=")
-        print(result.exit_code)
-        print()
-        print("=> result.output <=")
-        print(result.output)
-        print()
-        print("=> caplog.record_tuples <=")
-        print(caplog.record_tuples)
-        print()
-        print("=> result.exception <=")
-        print(type(result.exception))
-        print(result.exception)
+        #print("=> result.exit_code <=")
+        #print(result.exit_code)
+        #print()
+        #print("=> result.output <=")
+        #print(result.output)
+        #print()
+        #print("=> caplog.record_tuples <=")
+        #print(caplog.record_tuples)
+        #print()
+        #print("=> result.exception <=")
+        #print(type(result.exception))
+        #print(result.exception)
         #if result.exception is not None:
             #raise result.exception
 
@@ -189,20 +191,75 @@ def test_page_safe_exception(monkeypatch, caplog, settings):
 
         result = runner.invoke(cli_frontend, ["page", "--safe"] + paths)
 
-        print("=> result.output <=")
-        print(result.output)
-        print()
-        print("=> expected <=")
-        print(expected)
-        print()
-        print("=> caplog.record_tuples <=")
-        print(caplog.record_tuples)
-        print()
-        print("=> result.exception <=")
-        print(result.exception)
-        #raise result.exception
+        #print("=> result.output <=")
+        #print(result.output)
+        #print()
+        #print("=> expected <=")
+        #print(expected)
+        #print()
+        #print("=> caplog.record_tuples <=")
+        #print(caplog.record_tuples)
+        #print()
+        #print("=> result.exception <=")
+        #if result.exception:
+            #raise result.exception
 
         assert result.exit_code == 0
 
         assert expected == caplog.record_tuples
         #assert 1 == 33
+
+
+def test_page_json_destination(monkeypatch, caplog, settings):
+    """
+    When '--destination' is given, report files should be written into
+    destination directory.
+
+    This stands on JSON export and default pack option which produce a single
+    JSON document.
+    """
+    paths = [
+        settings.format("{FIXTURES}/html/valid.basic.html"),
+    ]
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        test_cwd = os.getcwd()
+        dest_dir = os.path.join(test_cwd, "foop")
+        expected_document = os.path.join(dest_dir, "audit.json")
+
+        expected = [
+            ("py-html-checker", logging.INFO, "Launching validation for {} paths".format(len(paths))),
+            ("py-html-checker", logging.INFO, settings.format("{FIXTURES}/html/valid.basic.html")),
+            ("py-html-checker", logging.INFO, "Created file: {}".format(expected_document)),
+        ]
+
+        result = runner.invoke(cli_frontend, [
+            "page",
+            "--exporter", "json",
+            "--destination", dest_dir
+        ] + paths)
+
+        with io.open(expected_document, 'r') as fp:
+            content = fp.read()
+
+        # Ensure this is a valid JSON file as it should be
+        json.loads(content)
+
+        #print("=> result.output <=")
+        #print(result.output)
+        #print()
+        #print("=> expected <=")
+        #print(expected)
+        #print()
+        #print("=> caplog.record_tuples <=")
+        #print(caplog.record_tuples)
+        #print()
+        #print("=> result.exception <=")
+        #print(result.exception)
+        #if result.exception:
+            #raise result.exception
+
+        assert result.exit_code == 0
+
+        assert expected == caplog.record_tuples
