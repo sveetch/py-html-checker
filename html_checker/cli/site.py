@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-TODO: Must be updated to use the new way of getting exporter format
-"""
 import logging
 
 from collections import OrderedDict
@@ -11,35 +8,43 @@ import click
 from html_checker.cli.common import COMMON_OPTIONS, validate_sitemap_path
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
-from html_checker.export import LoggingExport
+from html_checker.export import get_exporter
 from html_checker.sitemap import Sitemap
 from html_checker.validator import ValidatorInterface
-from html_checker.utils import reduce_unique
+from html_checker.utils import reduce_unique, write_documents
 
 
 @click.command()
-@click.option(*COMMON_OPTIONS["xss"]["args"],
-              **COMMON_OPTIONS["xss"]["kwargs"])
+@click.option(*COMMON_OPTIONS["destination"]["args"],
+              **COMMON_OPTIONS["destination"]["kwargs"])
+@click.option(*COMMON_OPTIONS["exporter"]["args"],
+              **COMMON_OPTIONS["exporter"]["kwargs"])
 @click.option(*COMMON_OPTIONS["no-stream"]["args"],
               **COMMON_OPTIONS["no-stream"]["kwargs"])
-@click.option(*COMMON_OPTIONS["user-agent"]["args"],
-              **COMMON_OPTIONS["user-agent"]["kwargs"])
+@click.option(*COMMON_OPTIONS["pack"]["args"],
+              **COMMON_OPTIONS["pack"]["kwargs"])
 @click.option(*COMMON_OPTIONS["safe"]["args"],
               **COMMON_OPTIONS["safe"]["kwargs"])
-@click.option(*COMMON_OPTIONS["split"]["args"],
-              **COMMON_OPTIONS["split"]["kwargs"])
 @click.option('--sitemap-only', is_flag=True,
               help=("Download and parse given Sitemap ressource and output "
                     "informations but never try to valide its items."))
+@click.option(*COMMON_OPTIONS["split"]["args"],
+              **COMMON_OPTIONS["split"]["kwargs"])
+@click.option(*COMMON_OPTIONS["user-agent"]["args"],
+              **COMMON_OPTIONS["user-agent"]["kwargs"])
+@click.option(*COMMON_OPTIONS["xss"]["args"],
+              **COMMON_OPTIONS["xss"]["kwargs"])
 @click.argument('path', required=True)
 @click.pass_context
-def site_command(context, xss, no_stream, user_agent, safe, split, path,
-                 sitemap_only):
+def site_command(context, destination, exporter, no_stream, pack, safe,
+                 sitemap_only, split, user_agent, xss, path):
     """
     Validate pages from given sitemap.
 
     Sitemap path can be an url starting with 'http://' or 'https://' or a
     file path.
+
+    There is multiple exporter formats.
 
     Note than invalid sitemap path still raise error even with '--safe' option
     is enabled.
@@ -56,11 +61,6 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
     else:
         CatchedException = HtmlCheckerUnexpectedException
 
-    # Validate sitemap path
-    sitemap_file_status = validate_sitemap_path(logger, path)
-    if not sitemap_file_status:
-        raise click.Abort()
-
     # Initial tools options
     sitemap_options = {}
     interpreter_options = OrderedDict([])
@@ -76,6 +76,11 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
     if xss:
         key = "-Xss{}".format(xss)
         interpreter_options[key] = None
+
+    # Validate sitemap path
+    sitemap_file_status = validate_sitemap_path(logger, path)
+    if not sitemap_file_status:
+        raise click.Abort()
 
     # Open sitemap to get paths
     try:
@@ -101,9 +106,9 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
     if not sitemap_only:
         logger.debug("Launching validation for sitemap items")
 
-        # Start validator interface and exporter instances
+        # Start validator interface and exporter instance
         v = ValidatorInterface(exception_class=CatchedException)
-        exporter = LoggingExport()
+        exporter = get_exporter(exporter)()
 
         # Keep packed paths or split them depending 'split' option
         routines = [reduced_paths[:]]
@@ -124,7 +129,21 @@ def site_command(context, xss, no_stream, user_agent, safe, split, path,
                     }]
                 })
 
-        exporter.release()
+        # Release documents if exporter supports it
+        export = exporter.release(pack=pack)
+
+        # Some exporter like logging won't return anything to output or write
+        if export:
+            if destination:
+                # Write every document to files in destination directory
+                files = write_documents(destination, export)
+                for item in files:
+                    msg = "Created file: {}".format(item)
+                    logger.info(msg)
+            else:
+                # Print out document
+                for doc in export:
+                    click.echo(doc["content"])
     # Don't valid anything just list paths
     else:
         logger.debug("Listing available paths from sitemap")

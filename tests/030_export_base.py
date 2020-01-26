@@ -126,6 +126,17 @@ def test_format_source_position(row, expected):
             "extract": "<some html>",
         },
     ),
+    (
+        {
+            "type": "non-document-error",
+            "message": "This is a non document error.",
+        },
+        'error',
+        {
+            "type": "error",
+            "message": "This is a non document error.",
+        },
+    ),
 ])
 def test_parse_row_level(row, expected_level, expected_content):
     """

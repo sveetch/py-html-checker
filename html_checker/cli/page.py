@@ -81,7 +81,7 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
         key = "-Xss{}".format(xss)
         interpreter_options[key] = None
 
-    # Start validator interface and exporter instances
+    # Start validator interface and exporter instance
     v = ValidatorInterface(exception_class=CatchedException)
     exporter = get_exporter(exporter)()
 
@@ -104,7 +104,7 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
                 }]
             })
 
-    # Release documents if exporter support it
+    # Release documents if exporter supports it
     export = exporter.release(pack=pack)
 
     # Some exporter like logging won't return anything to output or write

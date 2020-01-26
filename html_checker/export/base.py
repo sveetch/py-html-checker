@@ -71,8 +71,14 @@ class ExporterBase(object):
             print(json.dumps(path, indent=4))
             raise NotImplementedError
 
-        # Output message following its type
-        if row["type"] in ["error", "critical", "non-document-error"]:
+        # Non validating error
+        if row["type"] in ["critical", "non-document-error"]:
+            row["type"] = "error"
+            if "subType" in row:
+                del row["subType"]
+            return "error", row
+        # Natural basic error
+        elif row["type"] == "error":
             return "error", row
         # Actually vnu keep containing warning a subtype of an info level
         elif row["type"] == "info" and row.get("subType", None) == "warning":
