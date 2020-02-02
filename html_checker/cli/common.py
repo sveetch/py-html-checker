@@ -69,6 +69,17 @@ COMMON_OPTIONS = {
             ),
         }
     },
+    "source": {
+        "args": ("--source/--no-source",),
+        "kwargs": {
+            "default": True,
+            "help": (
+                "Include full HTML source in report for each path. You can "
+                "disable it when you have too many paths with too much big "
+                "sources."
+            ),
+        }
+    },
     "split": {
         "args": ("--split",),
         "kwargs": {
