@@ -1,0 +1,14 @@
+<ul class="badges">
+    {%- if not ignore_empty or statistics.errors -%}
+    <li class="badge badge--error"><strong>{{ statistics.errors }}</strong> Error{{ pluralizer(statistics.errors) }}</li>
+    {%- endif -%}
+    {%- if not ignore_empty or statistics.warnings -%}
+    <li class="badge badge--warning"><strong>{{ statistics.warnings }}</strong> Warning{{ pluralizer(statistics.warnings) }}</li>
+    {%- endif -%}
+    {%- if not ignore_empty or statistics.infos -%}
+    <li class="badge badge--info"><strong>{{ statistics.infos }}</strong> Information{{ pluralizer(statistics.infos) }}</li>
+    {%- endif -%}
+    {%- if not ignore_empty or statistics.debugs -%}
+    <li class="badge badge--debug"><strong>{{ statistics.debugs }}</strong> Debug{{ pluralizer(statistics.debugs) }}</li>
+    {%- endif -%}
+</ul>

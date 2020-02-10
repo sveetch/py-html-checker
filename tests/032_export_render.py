@@ -3,8 +3,6 @@ import pytest
 
 from collections import OrderedDict
 
-from jinja2 import Environment, Template
-
 from html_checker.export.render import ExporterRenderer
 from html_checker.reporter import ReportStore
 

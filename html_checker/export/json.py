@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 
 import html_checker
 from html_checker.exceptions import ExportError
@@ -9,6 +10,11 @@ from html_checker.export.render import ExporterRenderer
 class JsonExport(ExporterRenderer):
     """
     Exporter to produce report documents as JSON.
+
+    Keyword Arguments:
+        indent (integer): JSON indentation length. Default is 4 spaces, set it
+            to 0 for no indentation but keeping newline or ``None`` for oneline
+            without spaces or newlines.
     """
     klassname = __qualname__
     FORMAT_NAME = "json"

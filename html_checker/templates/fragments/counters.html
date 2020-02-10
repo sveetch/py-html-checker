@@ -1,0 +1,17 @@
+<ul class="counters{% if path_count %} counters--alt{% endif %}">
+    {%- if path_count -%}
+    <li><strong>{{ path_count }}</strong> Path{{ pluralizer(path_count) }}</li>
+    {%- endif -%}
+    {%- if not ignore_empty or statistics.errors -%}
+    <li class="text-error"><strong>{{ statistics.errors }}</strong> Error{{ pluralizer(statistics.errors) }}</li>
+    {%- endif -%}
+    {%- if not ignore_empty or statistics.warnings -%}
+    <li class="text-warning"><strong>{{ statistics.warnings }}</strong> Warning{{ pluralizer(statistics.warnings) }}</li>
+    {%- endif -%}
+    {%- if not ignore_empty or statistics.infos -%}
+    <li class="text-info"><strong>{{ statistics.infos }}</strong> Information{{ pluralizer(statistics.infos) }}</li>
+    {%- endif -%}
+    {%- if not ignore_empty or statistics.debugs -%}
+    <li class="text-debug"><strong>{{ statistics.debugs }}</strong> Debug{{ pluralizer(statistics.debugs) }}</li>
+    {%- endif -%}
+</ul>

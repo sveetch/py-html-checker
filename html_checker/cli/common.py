@@ -76,7 +76,7 @@ COMMON_OPTIONS = {
             "help": (
                 "Include full HTML source in report for each path. You can "
                 "disable it when you have too many paths with too much big "
-                "sources."
+                "sources. NOT IMPLEMENTED YET."
             ),
         }
     },
@@ -90,6 +90,19 @@ COMMON_OPTIONS = {
                 "display anything until every path has been validated. However, "
                 "for small or moderate path list it will be longer than unique "
                 "instance."
+            ),
+        }
+    },
+    "template-dir": {
+        "args": ("--template-dir",),
+        "type": click.Path(exists=True, file_okay=False, dir_okay=True),
+        "kwargs": {
+            "metavar": "PATH",
+            "help": (
+                "A path to a template directory for your custom templates. "
+                "Your template directory must contains the summary, report "
+                "and audit main templates and also a 'main.css' file. This "
+                "option has only effect for 'html' exporter."
             ),
         }
     },

@@ -1,0 +1,38 @@
+{% macro get_msg_id(id, prefix='') -%}
+    {% if prefix %}{{ prefix }}-{% endif %}{{ id }}
+{%- endmacro %}
+
+{% macro get_source_id(id, prefix='') -%}
+    {% if prefix %}{{ prefix }}-{% endif %}{{ id }}
+{%- endmacro %}
+
+{% macro get_message_lineno(lineno, source_enabled, prefix='') -%}
+    {%- if source_enabled -%}
+    <a href="#source-{{ get_source_id(message.source.linestart, prefix) }}" class="lineno">{{ message.source.linestart }}.</a>
+    {%- else -%}
+    <span class="lineno">{{ message.source.linestart }}.</span>
+    {%- endif -%}
+{%- endmacro %}
+
+<div class="message-item {{ message.type }}" id="msg-{{ get_msg_id(message_id, prefix_id) }}">
+    <a class="anchor" href="#msg-{{ get_msg_id(message_id, prefix_id) }}">#{{ message_id }}</a>
+
+    <div class="content">
+        <div class="msg">{{ message.message }}</div>
+
+        {%- if message.source -%}
+        <div class="source">
+            <div class="coords">
+                From line {{ message.source.linestart }} column {{ message.source.colstart }}
+                to line {{ message.source.lineend }} column {{ message.source.colend }}
+            </div>
+
+            {%- if message.source.extract -%}
+                <div class="extract">
+                    <pre>{{ get_message_lineno(message.source.linestart, source_enabled, prefix=prefix_id) }} {{ message.source.extract|escape|replace("\r\n", "↩")|replace("\n", "↩") }}</pre>
+                </div>
+            {%- endif -%}
+        </div>
+        {%- endif -%}
+    </div>
+</div>

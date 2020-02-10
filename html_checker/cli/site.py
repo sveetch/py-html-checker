@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import os
 
 from collections import OrderedDict
 
@@ -30,6 +31,8 @@ from html_checker.utils import reduce_unique, write_documents
                     "informations but never try to valide its items."))
 @click.option(*COMMON_OPTIONS["split"]["args"],
               **COMMON_OPTIONS["split"]["kwargs"])
+@click.option(*COMMON_OPTIONS["template-dir"]["args"],
+              **COMMON_OPTIONS["template-dir"]["kwargs"])
 @click.option(*COMMON_OPTIONS["user-agent"]["args"],
               **COMMON_OPTIONS["user-agent"]["kwargs"])
 @click.option(*COMMON_OPTIONS["xss"]["args"],
@@ -37,7 +40,7 @@ from html_checker.utils import reduce_unique, write_documents
 @click.argument('path', required=True)
 @click.pass_context
 def site_command(context, destination, exporter, no_stream, pack, safe,
-                 sitemap_only, split, user_agent, xss, path):
+                 sitemap_only, split, template_dir, user_agent, xss, path):
     """
     Validate pages from given sitemap.
 
@@ -65,9 +68,13 @@ def site_command(context, destination, exporter, no_stream, pack, safe,
     sitemap_options = {}
     interpreter_options = OrderedDict([])
     tool_options = OrderedDict([])
+    exporter_options = {}
 
     if no_stream:
         tool_options["--no-stream"] = None
+
+    if template_dir:
+        exporter_options["template_dir"] = template_dir
 
     if user_agent:
         sitemap_options["user_agent"] = user_agent
@@ -106,16 +113,25 @@ def site_command(context, destination, exporter, no_stream, pack, safe,
     if not sitemap_only:
         logger.debug("Launching validation for sitemap items")
 
-        # Start validator interface and exporter instance
+        # Start validator interface
         v = ValidatorInterface(exception_class=CatchedException)
-        exporter = get_exporter(exporter)()
+
+        # Start exporter instance
+        exporter = get_exporter(exporter)(**exporter_options)
+        exporter_error = exporter.validate()
+        if exporter_error:
+            logger.critical(exporter_error)
+            raise click.Abort()
+        else:
+            if hasattr(exporter, "template_dir"):
+                logger.debug("Using template directory: {}".format(exporter.template_dir))
 
         # Keep packed paths or split them depending 'split' option
         routines = [reduced_paths[:]]
         if split:
             routines = [[v] for v in reduced_paths]
 
-        # Get report from validator process
+        # Get report from validator process to build export
         for item in routines:
             try:
                 report = v.validate(item, interpreter_options=interpreter_options,

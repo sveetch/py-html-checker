@@ -10,6 +10,8 @@ def highlight_html_filter(source, linenos=False, linenostart=1, identifier=None)
     """
     Filter function to highlight HTML source with Pygments and some options.
 
+    Line breaks are replaced with character ``↩`` to improve readability.
+
     This does not embed Pygments styles as inline styles, you will need to
     load these stylesheets from your document.
 
@@ -33,6 +35,9 @@ def highlight_html_filter(source, linenos=False, linenostart=1, identifier=None)
     Returns:
         string: HTML for highlighted source.
     """
+    if linenos:
+        linenos = "table"
+
     opts = {
         "cssclass": "highlight",
         "linenos": linenos,

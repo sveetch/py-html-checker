@@ -1,0 +1,27 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en"> <![endif]-->
+<html class="no-js" lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>{% block head_title %}Py Html Checker{% endblock head_title %}</title>
+    <meta name="robots" content="follow, all">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./main.css">
+</head>
+<body{% block body_attrs %}{% endblock body_attrs %}>
+{%- block body_content -%}
+<div class="body-content">
+    <div class="page-header">
+        <h1>Py Html Checker</h1>
+    </div>
+
+    {%- block content -%}{%- endblock content -%}
+
+    <div class="page-footer">
+        {%- block footer_content -%}{%- endblock footer_content -%}
+        <p class="credits">Built with <a href="https://github.com/sveetch/py-html-checker" target="blank">Py Html Checker</a></p>
+    </div>
+</div>
+{%- endblock body_content -%}
+</body>
+</html>

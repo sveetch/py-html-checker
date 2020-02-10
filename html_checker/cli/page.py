@@ -26,6 +26,8 @@ from html_checker.utils import reduce_unique, write_documents
               **COMMON_OPTIONS["safe"]["kwargs"])
 @click.option(*COMMON_OPTIONS["split"]["args"],
               **COMMON_OPTIONS["split"]["kwargs"])
+@click.option(*COMMON_OPTIONS["template-dir"]["args"],
+              **COMMON_OPTIONS["template-dir"]["kwargs"])
 @click.option(*COMMON_OPTIONS["user-agent"]["args"],
               **COMMON_OPTIONS["user-agent"]["kwargs"])
 @click.option(*COMMON_OPTIONS["xss"]["args"],
@@ -33,7 +35,7 @@ from html_checker.utils import reduce_unique, write_documents
 @click.argument('paths', nargs=-1, required=True)
 @click.pass_context
 def page_command(context, destination, exporter, no_stream, pack, safe, split,
-                 user_agent, xss, paths):
+                 template_dir, user_agent, xss, paths):
     """
     Validate given page paths.
 
@@ -70,9 +72,13 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
     # Tools options
     interpreter_options = OrderedDict([])
     tool_options = OrderedDict([])
+    exporter_options = {}
 
     if no_stream:
         tool_options["--no-stream"] = None
+
+    if template_dir:
+        exporter_options["template_dir"] = template_dir
 
     if user_agent:
         tool_options["--user-agent"] = user_agent
@@ -83,14 +89,23 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
 
     # Start validator interface and exporter instance
     v = ValidatorInterface(exception_class=CatchedException)
-    exporter = get_exporter(exporter)()
+
+    # Start exporter instance
+    exporter = get_exporter(exporter)(**exporter_options)
+    exporter_error = exporter.validate()
+    if exporter_error:
+        logger.critical(exporter_error)
+        raise click.Abort()
+    else:
+        if hasattr(exporter, "template_dir"):
+            logger.debug("Using template directory: {}".format(exporter.template_dir))
 
     # Keep packed paths or split them depending 'split' option
     routines = [reduced_paths[:]]
     if split:
         routines = [[v] for v in reduced_paths]
 
-    # Get report from validator process
+    # Get report from validator process to build export
     for item in routines:
         try:
             report = v.validate(item, interpreter_options=interpreter_options,

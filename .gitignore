@@ -34,3 +34,7 @@ coverage.xml
 
 # Logging files
 *.log
+
+# Additional repository to prototype HTML export templates
+pages/
+py-html-checker-pages/

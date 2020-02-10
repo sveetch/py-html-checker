@@ -115,6 +115,16 @@ class ExporterBase(object):
             for row in messages:
                 level, row = self.parse_row_level(path, row)
 
+    def validate(self):
+        """
+        A validation method for some exporter which needs to validate some
+        environment or parameters. This base method does not perform any check.
+
+        Returns:
+            string: Should return an error message if any, else ``False``.
+        """
+        return False
+
     def release(self, *args, **kwargs):
         """
         Release export.

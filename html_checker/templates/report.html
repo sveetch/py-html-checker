@@ -1,0 +1,46 @@
+{% extends "skeleton.html" %}
+
+{% macro pluralizer(value, single='', plural='s') -%}
+    {% if value > 1 %}{{ plural }}{% else %}{{ single }}{% endif %}
+{%- endmacro %}
+
+{% block head_title %}Report - {{ super() }}{% endblock head_title %}
+
+{%- block content -%}
+<div class="page-content report-detail">
+    <div class="resume">
+        <div class="title">
+            <h2>Report&nbsp;- <code>{{ export.name }}</code></h2>
+        </div>
+
+        {% with statistics=export.statistics %}
+            {% include "fragments/counters.html" %}
+        {% endwith %}
+    </div>
+
+    <div class="content">
+        <div class="report-item">
+            <div class="messages">
+                {% for message_row in export.data.messages %}
+                    {% with message=message_row, message_id=loop.index, source_enabled=export.source %}
+                        {% include "fragments/message.html" %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+            {%- if export.source -%}
+            <div class="report-source">
+                <h3 class="title">Source</h3>
+                {{ export.source|highlight_html(linenos=True, identifier="source") }}
+            </div>
+            {%- endif -%}
+        </div>
+    </div>
+</div>
+{%- endblock content -%}
+
+
+{%- block footer_content -%}
+    {% with metas=export.metas %}
+        {% include "fragments/report-metas.html" %}
+    {% endwith %}
+{%- endblock footer_content -%}

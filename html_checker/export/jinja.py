@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import io
 import os
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -18,13 +19,24 @@ class JinjaExport(ExporterRenderer):
     Keyword Arguments:
         template_dir (string): Path to directory which contains template files.
             Default to ``templates`` application directory.
-        template (string): Path to the template to use for rendering export.
-            Default to value from attribute ``DEFAULT_TEMLATE``.
+
+    Attributes:
+        TEMPLATES (dict): Each item is an available template where item key is
+            the document kind (as given in render context in 'modelize_***'
+            methods) and item value the template relative path from template
+            directory.
     """
     klassname = __qualname__
     FORMAT_NAME = "html"
     DEFAULT_TEMLATE = "basic.html"
+    TEMPLATES = {
+        "stylesheet": "main.css",
+        "audit": "audit.html",
+        "summary": "summary.html",
+        "report": "report.html",
+    }
     DOCUMENT_FILENAMES = {
+        "stylesheet": "main.css",
         "audit": "index.html",
         "summary": "index.html",
         "report": "path-{}.html",
@@ -38,9 +50,33 @@ class JinjaExport(ExporterRenderer):
             )
         )
         self.template_dir = kwargs.pop("template_dir", None) or template_dir
-        self.template = kwargs.pop("template", None) or self.DEFAULT_TEMLATE
+        self.jinja_env = self.get_jinjaenv()
 
         super().__init__(*args, **kwargs)
+
+    def validate(self):
+        """
+        Ensure template directory is valid.
+
+        Returns:
+            string: Returns an error message if any, else ``False``.
+        """
+        # Directory exists
+        if not os.path.exists(self.template_dir):
+            msg = "Given template directory does not exists: {}"
+            return msg.format(self.template_dir)
+
+        # All required templates exist
+        missing_files = []
+        for name in sorted(self.TEMPLATES.keys()):
+            path = self.TEMPLATES[name]
+            if not os.path.exists(os.path.join(self.template_dir, path)):
+                missing_files.append(path)
+        if len(missing_files) > 0:
+            msg = "Some required files are missing from template directory: {}"
+            return msg.format(", ".join(missing_files))
+
+        return False
 
     def get_jinjaenv(self):
         """
@@ -67,18 +103,46 @@ class JinjaExport(ExporterRenderer):
         Returns:
             jinja2.Template: Template ready to render.
         """
-        jinja_env = self.get_jinjaenv()
 
-        return jinja_env.get_template(filepath)
+        return self.jinja_env.get_template(filepath)
 
-    def release(self):
+    def render(self, context):
         """
-        Release export to an HTML file.
+        Render document to JSON.
 
-        TODO: Old way release method, not up to date with export renderer
-        which should return a list of rendered documents. If any writing file
-        is required it has to be done outside of release (like in the CLI).
+        Rendered document is serialized to JSON string inside ``content``
+        item in document dict.
+
+        Arguments:
+            context (dict): Document context as returned from
+                ``modelize_***`` methods.
+
+        Returns:
+            dict: The document ``context`` with its serialization inside
+            ``content`` item.
         """
-        document = self.get_template(self.template)
+        template_name = self.TEMPLATES[context["context"]["kind"]]
+        document = self.get_template(template_name)
 
-        return document.render(**self.render_context)
+        return {
+            "document": context["document"],
+            "content": document.render(**{"export":context["context"]}),
+        }
+
+    def release(self, *args, **kwargs):
+        """
+        Override original method to include 'stylesheet' document which is the
+        CSS stylesheet used from templates.
+        """
+        documents = super().release(*args, **kwargs)
+
+        stylesheet_path = os.path.join(self.template_dir, self.TEMPLATES["stylesheet"])
+        with io.open(stylesheet_path, "r") as fp:
+            stylesheet = fp.read()
+
+        documents.append({
+            "document": self.DOCUMENT_FILENAMES["stylesheet"],
+            "content": stylesheet,
+        })
+
+        return documents

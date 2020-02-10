@@ -1,0 +1,43 @@
+{% extends "skeleton.html" %}
+
+{% macro pluralizer(value, single='', plural='s') -%}
+    {% if value > 1 %}{{ plural }}{% else %}{{ single }}{% endif %}
+{%- endmacro %}
+
+{% block head_title %}Summary - {{ super() }}{% endblock head_title %}
+
+{%- block content -%}
+<div class="page-content summary-detail">
+    <div class="resume">
+        <div class="title">
+            <h2>Summary</h2>
+        </div>
+
+        {% with statistics=export.statistics, path_count=export.paths|length %}
+            {% include "fragments/counters.html" %}
+        {% endwith %}
+    </div>
+
+    <div class="index">
+        <ul>
+        {% for path in export.paths %}
+            <li>
+                <a href="{{ page_relative_position }}{{ path.path }}">
+                    <span>{{ path.name }}</span>
+                    {% with statistics=path.statistics, ignore_empty=True %}
+                        {% include "fragments/counters.html" %}
+                    {% endwith %}
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{%- endblock content -%}
+
+
+{%- block footer_content -%}
+    {% with metas=export.metas %}
+        {% include "fragments/report-metas.html" %}
+    {% endwith %}
+{%- endblock footer_content -%}

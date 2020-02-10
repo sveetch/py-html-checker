@@ -1,0 +1,58 @@
+{% extends "skeleton.html" %}
+
+{% macro pluralizer(value, single='', plural='s') -%}
+    {% if value > 1 %}{{ plural }}{% else %}{{ single }}{% endif %}
+{%- endmacro %}
+
+{% block head_title %}Audit - {{ super() }}{% endblock head_title %}
+
+{%- block content -%}
+<div class="page-content audit-detail">
+    <div class="resume">
+        <div class="title">
+            <h2>Audit</h2>
+        </div>
+
+        {% with statistics=export.statistics, path_count=export.paths|length %}
+            {% include "fragments/counters.html" %}
+        {% endwith %}
+    </div>
+
+    <div class="index">
+        {% for path in export.paths %}
+        {% with path_id=loop.index %}
+        <div class="report-item">
+            <div class="title">
+                <h3>{{ path.name }}</h3>
+                {% with statistics=path.statistics, ignore_empty=True %}
+                    {% include "fragments/badges.html" %}
+                {% endwith %}
+            </div>
+
+            <div class="messages">
+                {% for message_row in path.data.messages %}
+                    {% with message=message_row, prefix_id=path_id, message_id=loop.index, source_enabled=path.source %}
+                        {% include "fragments/message.html" %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+
+            {%- if path.source -%}
+            <div class="report-source">
+                <h3 class="title">Source</h3>
+                {{ path.source|highlight_html(linenos=True, identifier="source-"~path_id) }}
+            </div>
+            {%- endif -%}
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+</div>
+{%- endblock content -%}
+
+
+{%- block footer_content -%}
+    {% with metas=export.metas %}
+        {% include "fragments/report-metas.html" %}
+    {% endwith %}
+{%- endblock footer_content -%}
