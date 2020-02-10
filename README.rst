@@ -18,8 +18,8 @@ Requires
 
 * Python>=3.4;
 * Java>=8 (openjdk8 or oraclejdk8);
-* Virtualenv (recommended but not mandatory);
-* Pip (recommended but not mandatory);
+* Virtualenv (recommended);
+* Pip (recommended);
 
 Dependancies
 ************
@@ -72,26 +72,76 @@ absolute url (with leading ``http``): ::
     html-checker site sitemap.xml
     html-checker site http://perdu.com/sitemap.xml
 
-Common page and site options
-----------------------------
+Manage verbosity
+----------------
 
-**--user-agent**
-    A customer user-agent to use for every possible requests.
-**--Xss**
-    Java thread stack size. Useful in some case where you encounter error
-    'StackOverflowError' from validator. Set it to something like '512k'.
+Default commandline verbosity is set to "Info" level, you may set it to "Debug"
+level to get also some more informations about command line work: ::
+
+    html-checker -v 5 site sitemap.xml
+
+Or a totally silent output (beware that not any error will be return to output
+except commandline critical error): ::
+
+    html-checker -v 0 site sitemap.xml
+
+Common options
+--------------
+
+**--destination**
+    Directory path where to write report files. If destination is not given,
+    every files will be printed out. You can use a dot to write files to your
+    current directory, a relative path or an absolute path. Path can start
+    with `~` to point to your user home directory.
+**--exporter**
+    Select exporter format. Default format is ``logging``, it just printout
+    report messages. There is also a ``json`` format to create JSON files for
+    reports. And finally a ``html`` format to create HTML files.
+**--pack/--no-pack**
+    Pack reports into a single file or not. Default is to pack everything in
+    a single file. 'no-pack' will create a file for each report and then an
+    export summary. It is recommended to define a destination directory with
+    '--destination' if you don't plan to use packed export, else every files
+    will just be printed out in an unique output. This option has no effect
+    with ``logging`` format.
 **--safe**
     Invalid paths won't break execution of script and it will be able to
-    continue to the end.
+    continue to the end. This is mostly for rare usecase when invalid source
+    encounter a bug from report parsing or from validator.
 **--split**
     Execute validation for each path in its own distinct instance. Useful for
     very large path list which may take too long to display anything until
     every path has been validated. However, for small or moderate path list it
     will be longer than packed execution.
+**--user-agent**
+    A customer user-agent to use for every possible requests.
+**--Xss**
+    Java thread stack size. Useful in some case where you encounter error
+    'StackOverflowError' from validator. Set it to something like '512k'.
+
+Specific formats options
+------------------------
+
+html
+....
+
+**--template-dir**
+    A path to a template directory for your custom templates. Your template
+    directory must contains the summary, report and audit main templates and
+    also a `main.css` file.
+
+
+Specific 'site' options
+-----------------------
+
 **--sitemap-only**
     For ``site`` command only. This will only get and parse given sitemap path
     but without validating its items, useful to validate a sitemap before
     using it for validations.
+
+
+CLI help
+--------
 
 See commandline helps for more details : ::
 

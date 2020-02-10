@@ -34,7 +34,8 @@ COMMON_OPTIONS = {
                 "for each report and then an export summary."
                 "It is recommended to define a destination directory with "
                 "'--destination' if you don't plan to use packed export, else "
-                "every files will just be printed out in an unique output."
+                "every files will just be printed out in an unique output. "
+                "This option has no effect with ``logging`` format."
             ),
         }
     },
@@ -43,7 +44,7 @@ COMMON_OPTIONS = {
         "kwargs": {
             "type": click.Choice(EXPORTER_CHOICES, case_sensitive=False),
             "help": (
-                "Select export format."
+                "Select exporter format."
             ),
             "default": "logging",
         }
@@ -65,7 +66,9 @@ COMMON_OPTIONS = {
             "is_flag": True,
             "help": (
                 "Invalid paths won't break execution of script "
-                "and it will be able to continue to the end."
+                "and it will be able to continue to the end. This is mostly "
+                "for rare usecase when invalid source encounter a bug from "
+                "report parsing or from validator."
             ),
         }
     },
