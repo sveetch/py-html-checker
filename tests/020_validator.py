@@ -152,7 +152,10 @@ def test_get_validator_command(settings, interpreter, validator,
         {},
         {},
         ["http://perdu.com"],
-        "Unable to reach interpreter to run validator: [Errno 2] No such file or directory: 'nietniet'",
+        (
+            "Unable to reach interpreter to run validator: [Errno 2] No such "
+            "file or directory: 'nietniet'"
+        ),
     ),
     # Unreachable validator
     (
@@ -181,6 +184,10 @@ def test_validate_fail(settings, interpreter, validator,
     Exception should be raised when there is an error while executing
     interpreter or validator. Note than validator won't throw any error when
     pages to check is missing, invalid, etc..
+
+    Also we don't exactly assert expected error is equal to response, since it
+    can change depending from Java or vnu, so we just assert response starts
+    with expection, it should be enough.
     """
     v = ValidatorInterface()
 
@@ -199,7 +206,7 @@ def test_validate_fail(settings, interpreter, validator,
             tool_options=tool_options
         )
 
-    assert expected == str(excinfo.value)
+    assert str(excinfo.value).startswith(expected)
 
 
 @pytest.mark.parametrize("paths,expected", [

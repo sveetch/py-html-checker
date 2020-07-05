@@ -194,10 +194,11 @@ class ValidatorInterface:
         if "--user-agent" not in tool_options:
             tool_options["--user-agent"] = html_checker.USER_AGENT
 
-        ## TODO: Get the checked source
-        # This option does not exists
-        #if "--showsource" not in tool_options:
-            #tool_options["--showsource"] = "yes"
+        # TODO: Get the checked source
+        # NOTE: This option does not exists in vnu, have to implement own
+        #       solution
+        # if "--showsource" not in tool_options:
+            # tool_options["--showsource"] = "yes"
 
         return interpreter_options, tool_options
 

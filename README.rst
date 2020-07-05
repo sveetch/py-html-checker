@@ -38,8 +38,8 @@ Install
 
     pip install py-html-checker[cli,jinja]
 
-If you don't plan to use it from command line (like as a module) or HTML export
-you can avoid the ``cli`` and ``jinja`` parts: ::
+If you don't plan to use it from command line (like as a module) and for HTML
+export you can avoid the ``cli`` and ``jinja`` parts: ::
 
     pip install py-html-checker
 
@@ -53,9 +53,9 @@ With the command ``page`` you can validate one or many pages. Command accept
 one or many path and each path can be either an URL or a filepath (absolute or
 relative from your current location): ::
 
-    html-checker page ping.html
-    html-checker page http://perdu.com
-    html-checker page ping.html http://perdu.com foo/bar.html
+    htmlcheck page ping.html
+    htmlcheck page http://perdu.com
+    htmlcheck page ping.html http://perdu.com foo/bar.html
 
 Validate all path from a sitemap
 --------------------------------
@@ -69,8 +69,8 @@ Note than for a sitemap file, its referenced urls must be absolute or relative
 to your current location. For a sitemap url, its referenced urls must be an
 absolute url (with leading ``http``): ::
 
-    html-checker site sitemap.xml
-    html-checker site http://perdu.com/sitemap.xml
+    htmlcheck site sitemap.xml
+    htmlcheck site http://perdu.com/sitemap.xml
 
 Manage verbosity
 ----------------
@@ -78,12 +78,12 @@ Manage verbosity
 Default commandline verbosity is set to "Info" level, you may set it to "Debug"
 level to get also some more informations about command line work: ::
 
-    html-checker -v 5 site sitemap.xml
+    htmlcheck -v 5 site sitemap.xml
 
 Or a totally silent output (beware that not any error will be return to output
 except commandline critical error): ::
 
-    html-checker -v 0 site sitemap.xml
+    htmlcheck -v 0 site sitemap.xml
 
 Common options
 --------------
@@ -145,6 +145,6 @@ CLI help
 
 See commandline helps for more details : ::
 
-    html-checker -h
-    html-checker page -h
-    html-checker site -h
+    htmlcheck -h
+    htmlcheck page -h
+    htmlcheck site -h
