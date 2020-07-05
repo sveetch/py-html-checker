@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-import os
 
-import html_checker
-from html_checker.exceptions import ExportError
 from html_checker.export.render import ExporterRenderer
 
 
@@ -16,7 +13,7 @@ class JsonExport(ExporterRenderer):
             to 0 for no indentation but keeping newline or ``None`` for oneline
             without spaces or newlines.
     """
-    klassname = __qualname__
+    klassname = __qualname__  # noqa: F821
     FORMAT_NAME = "json"
     DOCUMENT_FILENAMES = {
         "audit": "audit.json",

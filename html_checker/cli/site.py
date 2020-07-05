@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import logging
-import os
 
 from collections import OrderedDict
 
@@ -54,7 +53,7 @@ def site_command(context, destination, exporter, no_stream, pack, safe,
     """
     logger = logging.getLogger("py-html-checker")
 
-    logger.debug("Opening sitemap".format(path))
+    logger.debug("Opening sitemap: {}".format(path))
 
     # Safe mode enabled, catch all internal exceptions
     if safe:
@@ -124,7 +123,8 @@ def site_command(context, destination, exporter, no_stream, pack, safe,
             raise click.Abort()
         else:
             if hasattr(exporter, "template_dir"):
-                logger.debug("Using template directory: {}".format(exporter.template_dir))
+                msg = "Using template directory: {}"
+                logger.debug(msg.format(exporter.template_dir))
 
         # Keep packed paths or split them depending 'split' option
         routines = [reduced_paths[:]]

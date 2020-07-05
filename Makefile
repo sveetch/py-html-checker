@@ -45,11 +45,11 @@ install: venv
 .PHONY: install
 
 flake:
-	$(FLAKE) --show-source $(PACKAGE_NAME)
+	@$(FLAKE) --show-source $(PACKAGE_NAME)
 .PHONY: flake
 
 tests:
-	$(PYTEST) -vv tests/
+	@$(PYTEST) -vv tests/
 .PHONY: tests
 
 quality: tests flake

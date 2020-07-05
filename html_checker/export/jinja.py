@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-import datetime
 import io
 import os
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import html_checker
-from html_checker.exceptions import ExportError
 from html_checker.export.render import ExporterRenderer
 from html_checker.export.jinja_filters import highlight_html_filter
-from html_checker.utils import get_vnu_version
 
 
 class JinjaExport(ExporterRenderer):
@@ -26,7 +23,7 @@ class JinjaExport(ExporterRenderer):
             methods) and item value the template relative path from template
             directory.
     """
-    klassname = __qualname__
+    klassname = __qualname__  # noqa: F821
     FORMAT_NAME = "html"
     DEFAULT_TEMLATE = "basic.html"
     TEMPLATES = {
@@ -126,7 +123,7 @@ class JinjaExport(ExporterRenderer):
 
         return {
             "document": context["document"],
-            "content": document.render(**{"export":context["context"]}),
+            "content": document.render(**{"export": context["context"]}),
         }
 
     def release(self, *args, **kwargs):

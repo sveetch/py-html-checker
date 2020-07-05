@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-import os
 import datetime
 
 import html_checker
-from html_checker.exceptions import ExportError
 from html_checker.export.base import ExporterBase
 from html_checker.utils import get_vnu_version, merge_compute
 
@@ -22,7 +20,7 @@ class ExporterRenderer(ExporterBase):
         store (dict): A dictionnary which contain report contents to
             export. It will be filled during build process.
     """
-    klassname = __qualname__ # Required to be paste in every exporter class
+    klassname = __qualname__  # noqa: F821
     FORMAT_NAME = None
     DOCUMENT_FILENAMES = {
         "audit": "audit.txt",
@@ -65,7 +63,7 @@ class ExporterRenderer(ExporterBase):
         if source_content or extract:
             source_content["extract"] = extract
 
-        context = {k:v for k, v in row.items() if k not in coords_keys}
+        context = {k: v for k, v in row.items() if k not in coords_keys}
         context["source"] = source_content
 
         return context
@@ -312,7 +310,6 @@ class ExporterRenderer(ExporterBase):
 
         """
         global_stats = {}
-        global_data = {}
 
         paths = []
         for i, item in enumerate(context, start=1):

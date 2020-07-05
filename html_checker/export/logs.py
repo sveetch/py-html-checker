@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
-
-from html_checker.exceptions import ExportError
 from html_checker.export.base import ExporterBase
 
 
@@ -16,7 +13,7 @@ class LoggingExport(ExporterBase):
             content. It have to contain an item for ``row`` and ``message``.
             Default to value from attribute ``DIVIDERS``.
     """
-    klassname = __qualname__ # Required to be paste in every exporter class
+    klassname = __qualname__  # noqa: F821
     FORMAT_NAME = "logging"
     LINE_TEMPLATE = ("From line {linestart} column {colstart} to "
                      "line {lineend} column {colend}")

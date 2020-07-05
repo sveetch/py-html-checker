@@ -16,8 +16,9 @@ class ExporterBase(object):
 
         https://github.com/validator/validator/wiki/Output-%C2%BB-JSON
     """
-    klassname = __qualname__ # Required to be paste in every exporter class
     FORMAT_NAME = None
+    # Required to be paste in every exporter class
+    klassname = __qualname__  # noqa: F821
 
     def __init__(self, *args, **kwargs):
         self.log = logging.getLogger("py-html-checker")

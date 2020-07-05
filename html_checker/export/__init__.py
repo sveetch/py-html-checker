@@ -16,11 +16,11 @@ EXPORTER_CHOICES = ["logging", "json"]
 
 # Enable HTML format if Jinja is installed
 try:
-    import jinja2
+    import jinja2  # noqa: F401
 except ImportError:
     pass
 else:
-    from .jinja import JinjaExport
+    from .jinja import JinjaExport  # noqa: F401
     EXPORTER_CHOICES.append("html")
     __all__.append("JinjaExport")
 

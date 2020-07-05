@@ -4,7 +4,6 @@ from shutil import which
 import click
 
 from html_checker import __version__
-from html_checker.exceptions import HtmlCheckerBaseException
 from html_checker.utils import get_vnu_version
 
 
