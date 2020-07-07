@@ -3,6 +3,7 @@ VENV_PATH=.venv
 PIP=$(VENV_PATH)/bin/pip
 FLAKE=$(VENV_PATH)/bin/flake8
 PYTEST=$(VENV_PATH)/bin/pytest
+TWINE=$(VENV_PATH)/bin/twine
 PACKAGE_NAME=html_checker
 
 help:
@@ -17,6 +18,8 @@ help:
 	@echo "  flake               -- to launch Flake8 checking"
 	@echo "  tests               -- to launch base test suite using Pytest"
 	@echo "  quality             -- to launch Flake8 checking and every tests suites"
+	@echo ""
+	@echo "  release             -- to release package for latest version on PyPi (once release has been pushed to repository)"
 	@echo
 
 clean-pycache:
@@ -46,6 +49,7 @@ install: venv
 
 flake:
 	@$(FLAKE) --show-source $(PACKAGE_NAME)
+#	$(FLAKE) --show-source tests
 .PHONY: flake
 
 tests:
@@ -54,3 +58,9 @@ tests:
 
 quality: tests flake
 .PHONY: quality
+
+release:
+	rm -Rf dist
+	$(VENV_PATH)/bin/python setup.py sdist
+	$(TWINE) upload dist/*
+.PHONY: release
