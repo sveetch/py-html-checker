@@ -5,12 +5,19 @@ from collections import OrderedDict
 
 import click
 
+try:
+    import cherrypy  # noqa: F401
+except ImportError:
+    CHERRYPY_AVAILABLE = False
+else:
+    CHERRYPY_AVAILABLE = True
+
 from html_checker.cli.common import COMMON_OPTIONS
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
 from html_checker.export import get_exporter
 from html_checker.validator import ValidatorInterface
-from html_checker.utils import reduce_unique, write_documents
+from html_checker.utils import reduce_unique, write_documents, resolve_paths
 
 
 @click.command()
@@ -128,9 +135,47 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
             # Write every document to files in destination directory
             files = write_documents(destination, export)
             for item in files:
-                msg = "Created file: {}".format(item)
-                logger.info(msg)
+                msg = "Created file: {}"
+                logger.info(msg.format(item))
         else:
             # Print out document
             for doc in export:
                 click.echo(doc["content"])
+
+    # TODO: Temporary, will be a new arguments
+    serve = True
+    serve_address = "0.0.0.0"
+    serve_port = 8090
+
+    # Report with a destination and correct format
+    if serve:
+        print("destination:", destination)
+        print("exporter.FORMAT_NAME:", exporter.FORMAT_NAME)
+        if not destination or exporter.FORMAT_NAME != "html":
+            logger.error((
+                "Using '--serve' without destination or html exporter does "
+                "not have any sense."
+            ))
+        else:
+            server_destination = resolve_paths(destination)
+
+            msg = "Starting http server on: {}"
+            logger.info(msg.format(server_destination))
+
+            # Configure webapp server
+            cherrypy.config.update({
+                'server.socket_host': serve_address,
+                'server.socket_port': serve_port,
+                'engine.autoreload_on': False,
+            })
+
+            # Configure webapp static
+            conf = {
+                '/': {
+                    'tools.staticdir.index': "index.html",
+                    'tools.staticdir.on': True,
+                    'tools.staticdir.dir': server_destination,
+                },
+            }
+
+            cherrypy.quickstart(None, '/', config=conf)

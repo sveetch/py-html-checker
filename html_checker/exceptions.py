@@ -52,6 +52,13 @@ class SitemapInvalidError(HtmlCheckerBaseException):
     pass
 
 
+class HTTPServerError(HtmlCheckerBaseException):
+    """
+    Exception to be raised when an error occurs with HTTP server.
+    """
+    pass
+
+
 class ValidatorError(HtmlCheckerBaseException):
     """
     Exception to be raised when validator fail.

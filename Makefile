@@ -40,13 +40,13 @@ clean: clean-install clean-pycache
 
 venv:
 	virtualenv -p $(PYTHON_INTERPRETER) $(VENV_PATH)
-	# This is required for those ones using ubuntu<16.04
+	# Upgrade pip&setuptools to avoid old versions from distributions
 	$(PIP) install --upgrade pip
 	$(PIP) install --upgrade setuptools
 .PHONY: venv
 
 install: venv
-	$(PIP) install -e .[cli,jinja,dev]
+	$(PIP) install -e .[cli,jinja,dev,serve]
 .PHONY: install
 
 flake:
