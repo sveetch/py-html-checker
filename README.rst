@@ -30,16 +30,18 @@ Dependancies
 * ``colorlog`` (CLI only);
 * ``Jinja2>=2.10,<3.0`` (Jinja only);
 * ``Pygments`` (Jinja only);
+* CherryPy (Server only);
 
 Install
 *******
 
 ::
 
-    pip install py-html-checker[cli,jinja]
+    pip install py-html-checker[cli,jinja,serve]
 
-If you don't plan to use it from command line (like as a module) and for HTML
-export you can avoid the ``cli`` and ``jinja`` parts: ::
+If you don't plan to use it from command line (like as a module), HTML
+export and HTTP server you can avoid the ``cli``, ``jinja`` and ``serve``
+parts: ::
 
     pip install py-html-checker
 

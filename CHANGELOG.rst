@@ -4,6 +4,14 @@
 History
 =======
 
+Version 0.5.0 - Unreleased
+--------------------------
+
+.. TODO:
+    Server mode is fully implemented and working with 'page'. Interface has been tested.
+    Still have to test in CLI and add it also to 'site' command.
+
+
 Version 0.4.2 - 2022/03/17
 --------------------------
 

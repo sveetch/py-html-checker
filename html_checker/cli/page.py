@@ -16,8 +16,9 @@ from html_checker.cli.common import COMMON_OPTIONS
 from html_checker.exceptions import (HtmlCheckerUnexpectedException,
                                      HtmlCheckerBaseException)
 from html_checker.export import get_exporter
+from html_checker.serve import ReleaseServer
 from html_checker.validator import ValidatorInterface
-from html_checker.utils import reduce_unique, write_documents, resolve_paths
+from html_checker.utils import reduce_unique, write_documents
 
 
 @click.command()
@@ -107,6 +108,37 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
         if hasattr(exporter, "template_dir"):
             logger.debug("Using template directory: {}".format(exporter.template_dir))
 
+    # TODO: Temporary, will be a new arguments
+    serve = True
+    serve_address = "0.0.0.0"
+    serve_port = 8090
+
+    server = None
+    # Prepare server interface if required and available
+    if serve:
+        if CHERRYPY_AVAILABLE:
+            if exporter.FORMAT_NAME != "html":
+                logger.critical((
+                    "Using '--serve' without html exporter does not have any "
+                    "sense."
+                ))
+                raise click.Abort()
+
+            server = ReleaseServer(
+                hostname=serve_address,
+                port=serve_port,
+                basedir=destination,
+                temporary=not(destination),
+            )
+            # Overwrite destination so the temporary directory is set if any
+            destination = server.basedir
+        else:
+            logger.critical((
+                "'--serve' option is only available if CherryPy has been "
+                "installed."
+            ))
+            raise click.Abort()
+
     # Keep packed paths or split them depending 'split' option
     routines = [reduced_paths[:]]
     if split:
@@ -142,40 +174,9 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
             for doc in export:
                 click.echo(doc["content"])
 
-    # TODO: Temporary, will be a new arguments
-    serve = True
-    serve_address = "0.0.0.0"
-    serve_port = 8090
 
-    # Report with a destination and correct format
-    if serve:
-        print("destination:", destination)
-        print("exporter.FORMAT_NAME:", exporter.FORMAT_NAME)
-        if not destination or exporter.FORMAT_NAME != "html":
-            logger.error((
-                "Using '--serve' without destination or html exporter does "
-                "not have any sense."
-            ))
-        else:
-            server_destination = resolve_paths(destination)
-
-            msg = "Starting http server on: {}"
-            logger.info(msg.format(server_destination))
-
-            # Configure webapp server
-            cherrypy.config.update({
-                'server.socket_host': serve_address,
-                'server.socket_port': serve_port,
-                'engine.autoreload_on': False,
-            })
-
-            # Configure webapp static
-            conf = {
-                '/': {
-                    'tools.staticdir.index': "index.html",
-                    'tools.staticdir.on': True,
-                    'tools.staticdir.dir': server_destination,
-                },
-            }
-
-            cherrypy.quickstart(None, '/', config=conf)
+    # Launch server if any then remove possible temporary content when server
+    # has been stopped
+    if server:
+        server.run()
+        server.flush()

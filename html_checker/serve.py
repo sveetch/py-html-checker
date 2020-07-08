@@ -1,4 +1,6 @@
 import logging
+import shutil
+import tempfile
 
 import cherrypy
 
@@ -10,6 +12,14 @@ class ReleaseServer:
     """
     Server to serve report release.
 
+    Arguments:
+        hostname (string):
+        port (integer):
+
+    Keyword Arguments:
+        basedir (string):
+        temporary (boolean):
+
     Attributes:
         log (logging): Logging object set to application "py-html-checker".
     """
@@ -20,25 +30,59 @@ class ReleaseServer:
         self.basedir = self.get_basedir(basedir, temporary)
         self.temporary = temporary
 
-
     def get_basedir(self, path, temporary):
         """
-        Get the base directory path to server.
+        Get the base directory path to serve.
 
-        Return an absolute path. Possibly create a temporary directory if
-        temporary mode is enabled.
+        Just serve the given path if any, else if temporary mode is enabled a
+        temporary directory will be created and assigned as the base directory.
+        Remember to use the ``flush`` method to clean the temporary directory
+        when you are done with it.
+
+        Giving a path and enable temporary mode cause a conflict because for
+        security reason we don't support to assume an existing directory as a
+        temporary directory to clean.
+
+        Arguments:
+            path (string): Path to serve as base directory, it will be resolved
+                as an absolute path.
+            temporary (boolean): To enable or disable temporary.
+
+        Raises:
+            html_checker.exceptions.HTTPServerError: Raised if there is conflict
+                between given path and temporary mode.
+
+        Returns:
+            string: Absolute path for base directory. Either the given one or
+            a temporary directory just created.
         """
-        if not path and not temporary:
-            msg = (
-                "A base directory is required if temporary mode is not enabled."
-            )
-            raise HTTPServerError(msg)
+        if not path:
+            if not temporary:
+                msg = (
+                    "A base directory is required if temporary mode is not "
+                    "enabled."
+                )
+                raise HTTPServerError(msg)
+            else:
+                basedir = tempfile.mkdtemp(prefix="py-html-checker_report")
+        else:
+            if temporary:
+                msg = (
+                    "Temporary mode can not be enabled if a base directory has "
+                    "been given."
+                )
+                raise HTTPServerError(msg)
+            else:
+                basedir = resolve_paths(path)
 
         return basedir
 
     def get_server_config(self):
         """
         Return the server config to set on CherryPy.
+
+        Returns:
+            dict: Server configuration.
         """
         return {
             "server.socket_host": self.hostname,
@@ -49,30 +93,42 @@ class ReleaseServer:
     def get_app_config(self):
         """
         Return the application config to set on mounted application.
+
+        Returns:
+            dict: Application configuration.
         """
         return {
-            '/': {
-                'tools.staticdir.index': "index.html",
-                'tools.staticdir.on': True,
-                'tools.staticdir.dir': self.basedir,
+            "/": {
+                "tools.staticdir.index": "index.html",
+                "tools.staticdir.on": True,
+                "tools.staticdir.dir": self.basedir,
             },
         }
 
     def flush(self):
         """
         Flush a builded release.
+
+        Returns:
+            string: Removed path if temporary mode is enabled, else None.
         """
-        return self.basedir
+        removed = None
+
+        if self.temporary:
+            msg = "Clean temporary directory: {}"
+            self.log.debug(msg.format(self.basedir))
+
+            shutil.rmtree(self.basedir)
+            removed = self.basedir
+
+        return removed
 
     def run(self):
         """
-        Run CherryPy instance on release
+        Run CherryPy instance on release.
         """
         msg = "Starting http server on: {}"
         self.log.info(msg.format(self.basedir))
 
         cherrypy.config.update(self.get_server_config())
         cherrypy.quickstart(None, "/", config=self.get_app_config())
-
-        if self.temporary:
-            self.flush()
