@@ -18,7 +18,7 @@ from html_checker.exceptions import (HtmlCheckerUnexpectedException,
 from html_checker.export import get_exporter
 from html_checker.serve import ReleaseServer
 from html_checker.validator import ValidatorInterface
-from html_checker.utils import reduce_unique, write_documents
+from html_checker.utils import reduce_unique, write_documents, format_hostname
 
 
 @click.command()
@@ -32,6 +32,8 @@ from html_checker.utils import reduce_unique, write_documents
               **COMMON_OPTIONS["pack"]["kwargs"])
 @click.option(*COMMON_OPTIONS["safe"]["args"],
               **COMMON_OPTIONS["safe"]["kwargs"])
+@click.option(*COMMON_OPTIONS["serve"]["args"],
+              **COMMON_OPTIONS["serve"]["kwargs"])
 @click.option(*COMMON_OPTIONS["split"]["args"],
               **COMMON_OPTIONS["split"]["kwargs"])
 @click.option(*COMMON_OPTIONS["template-dir"]["args"],
@@ -42,8 +44,8 @@ from html_checker.utils import reduce_unique, write_documents
               **COMMON_OPTIONS["xss"]["kwargs"])
 @click.argument('paths', nargs=-1, required=True)
 @click.pass_context
-def page_command(context, destination, exporter, no_stream, pack, safe, split,
-                 template_dir, user_agent, xss, paths):
+def page_command(context, destination, exporter, no_stream, pack, safe, serve,
+                 split, template_dir, user_agent, xss, paths):
     """
     Validate given page paths.
 
@@ -108,11 +110,6 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
         if hasattr(exporter, "template_dir"):
             logger.debug("Using template directory: {}".format(exporter.template_dir))
 
-    # TODO: Temporary, will be a new arguments
-    serve = True
-    serve_address = "0.0.0.0"
-    serve_port = 8090
-
     server = None
     # Prepare server interface if required and available
     if serve:
@@ -122,6 +119,12 @@ def page_command(context, destination, exporter, no_stream, pack, safe, split,
                     "Using '--serve' without html exporter does not have any "
                     "sense."
                 ))
+                raise click.Abort()
+
+            try:
+                serve_address, serve_port = format_hostname(serve)
+            except HtmlCheckerBaseException as e:
+                logger.critical(e)
                 raise click.Abort()
 
             server = ReleaseServer(

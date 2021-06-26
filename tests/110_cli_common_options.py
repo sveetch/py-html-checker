@@ -10,8 +10,10 @@ import pytest
 
 from click.testing import CliRunner
 
+import cherrypy
+
 from html_checker.cli.entrypoint import cli_frontend
-from html_checker.export import LoggingExport
+from html_checker.export import LoggingExport, JinjaExport
 from html_checker.validator import ValidatorInterface
 from html_checker.sitemap import Sitemap
 
@@ -36,6 +38,13 @@ class DummyReport:
         print("DummyReport: registry after")
         print(self.registry)
         print()
+
+
+def mock_cherrypy_quickstart(*args, **kwargs):
+    """
+    Mock quickstart to do nothing.
+    """
+    pass
 
 
 def mock_validator_execute_validator(*args, **kwargs):
@@ -227,6 +236,68 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
         result = runner.invoke(cli_frontend, [
             command_name, "--user-agent", "Foobar", "http://perdu.com"
         ])
+
+        assert result.exit_code == 0
+        assert expected == caplog.record_tuples
+
+
+@pytest.mark.parametrize("command_name", [
+    "page",
+    #"site",
+])
+def test_serve(monkeypatch, caplog, settings, command_name):
+    """
+    '--server' option should
+
+    TODO: Finish him! Test localfile instead of url. And only insert Server
+    logs "ARE IN" log tuple, dont assert on complete log tuple.
+    """
+    monkeypatch.setattr(cherrypy, "quickstart", mock_cherrypy_quickstart)
+
+    commandline = (
+        "java"
+        " -jar {APPLICATION}/vnujar/vnu.jar"
+        " --format json"
+        " --exit-zero-always"
+        " http://perdu.com"
+    )
+
+    expected = []
+    if command_name == "site":
+        expected.append(
+            ("py-html-checker", logging.INFO, "Sitemap have 1 paths"),
+        )
+    else:
+        expected.append(
+            ("py-html-checker", logging.INFO, "Launching validation for 1 paths"),
+        )
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        test_cwd = os.getcwd()
+
+        cli = [
+            command_name, "--exporter", "html", "--serve", "0.0.0.0:8080",
+            "http://perdu.com"
+        ]
+        print("=> commandline <=")
+        print(cli)
+        print()
+        result = runner.invoke(cli_frontend, cli)
+
+        print("=> result.output <=")
+        print(result.output)
+        print()
+        print("=> expected <=")
+        print(expected)
+        print()
+        print("=> caplog.record_tuples <=")
+        print(caplog.record_tuples)
+        print("=> result.exception <=")
+        print(result.exception)
+        print()
+        if result.exception is not None:
+            raise result.exception
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples

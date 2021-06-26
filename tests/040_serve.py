@@ -178,7 +178,7 @@ def test_notemp_mode_run(monkeypatch, caplog):
     temporary mode disabled.
 
     Mockup the cherrypy method since we don't want to test it and server config
-    is pretty basic.
+    is basic enough to be trusted.
     """
     monkeypatch.setattr(cherrypy, "quickstart", mock_cherrypy_quickstart)
 
@@ -189,11 +189,14 @@ def test_notemp_mode_run(monkeypatch, caplog):
         "temporary": False,
     })
 
-    with caplog.at_level(logging.INFO):
+    with caplog.at_level(logging.DEBUG):
         s.run()
 
+    msg_host = "Starting HTTP server on: localhost:8000"
     expected = [
-        ('py-html-checker', logging.INFO, 'Starting http server on: /foo/bar'),
+        ("py-html-checker", logging.INFO, msg_host),
+        ("py-html-checker", logging.DEBUG, "Serving report from: /foo/bar"),
+        ("py-html-checker", logging.WARNING, "Use CTRL+C to terminate."),
     ]
     assert expected == caplog.record_tuples
 
@@ -206,7 +209,7 @@ def test_temp_mode_run(monkeypatch, caplog):
     temporary mode enabled.
 
     Mockup the cherrypy method since we don't want to test it and server config
-    is pretty basic.
+    is basic enough to be trusted.
     """
     monkeypatch.setattr(cherrypy, "quickstart", mock_cherrypy_quickstart)
 
@@ -216,12 +219,15 @@ def test_temp_mode_run(monkeypatch, caplog):
         "temporary": True,
     })
 
-    with caplog.at_level(logging.INFO):
+    with caplog.at_level(logging.DEBUG):
         s.run()
 
-    msg = 'Starting http server on: {}'
+    msg_host = "Starting HTTP server on: localhost:8000"
+    msg_dir = "Serving report from: {}"
     expected = [
-        ('py-html-checker', logging.INFO, msg.format(s.basedir)),
+        ("py-html-checker", logging.INFO, msg_host),
+        ("py-html-checker", logging.DEBUG, msg_dir.format(s.basedir)),
+        ("py-html-checker", logging.WARNING, "Use CTRL+C to terminate."),
     ]
     assert expected == caplog.record_tuples
 

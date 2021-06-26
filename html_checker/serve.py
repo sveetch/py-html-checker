@@ -127,8 +127,14 @@ class ReleaseServer:
         """
         Run CherryPy instance on release.
         """
-        msg = "Starting http server on: {}"
+        # TODO: Output the host:port
+        msg = "Starting HTTP server on: {}"
         self.log.info(msg.format(self.basedir))
+
+        msg = "Serving report from: {}"
+        self.log.debug(msg.format(self.basedir))
+
+        self.log.warning("Use CTRL+C to terminate.")
 
         cherrypy.config.update(self.get_server_config())
         cherrypy.quickstart(None, "/", config=self.get_app_config())

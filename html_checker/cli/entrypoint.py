@@ -26,6 +26,7 @@ else:
     @click.option(
         '-v', '--verbose',
         type=click.IntRange(min=0, max=5),
+        show_default=True,
         default=4,
         metavar='INTEGER',
         help=(

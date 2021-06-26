@@ -18,9 +18,10 @@ COMMON_OPTIONS = {
                 "Directory path where to write report files. If destination "
                 "is not given, every files will be printed out. You can use a "
                 "dot to write files to your current directory, a relative "
-                "path or an absolute path. Path can start with '~' to point "
+                "path or an absolute path. Path can start with '~/' to point "
                 "to your user home directory."
             ),
+            "show_default": True,
             "default": None,
         }
     },
@@ -46,6 +47,7 @@ COMMON_OPTIONS = {
             "help": (
                 "Select exporter format."
             ),
+            "show_default": True,
             "default": "logging",
         }
     },
@@ -72,6 +74,22 @@ COMMON_OPTIONS = {
             ),
         }
     },
+    "serve": {
+        "args": ("--serve",),
+        "kwargs": {
+            "metavar": "HOSTNAME",
+            "default": None,
+            "help": (
+                "After report build, serve it with temporary HTTP server on "
+                "given hostname. Hostname value must be a valid host name "
+                "with optional port such as 'localhost' or '0.0.0.0' or "
+                "'0.0.0.0:8090'. This option is only available with 'html' "
+                "exporter. If 'destination' option has not been set, report "
+                "will be build in a temporary directory which will be removed "
+                "once server is stopped by 'CTRL-C'."
+            ),
+        }
+    },
     "source": {
         "args": ("--source/--no-source",),
         "kwargs": {
@@ -79,7 +97,7 @@ COMMON_OPTIONS = {
             "help": (
                 "Include full HTML source in report for each path. You can "
                 "disable it when you have too many paths with too much big "
-                "sources. NOT IMPLEMENTED YET."
+                "sources. NOT IMPLEMENTED."
             ),
         }
     },

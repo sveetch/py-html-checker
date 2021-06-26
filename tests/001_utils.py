@@ -2,8 +2,10 @@ import io
 import json
 import pytest
 
+from html_checker.exceptions import HtmlCheckerBaseException
 from html_checker.utils import (is_local_ressource, is_url, reduce_unique,
-                                merge_compute, resolve_paths, write_documents)
+                                merge_compute, resolve_paths, write_documents,
+                                format_hostname)
 
 
 @pytest.mark.parametrize("path,expected", [
@@ -290,3 +292,67 @@ def test_write_documents(temp_builds_dir, documents, expected):
             content = fp.read()
         assert content == doc["content"]
 
+
+
+@pytest.mark.parametrize("value,expected", [
+    (
+        "foo",
+        ("foo", 8002),
+    ),
+    (
+        "foo:",
+        ("foo", 8002),
+    ),
+    (
+        "foo:80",
+        ("foo", 80),
+    ),
+    (
+        "foo:80:bar",
+        ("foo", 80),
+    ),
+    (
+        "0.0.0.0",
+        ("0.0.0.0", 8002),
+    ),
+    (
+        "0.0.0.0:80",
+        ("0.0.0.0", 80),
+    ),
+])
+def test_format_hostname_success(value, expected):
+    """
+    Valid hostnames should be validated and returned in a tuple either with
+    given port or the default one.
+    """
+    assert expected == format_hostname(value)
+
+
+
+@pytest.mark.parametrize("value,expected", [
+    (
+        "",
+        "Given server hostname is empty.",
+    ),
+    (
+        ":",
+        "Given server hostname is empty.",
+    ),
+    (
+        ":80",
+        "Given server hostname is empty.",
+    ),
+    (
+        "foo:bar",
+        "Given server port number is invalid.",
+    ),
+])
+def test_format_hostname_fail(value, expected):
+    """
+    Valid hostnames should be validated and returned in a tuple either with
+    given port or the default one.
+    """
+    with pytest.raises(HtmlCheckerBaseException) as excinfo:
+        format_hostname(value)
+
+    assert expected == str(excinfo.value)
