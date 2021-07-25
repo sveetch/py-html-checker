@@ -251,3 +251,22 @@ def test_validate_success(caplog, settings, paths, expected):
     report = v.validate(paths)
 
     assert OrderedDict(final_expection) == report.registry
+
+
+def test_validate_java_options(monkeypatch, caplog, settings):
+    """
+    Ensure _JAVA_OPTIONS environment variable does not parasite output.
+    """
+    monkeypatch.setenv("_JAVA_OPTIONS", "-Xmx256M")
+
+    v = ValidatorInterface()
+
+    paths = [settings.format("{FIXTURES}/html/valid.basic.html")]
+
+    expected = [
+        (settings.format("{FIXTURES}/html/valid.basic.html"), None),
+    ]
+
+    report = v.validate(paths)
+
+    assert OrderedDict(expected) == report.registry

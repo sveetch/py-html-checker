@@ -27,7 +27,7 @@ class ReportStore:
         Build initial report registry from given paths.
 
         To fit to validator behaviors, if a path is an existing local file path
-        will be resolved to its absolute path. If it does not exists or an URL
+        it will be resolved to its absolute path. If it does not exists or is an URL
         it is left unchanged.
 
         Arguments:
@@ -72,6 +72,14 @@ class ReportStore:
         """
         # Decode returned byte string from process output JSON
         content = content.decode("utf-8").strip()
+
+        # Clear output from output interferences like Java warnings/debug/infos output
+        # This currently only care about the info log for "_JAVA_OPTIONS".
+        if (
+            not content.startswith("{")
+            and content.startswith("Picked up _JAVA_OPTIONS")
+        ):
+            content = "\n".join(content.splitlines()[1:])
 
         # Try to load and validate report JSON
         try:

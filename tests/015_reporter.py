@@ -91,6 +91,20 @@ def test_parse_invalid(content, expected):
     assert expected == str(excinfo.value)
 
 
+def test_parse_cleaning(monkeypatch):
+    """
+    Parser should clear some knowed and unwanted artefacts which may turn JSON content
+    as invalid.
+    """
+    monkeypatch.setenv("_JAVA_OPTIONS", "-Xmx256M")
+
+    r = ReportStore([])
+    content = b'{"messages": "foo"}'
+    expected = {"messages": "foo"}
+
+    assert expected == r.parse(content)
+
+
 @pytest.mark.parametrize("content,expected", [
     (
         b'{"messages": "foo"}',
