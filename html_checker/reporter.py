@@ -125,7 +125,7 @@ class ReportStore:
 
             # Clean prefix file path from reported path
             if path.startswith("file:"):
-                path = path[len("file:"): + 1].replace("%20", " ")
+                path = path[len("file:"):].replace("%20", " ")
                 path = os.path.abspath(path)
 
             if path in self.registry:
