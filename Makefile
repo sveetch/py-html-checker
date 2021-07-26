@@ -4,6 +4,7 @@ PIP=$(VENV_PATH)/bin/pip
 FLAKE=$(VENV_PATH)/bin/flake8
 PYTEST=$(VENV_PATH)/bin/pytest
 TWINE=$(VENV_PATH)/bin/twine
+TOX=$(VENV_PATH)/bin/tox
 PACKAGE_NAME=html_checker
 
 help:
@@ -16,7 +17,8 @@ help:
 	@echo "  clean-install       -- to clean Python side installation"
 	@echo ""
 	@echo "  flake               -- to launch Flake8 checking"
-	@echo "  tests               -- to launch base test suite using Pytest"
+	@echo "  tests               -- to launch test suite using Pytest"
+	@echo "  tox                 -- to launch test suite with Tox"
 	@echo "  quality             -- to launch Flake8 checking and every tests suites"
 	@echo ""
 	@echo "  release             -- to release package for latest version on PyPi (once release has been pushed to repository)"
@@ -55,6 +57,10 @@ flake:
 tests:
 	@$(PYTEST) -vv tests/
 .PHONY: tests
+
+tox:
+	@$(TOX)
+.PHONY: tox
 
 quality: tests flake
 .PHONY: quality
