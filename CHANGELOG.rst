@@ -4,6 +4,18 @@
 History
 =======
 
+Version 0.4.1 - 2021/07/26
+--------------------------
+
+* Include a fix proposed by @acbaraka to enhance Window support, even it's not an
+  official support;
+* Clean validator output from a line information about environment variable
+  ``_JAVA_OPTIONS``, close #22;
+* Add Tox to dev requirements;
+* Remove Python 3.5 support;
+* Validate support for Python 3.6 to 3.8;
+
+
 Version 0.4.0 - 2020/07/07
 --------------------------
 
