@@ -4,6 +4,15 @@
 History
 =======
 
+Version 0.4.2 - 2022/03/17
+--------------------------
+
+Fix issue with currently used Jinja version (2.x) which did not pinned MarkupSafe
+version but use a ``soft_unicode`` function which have been dropped since
+MarkupSafe 2.1.0. This leaded to HTML export to be unavailable even with Jinja
+installed. So until we migrate to Jinja 3.x, we pinned MarkupSafe to 2.0.1;
+
+
 Version 0.4.1 - 2021/07/26
 --------------------------
 
