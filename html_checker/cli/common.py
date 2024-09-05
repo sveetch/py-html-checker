@@ -11,8 +11,8 @@ from html_checker.export import EXPORTER_CHOICES
 COMMON_OPTIONS = {
     "destination": {
         "args": ("--destination",),
-        "type": click.Path(),
         "kwargs": {
+            "type": click.Path(),
             "metavar": "FILEPATH",
             "help": (
                 "Directory path where to write report files. If destination "
@@ -116,8 +116,8 @@ COMMON_OPTIONS = {
     },
     "template-dir": {
         "args": ("--template-dir",),
-        "type": click.Path(exists=True, file_okay=False, dir_okay=True),
         "kwargs": {
+            "type": click.Path(exists=True, file_okay=False, dir_okay=True),
             "metavar": "PATH",
             "help": (
                 "A path to a template directory for your custom templates. "

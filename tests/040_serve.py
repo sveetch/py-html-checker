@@ -172,37 +172,6 @@ def test_notemp_mode_config():
     s.flush()
 
 
-def test_notemp_mode_run(monkeypatch, caplog):
-    """
-    Just ensure the run() method does log information and does not break with
-    temporary mode disabled.
-
-    Mockup the cherrypy method since we don't want to test it and server config
-    is basic enough to be trusted.
-    """
-    monkeypatch.setattr(cherrypy, "quickstart", mock_cherrypy_quickstart)
-
-    s = ReleaseServer(**{
-        "hostname": "localhost",
-        "port": 8000,
-        "basedir": "/foo/bar",
-        "temporary": False,
-    })
-
-    with caplog.at_level(logging.DEBUG):
-        s.run()
-
-    msg_host = "Starting HTTP server on: localhost:8000"
-    expected = [
-        ("py-html-checker", logging.INFO, msg_host),
-        ("py-html-checker", logging.DEBUG, "Serving report from: /foo/bar"),
-        ("py-html-checker", logging.WARNING, "Use CTRL+C to terminate."),
-    ]
-    assert expected == caplog.record_tuples
-
-    s.flush()
-
-
 def test_temp_mode_run(monkeypatch, caplog):
     """
     Just ensure the run() method does log information and does not break with
@@ -227,6 +196,37 @@ def test_temp_mode_run(monkeypatch, caplog):
     expected = [
         ("py-html-checker", logging.INFO, msg_host),
         ("py-html-checker", logging.DEBUG, msg_dir.format(s.basedir)),
+        ("py-html-checker", logging.WARNING, "Use CTRL+C to terminate."),
+    ]
+    assert expected == caplog.record_tuples
+
+    s.flush()
+
+
+def test_notemp_mode_run(monkeypatch, caplog):
+    """
+    Just ensure the run() method does log information and does not break with
+    temporary mode disabled.
+
+    Mockup the cherrypy method since we don't want to test it and server config
+    is basic enough to be trusted.
+    """
+    monkeypatch.setattr(cherrypy, "quickstart", mock_cherrypy_quickstart)
+
+    s = ReleaseServer(**{
+        "hostname": "localhost",
+        "port": 8001,
+        "basedir": "/foo/bar",
+        "temporary": False,
+    })
+
+    with caplog.at_level(logging.DEBUG):
+        s.run()
+
+    msg_host = "Starting HTTP server on: localhost:8001"
+    expected = [
+        ("py-html-checker", logging.INFO, msg_host),
+        ("py-html-checker", logging.DEBUG, "Serving report from: /foo/bar"),
         ("py-html-checker", logging.WARNING, "Use CTRL+C to terminate."),
     ]
     assert expected == caplog.record_tuples

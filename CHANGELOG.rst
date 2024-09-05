@@ -7,9 +7,15 @@ History
 Version 0.5.0 - Unreleased
 --------------------------
 
+* Implemented ``--serve`` option on ``page`` command to serve contents once the report
+  has been built;
+
 .. TODO:
-    Server mode is fully implemented and working with 'page'. Interface has been tested.
-    Still have to test in CLI and add it also to 'site' command.
+
+    * Server mode is fully implemented and working with 'page'
+    * Interface has been tested.
+
+    Still have to implement it also on 'site' command.
 
 
 Version 0.4.2 - 2022/03/17

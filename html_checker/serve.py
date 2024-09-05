@@ -13,20 +13,26 @@ class ReleaseServer:
     Server to serve report release.
 
     Arguments:
-        hostname (string):
-        port (integer):
+        hostname (string): Hostname for bind adress.
+        port (integer): Port integer for bind adress. If empty the default value will
+            be ``8000``.
 
     Keyword Arguments:
-        basedir (string):
-        temporary (boolean):
+        basedir (string): Directory to serve contents. It can only be null if temporary
+            mode is enabled else it is an error.
+        temporary (boolean): If true built report will be done in a temporary
+            directory to delete on server is stopped. It is an error to define
+            a basedir value and enable temporary mode.
 
     Attributes:
         log (logging): Logging object set to application "py-html-checker".
     """
+    DEFAULT_PORT = 8000
+
     def __init__(self, hostname, port, basedir=None, temporary=False):
         self.log = logging.getLogger("py-html-checker")
         self.hostname = hostname
-        self.port = port
+        self.port = port or self.DEFAULT_PORT
         self.basedir = self.get_basedir(basedir, temporary)
         self.temporary = temporary
 
@@ -127,8 +133,7 @@ class ReleaseServer:
         """
         Run CherryPy instance on release.
         """
-        # TODO: Output the host:port
-        msg = "Starting HTTP server on: {}"
+        msg = "Starting HTTP server on: {}:{}".format(self.hostname, self.port)
         self.log.info(msg.format(self.basedir))
 
         msg = "Serving report from: {}"

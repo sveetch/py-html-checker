@@ -133,7 +133,7 @@ def page_command(context, destination, exporter, no_stream, pack, safe, serve,
                 basedir=destination,
                 temporary=not(destination),
             )
-            # Overwrite destination so the temporary directory is set if any
+            # Overwrite destination so the temporary directory is set if not empty
             destination = server.basedir
         else:
             logger.critical((

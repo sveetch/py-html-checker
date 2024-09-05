@@ -1,8 +1,3 @@
-"""
-These tests cover shared options for page and site commands. They mockup some
-validator, exporter and sitemap methods to just return command lines without
-processing or executing anything else.
-"""
 import logging
 import os
 
@@ -27,17 +22,17 @@ class DummyReport:
         self.registry = []
 
     def add(self, content):
-        print()
-        print("DummyReport: content")
-        print(content)
-        print()
-        print("DummyReport: registry before")
-        print(self.registry)
+        #print()
+        #print("DummyReport: content")
+        #print(content)
+        #print()
+        #print("DummyReport: registry before")
+        #print(self.registry)
         self.registry.append(content)
-        print()
-        print("DummyReport: registry after")
-        print(self.registry)
-        print()
+        #print()
+        #print("DummyReport: registry after")
+        #print(self.registry)
+        #print()
 
 
 def mock_cherrypy_quickstart(*args, **kwargs):
@@ -49,7 +44,7 @@ def mock_cherrypy_quickstart(*args, **kwargs):
 
 def mock_validator_execute_validator(*args, **kwargs):
     """
-    Mock method to just return the builded command line without
+    Mock method to just return the built command line without
     executing it.
     """
     cls = args[0]
@@ -59,8 +54,8 @@ def mock_validator_execute_validator(*args, **kwargs):
 
 def mock_export_logging_build(*args, **kwargs):
     """
-    Mock method to just logging given command lines in ``report``
-    argument (following validator mockups).
+    Mock method to only logs given command lines in ``report``
+    argument (following validator mockups) without doing any build.
     """
     cls = args[0]
     report = args[1]
@@ -92,6 +87,8 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
     monkeypatch.setattr(LoggingExport, "build", mock_export_logging_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
+    sample = settings.fixtures_path / "html/valid.basic.html"
+
     commandline = (
         "java"
         " -Xss512k"
@@ -99,8 +96,9 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
         " --format json"
         " --exit-zero-always"
         " --user-agent {USER_AGENT}"
-        " http://perdu.com"
+        " {source}"
     )
+    extra = {"source": sample}
 
     expected = []
     if command_name == "site":
@@ -113,7 +111,7 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
         )
 
     expected.append(
-        ("py-html-checker", logging.INFO, settings.format(commandline)),
+        ("py-html-checker", logging.INFO, settings.format(commandline, extra=extra)),
     )
 
     runner = CliRunner()
@@ -121,22 +119,22 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
         test_cwd = os.getcwd()
 
         result = runner.invoke(cli_frontend, [
-            command_name, "--Xss", "512k", "http://perdu.com"
+            command_name, "--Xss", "512k", str(sample)
         ])
 
-        print("=> result.output <=")
-        print(result.output)
-        print()
-        print("=> expected <=")
-        print(expected)
-        print()
-        print("=> caplog.record_tuples <=")
-        print(caplog.record_tuples)
-        print()
-        print("=> result.exception <=")
-        print(result.exception)
-        if result.exception is not None:
-            raise result.exception
+        # print("=> result.output <=")
+        # print(result.output)
+        # print()
+        # print("=> expected <=")
+        # print(expected)
+        # print()
+        # print("=> caplog.record_tuples <=")
+        # print(caplog.record_tuples)
+        # print()
+        # print("=> result.exception <=")
+        # print(result.exception)
+        # if result.exception is not None:
+        #     raise result.exception
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
@@ -156,6 +154,8 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
     monkeypatch.setattr(LoggingExport, "build", mock_export_logging_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
+    sample = settings.fixtures_path / "html/valid.basic.html"
+
     commandline = (
         "java"
         " -jar {APPLICATION}/vnujar/vnu.jar"
@@ -163,8 +163,9 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
         " --format json"
         " --exit-zero-always"
         " --user-agent {USER_AGENT}"
-        " http://perdu.com"
+        " {source}"
     )
+    extra = {"source": sample}
 
     expected = []
     if command_name == "site":
@@ -177,7 +178,7 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
         )
 
     expected.append(
-        ("py-html-checker", logging.INFO, settings.format(commandline)),
+        ("py-html-checker", logging.INFO, settings.format(commandline, extra=extra)),
     )
 
     runner = CliRunner()
@@ -185,7 +186,7 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
         test_cwd = os.getcwd()
 
         result = runner.invoke(cli_frontend, [
-            command_name, "--no-stream", "http://perdu.com"
+            command_name, "--no-stream", str(sample)
         ])
 
         assert result.exit_code == 0
@@ -206,14 +207,17 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
     monkeypatch.setattr(LoggingExport, "build", mock_export_logging_build)
     monkeypatch.setattr(Sitemap, "get_urls", mock_sitemap_get_urls)
 
+    sample = settings.fixtures_path / "html/valid.basic.html"
+
     commandline = (
         "java"
         " -jar {APPLICATION}/vnujar/vnu.jar"
         " --user-agent Foobar"
         " --format json"
         " --exit-zero-always"
-        " http://perdu.com"
+        " {source}"
     )
+    extra = {"source": sample}
 
     expected = []
     if command_name == "site":
@@ -226,7 +230,7 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
         )
 
     expected.append(
-        ("py-html-checker", logging.INFO, settings.format(commandline)),
+        ("py-html-checker", logging.INFO, settings.format(commandline, extra=extra)),
     )
 
     runner = CliRunner()
@@ -234,7 +238,7 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
         test_cwd = os.getcwd()
 
         result = runner.invoke(cli_frontend, [
-            command_name, "--user-agent", "Foobar", "http://perdu.com"
+            command_name, "--user-agent", "Foobar", str(sample)
         ])
 
         assert result.exit_code == 0
@@ -245,65 +249,60 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
     "page",
     #"site",
 ])
-def test_serve(monkeypatch, caplog, settings, command_name):
+def test_serve(monkeypatch, caplog, tmp_path, settings, command_name):
     """
-    '--server' option should
-
-    TODO: Finish him! Test localfile instead of url. And only insert Server
-    logs "ARE IN" log tuple, dont assert on complete log tuple.
+    Once enabled the option '--server' should serve content after validation report
+    has been done.
     """
     monkeypatch.setattr(cherrypy, "quickstart", mock_cherrypy_quickstart)
 
-    commandline = (
-        "java"
-        " -jar {APPLICATION}/vnujar/vnu.jar"
-        " --format json"
-        " --exit-zero-always"
-        " http://perdu.com"
-    )
+    sample = settings.fixtures_path / "html/valid.basic.html"
 
-    expected = []
     if command_name == "site":
-        expected.append(
-            ("py-html-checker", logging.INFO, "Sitemap have 1 paths"),
-        )
+        command_type_specific_log = "Sitemap have 1 paths"
     else:
-        expected.append(
-            ("py-html-checker", logging.INFO, "Launching validation for 1 paths"),
-        )
+        command_type_specific_log = "Launching validation for 1 paths"
 
     runner = CliRunner()
     with runner.isolated_filesystem():
         test_cwd = os.getcwd()
 
         cli = [
-            command_name, "--exporter", "html", "--serve", "0.0.0.0:8080",
-            "http://perdu.com"
+            command_name,
+            "--exporter", "html",
+            "--serve", "0.0.0.0:8080",
+            "--destination", test_cwd,
+            str(sample)
         ]
-        print("=> commandline <=")
-        print(cli)
-        print()
+        # print("=> commandline <=")
+        # print(cli)
+        # print()
+
         result = runner.invoke(cli_frontend, cli)
 
-        print("=> result.output <=")
-        print(result.output)
-        print()
-        print("=> expected <=")
-        print(expected)
-        print()
-        print("=> caplog.record_tuples <=")
-        print(caplog.record_tuples)
-        print("=> result.exception <=")
-        print(result.exception)
-        print()
-        if result.exception is not None:
-            raise result.exception
+        # print("=> result.output <=")
+        # print(result.output)
+        # print()
+        # print("=> caplog.record_tuples <=")
+        # print(caplog.record_tuples)
+        # print("=> result.exception <=")
+        # print(result.exception)
+        # print()
+        # if result.exception is not None:
+        #     raise result.exception
 
         assert result.exit_code == 0
-        assert expected == caplog.record_tuples
+        assert caplog.record_tuples == [
+            ("py-html-checker", logging.INFO, command_type_specific_log),
+            ("py-html-checker", 20, str(sample)),
+            ("py-html-checker", 20, "Created file: {}/index.html".format(test_cwd)),
+            ("py-html-checker", 20, "Created file: {}/main.css".format(test_cwd)),
+            ("py-html-checker", 20, "Starting HTTP server on: 0.0.0.0:8080"),
+            ("py-html-checker", 30, "Use CTRL+C to terminate.")
+        ]
 
 
-@pytest.mark.parametrize("split,paths", [
+@pytest.mark.parametrize("split, paths", [
     (
         False,
         ["http://foo.com", "http://bar.com"],
@@ -363,23 +362,23 @@ def test_page_split(monkeypatch, caplog, settings, split, paths):
 
         result = runner.invoke(cli_frontend, args)
 
-        print("=> result.output <=")
-        print(result.output)
-        print()
-        print("=> result.exception <=")
-        print(result.exception)
-        print()
-        print("=> expected <=")
-        print(expected)
-        print()
-        print("=> caplog.record_tuples <=")
-        print(caplog.record_tuples)
+        # print("=> result.output <=")
+        # print(result.output)
+        # print()
+        # print("=> result.exception <=")
+        # print(result.exception)
+        # print()
+        # print("=> expected <=")
+        # print(expected)
+        # print()
+        # print("=> caplog.record_tuples <=")
+        # print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
 
 
-@pytest.mark.parametrize("split,paths", [
+@pytest.mark.parametrize("split, paths", [
     (
         False,
         ["http://foo.com", "http://bar.com"],
@@ -392,7 +391,7 @@ def test_page_split(monkeypatch, caplog, settings, split, paths):
 def test_site_split(monkeypatch, caplog, settings, split, paths):
     """
     '--split' option should cause executing a new vnu validator instance on
-    each path and only one for all path when not enabled.
+    each path and only one for all path when option is disabled.
     """
     def mock_sitemap_get_urls(*args, **kwargs):
         """
@@ -422,14 +421,14 @@ def test_site_split(monkeypatch, caplog, settings, split, paths):
         ("py-html-checker", logging.INFO, initial_msg.format(len(paths))),
     ]
 
-    # In split mode, there should one command line for each path
+    # In split mode, there should be one command line for each path
     if split:
         for p in paths:
             log = ("py-html-checker", logging.INFO, commandline + p)
             expected.append(
                 log
             ),
-    # Else there should be only one command line for all paths
+    # Else there should be only a single command line for all paths
     else:
         expected.append(
             ("py-html-checker", logging.INFO, commandline + " ".join(paths))

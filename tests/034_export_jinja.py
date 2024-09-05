@@ -110,7 +110,7 @@ def test_validate_missing_files(settings):
     assert exporter.validate() == msg
 
 
-def test_pack_release():
+def test_packed_release():
     """
     In packed release mode, only one 'audit' document is created and finally the
     CSS file.
@@ -133,7 +133,7 @@ def test_pack_release():
     assert results[1]["document"] == "main.css"
 
 
-def test_pack_release():
+def test_unpacked_release():
     """
     In un packed release mode, a 'report' document is created for each report
     then a 'summary' document is created and finally the CSS file.

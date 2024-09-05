@@ -2,53 +2,64 @@
 Some fixture methods
 """
 import os
+from pathlib import Path
+
 import pytest
 
 import html_checker
 
 
 class FixturesSettingsTestMixin(object):
-    """Mixin containing some basic settings"""
-    def __init__(self):
-        # Base fixture datas directory
-        self.application_path = os.path.abspath(os.path.dirname(html_checker.__file__))
-        self.package_path = os.path.normpath(
-            os.path.join(
-                os.path.abspath(os.path.dirname(html_checker.__file__)),
-                '..',
-            )
-        )
-        self.tests_dir = 'tests'
-        self.tests_path = os.path.join(
-            self.package_path,
-            self.tests_dir,
-        )
-        self.fixtures_dir = 'data_fixtures'
-        self.fixtures_path = os.path.join(
-            self.tests_path,
-            self.fixtures_dir
-        )
+    """
+    A mixin containing settings about application. This is almost about useful
+    paths which may be used in tests.
 
-    def format(self, path):
+    Attributes:
+        application_path (pathlib.Path): Absolute path to the application directory.
+        package_path (pathlib.Path): Absolute path to the package directory.
+        tests_dir (pathlib.Path): Directory name which include tests.
+        tests_path (pathlib.Path): Absolute path to the tests directory.
+        fixtures_dir (pathlib.Path): Directory name which include tests datas.
+        fixtures_path (pathlib.Path): Absolute path to the tests datas.
+    """
+    def __init__(self):
+        self.application_path = Path(html_checker.__file__).parents[0].resolve()
+
+        self.package_path = self.application_path.parent
+
+        self.tests_dir = "tests"
+        self.tests_path = self.package_path / self.tests_dir
+
+        self.fixtures_dir = "data_fixtures"
+        self.fixtures_path = self.tests_path / self.fixtures_dir
+
+    def format(self, content, extra=None):
         """
-        Format given string to include various variables related to this
-        application, mostly paths.
+        Format given string to include some values related to this application.
+
+        Arguments:
+            content (str): Content string to format with possible values.
+
+        Returns:
+            str: Given string formatted with possible values.
         """
-        return path.format(
-            HOMEDIR=os.path.expanduser("~"),
-            PACKAGE=self.package_path,
-            APPLICATION=self.application_path,
-            TESTS=self.tests_path,
-            FIXTURES=self.fixtures_path,
+        extra = extra or {}
+        return content.format(
+            HOMEDIR=Path.home(),
+            PACKAGE=str(self.package_path),
+            APPLICATION=str(self.application_path),
+            TESTS=str(self.tests_path),
+            FIXTURES=str(self.fixtures_path),
             VERSION=html_checker.__version__,
             USER_AGENT=html_checker.USER_AGENT,
+            **extra
         )
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def temp_builds_dir(tmpdir_factory):
     """Prepare a temporary build directory"""
-    fn = tmpdir_factory.mktemp('builds')
+    fn = tmpdir_factory.mktemp("builds")
     return fn
 
 
