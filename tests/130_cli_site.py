@@ -1,8 +1,6 @@
 import logging
 import os
 
-import pytest
-
 from click.testing import CliRunner
 
 from html_checker.cli.entrypoint import cli_frontend
@@ -22,13 +20,11 @@ def test_site_missing_args(caplog):
     Invoked without any arguments fails because it need at least a path.
     """
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
 
+    with runner.isolated_filesystem():
         result = runner.invoke(cli_frontend, ["site"])
 
         assert result.exit_code == 2
-
         assert caplog.record_tuples == []
 
 
@@ -37,19 +33,21 @@ def test_site_invalid_sitemap_path(caplog):
     When sitemap path is invalid command is aborted.
     """
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
 
+    with runner.isolated_filesystem():
         args = ["foo.html"]
 
         expected = [
-            ("py-html-checker", logging.CRITICAL, "Given sitemap path does not exists: foo.html"),
+            (
+                "py-html-checker",
+                logging.CRITICAL,
+                "Given sitemap path does not exists: foo.html"
+            ),
         ]
 
         result = runner.invoke(cli_frontend, ["site"] + args)
 
         assert result.exit_code == 1
-
         assert caplog.record_tuples == expected
 
 
@@ -59,18 +57,27 @@ def test_site_invalid_item_path(caplog, settings):
     NOT aborted and continue to the next item.
     """
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
 
-        args = ["--safe",
-                os.path.join(settings.fixtures_path, "sitemap.invalidpath.xml")]
+    with runner.isolated_filesystem():
+        args = [
+            "--safe",
+            os.path.join(settings.fixtures_path, "sitemap.invalidpath.xml")
+        ]
 
         result = runner.invoke(cli_frontend, ["site"] + args)
 
         assert result.exit_code == 0
 
-        assert ("py-html-checker", logging.ERROR, "Given path does not exists: foo.html") in caplog.record_tuples
-        assert ("py-html-checker", logging.ERROR, "Given path does not exists: bar.html") in caplog.record_tuples
+        assert (
+            "py-html-checker",
+            logging.ERROR,
+            "Given path does not exists: foo.html"
+        ) in caplog.record_tuples
+        assert (
+            "py-html-checker",
+            logging.ERROR,
+            "Given path does not exists: bar.html"
+        ) in caplog.record_tuples
 
         assert len(caplog.record_tuples) > 2
 
@@ -87,30 +94,13 @@ def test_site_nosafe_exception(monkeypatch, caplog, settings):
                         mock_validator_execute_validator_for_base_exception)
 
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
 
+    with runner.isolated_filesystem():
         args = [os.path.join(settings.fixtures_path, "sitemap.xml")]
 
         result = runner.invoke(cli_frontend, ["site"] + args)
 
-        #print("=> result.exit_code <=")
-        #print(result.exit_code)
-        #print()
-        #print("=> result.output <=")
-        #print(result.output)
-        #print()
-        #print("=> caplog.record_tuples <=")
-        #print(caplog.record_tuples)
-        #print()
-        #print("=> result.exception <=")
-        #print(type(result.exception))
-        #print(result.exception)
-        #if result.exception is not None:
-            #raise result.exception
-
-        assert isinstance(result.exception, HtmlCheckerBaseException) == True
-
+        assert isinstance(result.exception, HtmlCheckerBaseException) is True
         assert result.exit_code == 1
 
 
@@ -131,29 +121,12 @@ def test_site_safe_exception(monkeypatch, caplog, settings):
     ]
 
     runner = CliRunner()
-    with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
 
+    with runner.isolated_filesystem():
         args = ["--safe",
                 os.path.join(settings.fixtures_path, "sitemap.xml")]
 
         result = runner.invoke(cli_frontend, ["site"] + args)
 
-        #print("=> result.exit_code <=")
-        #print(result.exit_code)
-        #print()
-        #print("=> result.output <=")
-        #print(result.output)
-        #print()
-        #print("=> expected <=")
-        #print(expected)
-        #print()
-        #print("=> caplog.record_tuples <=")
-        #print(caplog.record_tuples)
-        #print(result.exception)
-        #if result.exception is not None:
-            #raise result.exception
-
         assert result.exit_code == 0
-
         assert expected == caplog.record_tuples

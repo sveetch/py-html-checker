@@ -33,7 +33,7 @@ def test_get_exporter_fail():
     expected = "There is no exporter with format name 'nope'"
 
     with pytest.raises(ExportError) as excinfo:
-        exporter = get_exporter("nope")
+        get_exporter("nope")
 
     assert expected == str(excinfo.value)
 

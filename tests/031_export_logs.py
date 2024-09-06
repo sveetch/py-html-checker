@@ -185,8 +185,6 @@ def test_build(caplog, report, level, expected):
 
     exporter.build(r.registry)
 
-    #print(caplog.record_tuples)
-
     assert expected == caplog.record_tuples
 
 
@@ -210,8 +208,6 @@ def test_build_disabled_dividers(caplog):
     ])
 
     exporter.build(r.registry)
-
-    #print(caplog.record_tuples)
 
     expected = [
         (

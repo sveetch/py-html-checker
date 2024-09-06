@@ -38,7 +38,7 @@ def mock_requests_get(*args, **kwargs):
     return FakeResponse(*args, **kwargs)
 
 
-@pytest.mark.parametrize("path,user_agent,expected", [
+@pytest.mark.parametrize("path, user_agent, expected", [
     (
         "http://perdu.com",
         None,
@@ -69,7 +69,6 @@ def test_custom_user_agent(monkeypatch, path, user_agent, expected):
     s = Sitemap(user_agent=user_agent)
 
     response = s.get_url_ressource(path)
-    print(response)
     assert expected == response
 
 
@@ -89,7 +88,7 @@ def test_contenttype_fail(path):
         s.contenttype(path)
 
 
-@pytest.mark.parametrize("path,expected", [
+@pytest.mark.parametrize("path, expected", [
     (
         "https://perdu.com/sitemap.xml",
         "xml",
@@ -130,13 +129,11 @@ def test_get_file_ressource_fail(settings, path):
     """
     s = Sitemap()
 
-    filepath = os.path.join(settings.fixtures_path, path)
-
     with pytest.raises(PathInvalidError):
         s.get_file_ressource(path)
 
 
-@pytest.mark.parametrize("path,expected", [
+@pytest.mark.parametrize("path, expected", [
     (
         "dummy.txt",
         "foo\n"
@@ -190,7 +187,7 @@ def test_parse_sitemap_json_fail(settings, path):
         s.parse_sitemap_json(ressource)
 
 
-@pytest.mark.parametrize("path,expected", [
+@pytest.mark.parametrize("path, expected", [
     (
         "sitemap.json",
         [
@@ -230,7 +227,7 @@ def test_parse_sitemap_xml_fail(settings, path):
         s.parse_sitemap_xml(ressource)
 
 
-@pytest.mark.parametrize("path,expected", [
+@pytest.mark.parametrize("path, expected", [
     (
         "sitemap.xml",
         [
@@ -266,7 +263,7 @@ def test_parse_sitemap_xml_success(settings, path, expected):
     assert expected == s.parse_sitemap_xml(ressource)
 
 
-@pytest.mark.parametrize("path,expected", [
+@pytest.mark.parametrize("path, expected", [
     (
         "sitemap.xml",
         [

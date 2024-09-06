@@ -258,8 +258,5 @@ def test_release(pack, expected):
     # content (we need to compare Python objects since arbitrary order is
     # serialized by JSON encoder)
     for i, item in enumerate(results, start=0):
-        #print("-", item["document"])
-        #print(json.dumps(json.loads(item["content"]), indent=4, default=str))
-        #print()
         assert item["document"] == expected[i]["document"]
         assert json.loads(item["content"]) == expected[i]["content"]

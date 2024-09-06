@@ -215,7 +215,7 @@ def format_hostname(value):
         port = parts[1]
         try:
             port = int(port)
-        except ValueError as e:
+        except ValueError:
             raise HtmlCheckerBaseException("Given server port number is invalid.")
     else:
         port = 8002

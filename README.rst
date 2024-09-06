@@ -35,7 +35,7 @@ Dependancies
 Install
 *******
 
-::
+To install it with all features: ::
 
     pip install py-html-checker[cli,jinja,serve]
 

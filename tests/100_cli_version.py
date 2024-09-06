@@ -1,5 +1,3 @@
-import pytest
-
 from click.testing import CliRunner
 
 from html_checker.cli.entrypoint import cli_frontend
@@ -11,7 +9,7 @@ def test_version_ping(caplog):
     """
     runner = CliRunner()
 
-    result = runner.invoke(cli_frontend, ['version'])
+    result = runner.invoke(cli_frontend, ["version"])
 
     assert result.exit_code == 0
 

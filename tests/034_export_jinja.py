@@ -1,7 +1,5 @@
 from collections import OrderedDict
 
-import pytest
-
 from jinja2 import Environment, Template
 
 from html_checker.export.jinja import JinjaExport
@@ -68,7 +66,7 @@ def test_get_template():
     """
     exporter = JinjaExport()
 
-    for k,v in exporter.TEMPLATES.items():
+    for k, v in exporter.TEMPLATES.items():
         assert isinstance(exporter.get_template(v), Template)
 
 
@@ -80,7 +78,7 @@ def test_validate_success():
     """
     exporter = JinjaExport()
 
-    assert exporter.validate() == False
+    assert exporter.validate() is False
 
 
 def test_validate_notexisting():

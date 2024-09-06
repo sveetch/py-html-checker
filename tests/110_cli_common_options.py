@@ -8,7 +8,7 @@ from click.testing import CliRunner
 import cherrypy
 
 from html_checker.cli.entrypoint import cli_frontend
-from html_checker.export import LoggingExport, JinjaExport
+from html_checker.export import LoggingExport
 from html_checker.validator import ValidatorInterface
 from html_checker.sitemap import Sitemap
 
@@ -22,17 +22,7 @@ class DummyReport:
         self.registry = []
 
     def add(self, content):
-        #print()
-        #print("DummyReport: content")
-        #print(content)
-        #print()
-        #print("DummyReport: registry before")
-        #print(self.registry)
         self.registry.append(content)
-        #print()
-        #print("DummyReport: registry after")
-        #print(self.registry)
-        #print()
 
 
 def mock_cherrypy_quickstart(*args, **kwargs):
@@ -47,7 +37,6 @@ def mock_validator_execute_validator(*args, **kwargs):
     Mock method to just return the built command line without
     executing it.
     """
-    cls = args[0]
     command = args[1]
     return command
 
@@ -68,7 +57,6 @@ def mock_sitemap_get_urls(*args, **kwargs):
     Mock method to just return given url as argument so it can pass the dummy
     url to validator without to read it like a sitemap.
     """
-    cls = args[0]
     path = args[1]
     return [path]
 
@@ -116,25 +104,9 @@ def test_interpreter_xss(monkeypatch, caplog, settings, command_name):
 
     runner = CliRunner()
     with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
-
         result = runner.invoke(cli_frontend, [
             command_name, "--Xss", "512k", str(sample)
         ])
-
-        # print("=> result.output <=")
-        # print(result.output)
-        # print()
-        # print("=> expected <=")
-        # print(expected)
-        # print()
-        # print("=> caplog.record_tuples <=")
-        # print(caplog.record_tuples)
-        # print()
-        # print("=> result.exception <=")
-        # print(result.exception)
-        # if result.exception is not None:
-        #     raise result.exception
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
@@ -183,8 +155,6 @@ def test_interpreter_nostream(monkeypatch, caplog, settings, command_name):
 
     runner = CliRunner()
     with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
-
         result = runner.invoke(cli_frontend, [
             command_name, "--no-stream", str(sample)
         ])
@@ -235,8 +205,6 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
 
     runner = CliRunner()
     with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
-
         result = runner.invoke(cli_frontend, [
             command_name, "--user-agent", "Foobar", str(sample)
         ])
@@ -247,7 +215,7 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
 
 @pytest.mark.parametrize("command_name", [
     "page",
-    #"site",
+    # "site",
 ])
 def test_serve(monkeypatch, caplog, tmp_path, settings, command_name):
     """
@@ -274,22 +242,8 @@ def test_serve(monkeypatch, caplog, tmp_path, settings, command_name):
             "--destination", test_cwd,
             str(sample)
         ]
-        # print("=> commandline <=")
-        # print(cli)
-        # print()
 
         result = runner.invoke(cli_frontend, cli)
-
-        # print("=> result.output <=")
-        # print(result.output)
-        # print()
-        # print("=> caplog.record_tuples <=")
-        # print(caplog.record_tuples)
-        # print("=> result.exception <=")
-        # print(result.exception)
-        # print()
-        # if result.exception is not None:
-        #     raise result.exception
 
         assert result.exit_code == 0
         assert caplog.record_tuples == [
@@ -352,8 +306,6 @@ def test_page_split(monkeypatch, caplog, settings, split, paths):
 
     runner = CliRunner()
     with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
-
         args = ["page"]
         if split:
             args.append("--split")
@@ -361,18 +313,6 @@ def test_page_split(monkeypatch, caplog, settings, split, paths):
             args.append(item)
 
         result = runner.invoke(cli_frontend, args)
-
-        # print("=> result.output <=")
-        # print(result.output)
-        # print()
-        # print("=> result.exception <=")
-        # print(result.exception)
-        # print()
-        # print("=> expected <=")
-        # print(expected)
-        # print()
-        # print("=> caplog.record_tuples <=")
-        # print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples
@@ -436,26 +376,12 @@ def test_site_split(monkeypatch, caplog, settings, split, paths):
 
     runner = CliRunner()
     with runner.isolated_filesystem():
-        test_cwd = os.getcwd()
-
         args = ["site"]
         if split:
             args.append("--split")
         args.append("http://perdu.com/sitemap.xml")
 
         result = runner.invoke(cli_frontend, args, catch_exceptions=False)
-
-        #print("=> result.output <=")
-        #print(result.output)
-        #print()
-        #print("=> result.exception <=")
-        #print(result.exception)
-        #print()
-        #print("=> expected <=")
-        #print(expected)
-        #print()
-        #print("=> caplog.record_tuples <=")
-        #print(caplog.record_tuples)
 
         assert result.exit_code == 0
         assert expected == caplog.record_tuples

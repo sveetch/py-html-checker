@@ -1,4 +1,3 @@
-import os
 from collections import OrderedDict
 
 import pytest
@@ -70,11 +69,17 @@ def test_initial_registry(settings, paths, expected):
 @pytest.mark.parametrize("content,expected", [
     (
         b"{}",
-        "Invalid JSON report: it must contains a 'messages' item of checked page list.",
+        (
+            "Invalid JSON report: it must contains a 'messages' item of checked page "
+            "list."
+        ),
     ),
     (
         b"{",
-        "Invalid JSON report: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",
+        (
+            "Invalid JSON report: Expecting property name enclosed in double quotes: "
+            "line 1 column 2 (char 1)"
+        ),
     ),
 ])
 def test_parse_invalid(content, expected):
@@ -85,8 +90,6 @@ def test_parse_invalid(content, expected):
 
     with pytest.raises(ReportError) as excinfo:
         r.parse(content)
-
-    #print(str(excinfo.value))
 
     assert expected == str(excinfo.value)
 

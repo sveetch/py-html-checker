@@ -21,8 +21,8 @@ def test_notemp_mode_basedir_required():
     An exception is raised if temporary mode is disabled but basedir is not
     provided.
     """
-    with pytest.raises(HTTPServerError) as excinfo:
-        s = ReleaseServer(**{
+    with pytest.raises(HTTPServerError):
+        ReleaseServer(**{
             "hostname": "localhost",
             "port": 8000,
             "temporary": False,
@@ -34,8 +34,8 @@ def test_temp_mode_basedir_conflict():
     An exception is raised if temporary mode is enabled and basedir is given
     since it has no sense.
     """
-    with pytest.raises(HTTPServerError) as excinfo:
-        s = ReleaseServer(**{
+    with pytest.raises(HTTPServerError):
+        ReleaseServer(**{
             "hostname": "localhost",
             "port": 8000,
             "basedir": "foobar",
@@ -54,9 +54,9 @@ def test_temp_basedir():
         "temporary": True,
     })
 
-    assert s.temporary == True
-    assert os.path.exists(s.basedir) == True
-    assert os.path.isdir(s.basedir) == True
+    assert s.temporary is True
+    assert os.path.exists(s.basedir) is True
+    assert os.path.isdir(s.basedir) is True
 
     # Remove temp directory manually, we don"t want to rely on
     # "ReleaseServer.flush" yet
@@ -75,7 +75,7 @@ def test_basic():
         "temporary": False,
     })
 
-    assert s.temporary == False
+    assert s.temporary is False
     assert "/foo/bar" == s.basedir
 
 
@@ -89,10 +89,9 @@ def test_temp_mode_flush():
         "port": 8000,
         "temporary": True,
     })
-    temporary_basedir = s.basedir
 
     assert s.flush() == s.basedir
-    assert os.path.exists(s.basedir) == False
+    assert os.path.exists(s.basedir) is False
 
 
 def test_notemp_mode_flush():
@@ -106,8 +105,8 @@ def test_notemp_mode_flush():
         "temporary": False,
     })
 
-    assert os.path.exists(s.basedir) == False
-    assert s.flush() == None
+    assert os.path.exists(s.basedir) is False
+    assert s.flush() is None
 
 
 def test_temp_mode_config():

@@ -12,10 +12,17 @@ Version 0.5.0 - Unreleased
 
 .. TODO:
 
-    * Server mode is fully implemented and working with 'page'
-    * Interface has been tested.
-
-    Still have to implement it also on 'site' command.
+    * [x] Server mode is fully implemented and working with 'page'
+    * [x] Interface has been tested.
+    * [ ] Still have to implement it also on 'site' command.
+    * [ ] Upgrade setup.cfg and module __init__ to drop pkg_resources  in profit of
+      importlib #26;
+    * [ ] Upgrade Nu Html library;
+    * [ ] Modernize makefile;
+    * [ ] Modernize documentation;
+    * [ ] Add Github issue templates;
+    * [ ] Find a logo ?
+    * [ ] Support of Sitemap index;
 
 
 Version 0.4.2 - 2022/03/17

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 
 from collections import OrderedDict
@@ -19,6 +18,51 @@ from html_checker.export import get_exporter
 from html_checker.serve import ReleaseServer
 from html_checker.validator import ValidatorInterface
 from html_checker.utils import reduce_unique, write_documents, format_hostname
+
+
+def start_live_release(serve, destination, cherrypy_available, logger, exporter):
+    """
+    Factorize server starting so it can be used also in 'site' command without
+    duplicating code.
+
+    TODO: Seems ok, push it in utils (?) and let's implement it in 'site' command.
+
+    Returns:
+        object: The server instance if started.
+    """
+    if not serve:
+        return None
+
+    # Prepare server interface if required and available
+    if cherrypy_available:
+        if exporter.FORMAT_NAME != "html":
+            logger.critical((
+                "Option '--serve' is only available with html exporter."
+            ))
+            raise click.Abort()
+
+        try:
+            serve_address, serve_port = format_hostname(serve)
+        except HtmlCheckerBaseException as e:
+            logger.critical(e)
+            raise click.Abort()
+
+        server = ReleaseServer(
+            hostname=serve_address,
+            port=serve_port,
+            basedir=destination,
+            temporary=not(destination),
+        )
+        # Overwrite destination so the temporary directory is set if not empty
+        destination = server.basedir
+
+        return server
+    else:
+        logger.critical((
+            "'--serve' option is only available if CherryPy has been "
+            "installed."
+        ))
+        raise click.Abort()
 
 
 @click.command()
@@ -110,37 +154,14 @@ def page_command(context, destination, exporter, no_stream, pack, safe, serve,
         if hasattr(exporter, "template_dir"):
             logger.debug("Using template directory: {}".format(exporter.template_dir))
 
-    server = None
-    # Prepare server interface if required and available
-    if serve:
-        if CHERRYPY_AVAILABLE:
-            if exporter.FORMAT_NAME != "html":
-                logger.critical((
-                    "Using '--serve' without html exporter does not have any "
-                    "sense."
-                ))
-                raise click.Abort()
-
-            try:
-                serve_address, serve_port = format_hostname(serve)
-            except HtmlCheckerBaseException as e:
-                logger.critical(e)
-                raise click.Abort()
-
-            server = ReleaseServer(
-                hostname=serve_address,
-                port=serve_port,
-                basedir=destination,
-                temporary=not(destination),
-            )
-            # Overwrite destination so the temporary directory is set if not empty
-            destination = server.basedir
-        else:
-            logger.critical((
-                "'--serve' option is only available if CherryPy has been "
-                "installed."
-            ))
-            raise click.Abort()
+    # NOTE: Shouldn't this start further once exporter release has been done ?
+    server = start_live_release(
+        serve,
+        destination,
+        CHERRYPY_AVAILABLE,
+        logger,
+        exporter,
+    )
 
     # Keep packed paths or split them depending 'split' option
     routines = [reduced_paths[:]]
@@ -176,7 +197,6 @@ def page_command(context, destination, exporter, no_stream, pack, safe, serve,
             # Print out document
             for doc in export:
                 click.echo(doc["content"])
-
 
     # Launch server if any then remove possible temporary content when server
     # has been stopped

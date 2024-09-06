@@ -1,14 +1,12 @@
-import os
 from collections import OrderedDict
 
 import pytest
 
 from html_checker.validator import ValidatorInterface
-
 from html_checker.exceptions import ValidatorError
 
 
-@pytest.mark.parametrize("options,expected", [
+@pytest.mark.parametrize("options, expected", [
     (
         {
             "--foo": "bar",
@@ -45,7 +43,7 @@ def test_compile_options(options, expected):
     assert expected == v.compile_options(options)
 
 
-@pytest.mark.parametrize("interpreter,options,expected", [
+@pytest.mark.parametrize("interpreter, options, expected", [
     (
         "",
         {},
@@ -79,41 +77,48 @@ def test_get_interpreter_part(interpreter, options, expected):
     assert expected == v.get_interpreter_part(options=options)
 
 
-@pytest.mark.parametrize("interpreter,validator,interpreter_options,tool_options,paths,expected", [
-    (
-        None,
-        None,
-        [],
-        [],
-        ["foo.html"],
-        ["java", "-jar", "{APPLICATION}/vnujar/vnu.jar", "foo.html"],
-    ),
-    (
-        None,
-        "",
-        [],
-        [],
-        ["foo.html"],
-        ["java", "-jar", "foo.html"],
-    ),
-    (
-        None,
-        "dummytool",
-        [],
-        [],
-        ["foo.html"],
-        ["java", "-jar", "dummytool", "foo.html"],
-    ),
-    (
-        "dummycli",
-        "validate",
-        {"-v": "3"},
-        {"--foo": "bar"},
-        ["foo.html", "bar.html"],
-        ["dummycli", "-v", "3", "validate", "--foo", "bar", "foo.html",
-         "bar.html"],
-    ),
-])
+@pytest.mark.parametrize(
+    "interpreter, validator, interpreter_options, tool_options, paths, expected",
+    [
+        (
+            None,
+            None,
+            [],
+            [],
+            ["foo.html"],
+            ["java", "-jar", "{APPLICATION}/vnujar/vnu.jar", "foo.html"],
+        ),
+        (
+            None,
+            "",
+            [],
+            [],
+            ["foo.html"],
+            ["java", "-jar", "foo.html"],
+        ),
+        (
+            None,
+            "dummytool",
+            [],
+            [],
+            ["foo.html"],
+            ["java", "-jar", "dummytool", "foo.html"],
+        ),
+        (
+            "dummycli",
+            "validate",
+            {"-v": "3"},
+            {"--foo": "bar"},
+            ["foo.html", "bar.html"],
+            [
+                "dummycli",
+                "-v", "3",
+                "validate",
+                "--foo", "bar", "foo.html", "bar.html"
+            ],
+        ),
+    ]
+)
 def test_get_validator_command(settings, interpreter, validator,
                                interpreter_options, tool_options, paths,
                                expected):
@@ -144,40 +149,45 @@ def test_get_validator_command(settings, interpreter, validator,
     assert expected == cmd
 
 
-@pytest.mark.parametrize("interpreter,validator,interpreter_options,tool_options,paths,expected", [
-    # Unreachable interpreter
-    (
-        "nietniet",
-        None,
-        {},
-        {},
-        ["http://perdu.com"],
+@pytest.mark.parametrize(
+    "interpreter, validator, interpreter_options, tool_options, paths, expected",
+    [
+        # Unreachable interpreter
         (
-            "Unable to reach interpreter to run validator: [Errno 2] No such "
-            "file or directory: 'nietniet'"
+            "nietniet",
+            None,
+            {},
+            {},
+            ["http://perdu.com"],
+            (
+                "Unable to reach interpreter to run validator: [Errno 2] No such "
+                "file or directory: 'nietniet'"
+            ),
         ),
-    ),
-    # Unreachable validator
-    (
-        None,
-        "nietniet",
-        {},
-        {},
-        ["http://perdu.com"],
-        "Validator execution failed: Error: Unable to access jarfile nietniet\n",
-    ),
-    # Wrong option on validator (wrong option on interpreter are ignored)
-    (
-        None,
-        None,
-        {"--bizarro": None},
-        {},
-        ["http://perdu.com"],
-        ("Validator execution failed: Unrecognized option: --bizarro\n"
-         "Error: Could not create the Java Virtual Machine.\n"
-         "Error: A fatal exception has occurred. Program will exit.\n"),
-    ),
-])
+        # Unreachable validator
+        (
+            None,
+            "nietniet",
+            {},
+            {},
+            ["http://perdu.com"],
+            "Validator execution failed: Error: Unable to access jarfile nietniet\n",
+        ),
+        # Wrong option on validator (wrong option on interpreter are ignored)
+        (
+            None,
+            None,
+            {"--bizarro": None},
+            {},
+            ["http://perdu.com"],
+            (
+                "Validator execution failed: Unrecognized option: --bizarro\n"
+                "Error: Could not create the Java Virtual Machine.\n"
+                "Error: A fatal exception has occurred. Program will exit.\n"
+            ),
+        ),
+    ]
+)
 def test_validate_fail(settings, interpreter, validator,
                        interpreter_options, tool_options, paths, expected):
     """

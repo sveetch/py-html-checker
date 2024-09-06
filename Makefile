@@ -50,8 +50,7 @@ install: venv
 .PHONY: install
 
 flake:
-	@$(FLAKE) --show-source $(PACKAGE_NAME)
-#	$(FLAKE) --show-source tests
+	$(FLAKE) --statistics --show-source $(PACKAGE_NAME) tests
 .PHONY: flake
 
 tests:

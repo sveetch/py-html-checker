@@ -8,7 +8,7 @@ from html_checker.utils import (is_local_ressource, is_url, reduce_unique,
                                 format_hostname)
 
 
-@pytest.mark.parametrize("path,expected", [
+@pytest.mark.parametrize("path, expected", [
     (
         "http://perdu.com",
         False,
@@ -57,7 +57,7 @@ def test_is_local_ressource(path, expected):
     assert expected == is_local_ressource(path)
 
 
-@pytest.mark.parametrize("path,expected", [
+@pytest.mark.parametrize("path, expected", [
     (
         "http://perdu.com",
         True,
@@ -106,7 +106,7 @@ def test_is_url(path, expected):
     assert expected == is_url(path)
 
 
-@pytest.mark.parametrize("items,expected", [
+@pytest.mark.parametrize("items, expected", [
     (
         ["a"],
         ["a"],
@@ -140,7 +140,7 @@ def test_reduce_unique(items, expected):
     assert expected == reduce_unique(items)
 
 
-@pytest.mark.parametrize("left_dict,right_dict,expected", [
+@pytest.mark.parametrize("left_dict, right_dict, expected", [
     (
         {},
         {},
@@ -196,7 +196,7 @@ def test_merge_compute(left_dict, right_dict, expected):
     assert expected == merge_compute(left_dict, right_dict)
 
 
-@pytest.mark.parametrize("paths,expected", [
+@pytest.mark.parametrize("paths, expected", [
     (
         [
             "foo.html",
@@ -246,7 +246,7 @@ def test_resolve_paths(settings, paths, expected):
     assert settings.format(expected) == resolve_paths(*paths)
 
 
-@pytest.mark.parametrize("documents,expected", [
+@pytest.mark.parametrize("documents, expected", [
     (
         [
             {
@@ -280,7 +280,7 @@ def test_write_documents(temp_builds_dir, documents, expected):
     NOTE: Every files are created in the same temp directory, so take caution
     to use different files from all tests parametrizes.
     """
-    destination = temp_builds_dir.join('write_documents').strpath
+    destination = temp_builds_dir.join("write_documents").strpath
 
     docs = write_documents(destination, documents)
 
@@ -288,13 +288,12 @@ def test_write_documents(temp_builds_dir, documents, expected):
 
     # Check writed files contents
     for doc in documents:
-        with io.open(resolve_paths(destination, doc["document"]), 'r') as fp:
+        with io.open(resolve_paths(destination, doc["document"]), "r") as fp:
             content = fp.read()
         assert content == doc["content"]
 
 
-
-@pytest.mark.parametrize("value,expected", [
+@pytest.mark.parametrize("value, expected", [
     (
         "foo",
         ("foo", 8002),
@@ -326,7 +325,6 @@ def test_format_hostname_success(value, expected):
     given port or the default one.
     """
     assert expected == format_hostname(value)
-
 
 
 @pytest.mark.parametrize("value,expected", [

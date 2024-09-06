@@ -1,4 +1,3 @@
-import json
 import pytest
 
 from collections import OrderedDict
@@ -159,7 +158,9 @@ def test_format_row(row, expected):
                 },
                 {
                     "type": "warning",
-                    "message": "2. This is a warning which should never occurs from vnu.",
+                    "message": (
+                        "2. This is a warning which should never occurs from vnu."
+                    ),
                 },
                 {
                     "type": "error",
@@ -181,12 +182,10 @@ def test_format_row(row, expected):
                 (
                     "http://nope",
                     {
-                        "messages": [
-                            {
-                                "message": "There was not any log report for this path.",
-                                "type": "debug"
-                            }
-                        ],
+                        "messages": [{
+                            "message": "There was not any log report for this path.",
+                            "type": "debug"
+                        }],
                         "statistics": {
                             "errors": 0,
                             "infos": 0,
@@ -243,7 +242,10 @@ def test_format_row(row, expected):
                                 "source": {}
                             },
                             {
-                                "message": "2. This is a warning which should never occurs from vnu.",
+                                "message": (
+                                    "2. This is a warning which should never occurs "
+                                    "from vnu."
+                                ),
                                 "type": "warning",
                                 "source": {}
                             },
@@ -288,10 +290,6 @@ def test_build(filter_export_payload, report, expected):
     r.registry = OrderedDict(report)
 
     exporter.build(r.registry)
-
-    #print()
-    #print(json.dumps(exporter.store, indent=4, default=str))
-    #print()
 
     # Assertion is done on context with only the "reports" item
     assert expected == filter_export_payload(exporter.store,
@@ -441,10 +439,6 @@ def test_build_many(filter_export_payload):
         r.registry = OrderedDict(report)
         exporter.build(r.registry)
 
-    #print()
-    #print(json.dumps(exporter.store, indent=4, default=str))
-    #print()
-
     assert expected == filter_export_payload(exporter.store)
 
 
@@ -513,10 +507,6 @@ def test_modelize_summary():
 
     doc = exporter.modelize_summary("foo.html", reports, {"pac": "man"})
 
-    #print()
-    #print(json.dumps(doc, indent=4, default=str))
-    #print()
-
     assert doc == expected
 
 
@@ -561,10 +551,6 @@ def test_modelize_report():
     exporter = ExporterRenderer()
 
     doc = exporter.modelize_report("foo.html", report, {"pac": "man"})
-
-    #print()
-    #print(json.dumps(doc, indent=4, default=str))
-    #print()
 
     assert doc == expected
 
@@ -650,10 +636,6 @@ def test_modelize_audit():
     exporter = ExporterRenderer()
 
     doc = exporter.modelize_audit("foo.html", reports, {"pac": "man"})
-
-    #print()
-    #print(json.dumps(doc, indent=4, default=str))
-    #print()
 
     assert doc == expected
 
