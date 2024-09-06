@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from html_checker.export.base import ExporterBase
+from .base import ExporterBase
 
 
 class LoggingExport(ExporterBase):

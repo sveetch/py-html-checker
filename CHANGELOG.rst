@@ -9,6 +9,7 @@ Version 0.5.0 - Unreleased
 
 * Implemented ``--serve`` option on ``page`` command to serve contents once the report
   has been built;
+* Splitted utils in various modules;
 
 .. TODO:
 

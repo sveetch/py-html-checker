@@ -11,13 +11,14 @@ except ImportError:
 else:
     CHERRYPY_AVAILABLE = True
 
-from html_checker.cli.common import COMMON_OPTIONS
-from html_checker.exceptions import (HtmlCheckerUnexpectedException,
-                                     HtmlCheckerBaseException)
-from html_checker.export import get_exporter
-from html_checker.serve import ReleaseServer
-from html_checker.validator import ValidatorInterface
-from html_checker.utils import reduce_unique, write_documents, format_hostname
+from ..cli.common import COMMON_OPTIONS
+from ..exceptions import HtmlCheckerUnexpectedException, HtmlCheckerBaseException
+from ..export import get_exporter
+from ..serve import ReleaseServer
+from ..utils.documents import write_documents
+from ..utils.structures import reduce_unique
+from ..utils.texts import format_hostname
+from ..validator import ValidatorInterface
 
 
 def start_live_release(serve, destination, cherrypy_available, logger, exporter):

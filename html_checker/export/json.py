@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 import json
 
-from html_checker.export.render import ExporterRenderer
+from .render import ExporterRenderer
 
 
 class JsonExport(ExporterRenderer):

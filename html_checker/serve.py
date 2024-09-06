@@ -4,8 +4,8 @@ import tempfile
 
 import cherrypy
 
-from html_checker.exceptions import HTTPServerError
-from html_checker.utils import resolve_paths
+from .exceptions import HTTPServerError
+from .utils.paths import resolve_paths
 
 
 class ReleaseServer:

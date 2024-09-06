@@ -4,13 +4,13 @@ from collections import OrderedDict
 
 import click
 
-from html_checker.cli.common import COMMON_OPTIONS, validate_sitemap_path
-from html_checker.exceptions import (HtmlCheckerUnexpectedException,
-                                     HtmlCheckerBaseException)
-from html_checker.export import get_exporter
-from html_checker.sitemap import Sitemap
-from html_checker.validator import ValidatorInterface
-from html_checker.utils import reduce_unique, write_documents
+from ..cli.common import COMMON_OPTIONS, validate_sitemap_path
+from ..exceptions import HtmlCheckerUnexpectedException, HtmlCheckerBaseException
+from ..export import get_exporter
+from ..sitemap import Sitemap
+from ..utils.documents import write_documents
+from ..utils.structures import reduce_unique
+from ..validator import ValidatorInterface
 
 
 @click.command()

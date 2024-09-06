@@ -3,9 +3,10 @@ import json
 import pytest
 
 from html_checker.exceptions import HtmlCheckerBaseException
-from html_checker.utils import (is_local_ressource, is_url, reduce_unique,
-                                merge_compute, resolve_paths, write_documents,
-                                format_hostname)
+from html_checker.utils.documents import write_documents
+from html_checker.utils.paths import is_local_ressource, is_url, resolve_paths
+from html_checker.utils.structures import reduce_unique, merge_compute
+from html_checker.utils.texts import format_hostname
 
 
 @pytest.mark.parametrize("path, expected", [

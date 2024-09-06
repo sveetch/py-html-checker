@@ -9,11 +9,10 @@ except ImportError:
         print("You should be able to do so with:")
         print("pip install py-html-checker[cli]")
 else:
-    from html_checker.logger import init_logger
-
-    from html_checker.cli.version import version_command
-    from html_checker.cli.site import site_command
-    from html_checker.cli.page import page_command
+    from ..cli.version import version_command
+    from ..cli.site import site_command
+    from ..cli.page import page_command
+    from ..logger import init_logger
 
     # Help alias on '-h' argument
     CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])

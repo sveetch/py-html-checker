@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 import datetime
 
 import html_checker
-from html_checker.export.base import ExporterBase
-from html_checker.utils import get_vnu_version, merge_compute
+from ..utils.commands import get_vnu_version
+from ..utils.structures import merge_compute
+from .base import ExporterBase
 
 
 class ExporterRenderer(ExporterBase):

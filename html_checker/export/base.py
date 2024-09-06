@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 import json
 import logging
 
-from html_checker.exceptions import ExportError
+from ..exceptions import ExportError
 
 
 class ExporterBase(object):

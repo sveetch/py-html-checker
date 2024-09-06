@@ -2,9 +2,9 @@ import os
 
 import click
 
-from html_checker.utils import is_local_ressource
+from ..utils.paths import is_local_ressource
 
-from html_checker.export import EXPORTER_CHOICES
+from ..export import EXPORTER_CHOICES
 
 
 # Shared options arguments

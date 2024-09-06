@@ -9,9 +9,9 @@ from xml.etree import ElementTree
 import requests
 from requests.exceptions import RequestException
 
-from html_checker import USER_AGENT
-from html_checker.utils import is_local_ressource
-from html_checker.exceptions import PathInvalidError, SitemapInvalidError
+from . import USER_AGENT
+from .utils.paths import is_local_ressource
+from .exceptions import PathInvalidError, SitemapInvalidError
 
 
 class Sitemap:

@@ -3,8 +3,8 @@ import logging
 import os
 from collections import OrderedDict
 
-from html_checker.exceptions import ReportError
-from html_checker.utils import is_local_ressource
+from .exceptions import ReportError
+from .utils.paths import is_local_ressource
 
 
 class ReportStore:

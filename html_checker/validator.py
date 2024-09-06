@@ -5,10 +5,9 @@ from collections import OrderedDict
 
 
 import html_checker
-from html_checker.exceptions import (HtmlCheckerUnexpectedException,
-                                     ValidatorError)
-from html_checker.reporter import ReportStore
-from html_checker.utils import is_local_ressource, get_application_path
+from .exceptions import HtmlCheckerUnexpectedException, ValidatorError
+from .reporter import ReportStore
+from .utils.paths import is_local_ressource, get_application_path
 
 
 class ValidatorInterface:

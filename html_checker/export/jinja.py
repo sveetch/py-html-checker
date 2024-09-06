@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 import io
 import os
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import html_checker
-from html_checker.export.render import ExporterRenderer
-from html_checker.export.jinja_filters import highlight_html_filter
+from .render import ExporterRenderer
+from .jinja_filters import highlight_html_filter
 
 
 class JinjaExport(ExporterRenderer):
