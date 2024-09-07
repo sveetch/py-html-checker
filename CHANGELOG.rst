@@ -7,6 +7,9 @@ History
 Version 0.5.0 - Unreleased
 --------------------------
 
+* Removed support for Python<3.8;
+* Added support for Python from 3.8 to 3.10;
+* Removed useless requirement to ``six``;
 * Implemented ``--serve`` option on ``page`` command to serve contents once the report
   has been built;
 * Splitted utils in various modules;
