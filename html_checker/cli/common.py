@@ -155,6 +155,8 @@ def validate_sitemap_path(logger, path):
     """
     Validate sitemap file path.
 
+    TODO: This should be in utils.paths
+
     Invalid sitemap file path is a critical error which should stop program
     execution.
 

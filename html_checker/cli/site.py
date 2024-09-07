@@ -4,13 +4,14 @@ from collections import OrderedDict
 
 import click
 
-from ..cli.common import COMMON_OPTIONS, validate_sitemap_path
+from .. import __pkgname__
 from ..exceptions import HtmlCheckerUnexpectedException, HtmlCheckerBaseException
 from ..export import get_exporter
 from ..sitemap import Sitemap
 from ..utils.documents import write_documents
 from ..utils.structures import reduce_unique
 from ..validator import ValidatorInterface
+from .common import COMMON_OPTIONS, validate_sitemap_path
 
 
 @click.command()
@@ -50,7 +51,7 @@ def site_command(context, destination, exporter, no_stream, pack, safe,
     Note than invalid sitemap path still raise error even with '--safe' option
     is enabled.
     """
-    logger = logging.getLogger("py-html-checker")
+    logger = logging.getLogger(__pkgname__)
 
     logger.debug("Opening sitemap: {}".format(path))
 

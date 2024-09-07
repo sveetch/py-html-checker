@@ -11,59 +11,14 @@ except ImportError:
 else:
     CHERRYPY_AVAILABLE = True
 
-from ..cli.common import COMMON_OPTIONS
+from .. import __pkgname__
 from ..exceptions import HtmlCheckerUnexpectedException, HtmlCheckerBaseException
 from ..export import get_exporter
-from ..serve import ReleaseServer
 from ..utils.documents import write_documents
 from ..utils.structures import reduce_unique
-from ..utils.texts import format_hostname
+from ..utils.server import start_live_release
 from ..validator import ValidatorInterface
-
-
-def start_live_release(serve, destination, cherrypy_available, logger, exporter):
-    """
-    Factorize server starting so it can be used also in 'site' command without
-    duplicating code.
-
-    TODO: Seems ok, push it in utils (?) and let's implement it in 'site' command.
-
-    Returns:
-        object: The server instance if started.
-    """
-    if not serve:
-        return None
-
-    # Prepare server interface if required and available
-    if cherrypy_available:
-        if exporter.FORMAT_NAME != "html":
-            logger.critical((
-                "Option '--serve' is only available with html exporter."
-            ))
-            raise click.Abort()
-
-        try:
-            serve_address, serve_port = format_hostname(serve)
-        except HtmlCheckerBaseException as e:
-            logger.critical(e)
-            raise click.Abort()
-
-        server = ReleaseServer(
-            hostname=serve_address,
-            port=serve_port,
-            basedir=destination,
-            temporary=not(destination),
-        )
-        # Overwrite destination so the temporary directory is set if not empty
-        destination = server.basedir
-
-        return server
-    else:
-        logger.critical((
-            "'--serve' option is only available if CherryPy has been "
-            "installed."
-        ))
-        raise click.Abort()
+from .common import COMMON_OPTIONS
 
 
 @click.command()
@@ -100,7 +55,7 @@ def page_command(context, destination, exporter, no_stream, pack, safe, serve,
     You can give a single page path or many ones to validate. There is multiple
     exporter formats.
     """
-    logger = logging.getLogger("py-html-checker")
+    logger = logging.getLogger(__pkgname__)
 
     # Ensure to always check a same path only once
     reduced_paths = reduce_unique(paths)
@@ -156,12 +111,17 @@ def page_command(context, destination, exporter, no_stream, pack, safe, serve,
             logger.debug("Using template directory: {}".format(exporter.template_dir))
 
     # NOTE: Shouldn't this start further once exporter release has been done ?
-    server = start_live_release(
-        serve,
-        destination,
-        CHERRYPY_AVAILABLE,
-        logger,
-        exporter,
+    server = (
+        start_live_release(
+            serve,
+            destination,
+            CHERRYPY_AVAILABLE,
+            exporter=exporter,
+            logger=logger,
+            error_klass=click.Abort
+        )
+        if serve
+        else None
     )
 
     # Keep packed paths or split them depending 'split' option

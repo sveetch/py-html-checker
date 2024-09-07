@@ -13,20 +13,25 @@ Version 0.5.0 - Unreleased
 * Implemented ``--serve`` option on ``page`` command to serve contents once the report
   has been built;
 * Splitted utils in various modules;
+* Modernized package configuration;
+* Modernized makefile;
+* Upgraded ``setup.cfg`` and project's ``__init__`` module to drop usage of
+  ``pkg_resources`` in profit of importlib
+  `#26 <https://github.com/sveetch/py-html-checker/issues/26>`_;
 
 .. TODO:
 
     * [x] Server mode is fully implemented and working with 'page'
     * [x] Interface has been tested.
-    * [ ] Still have to implement it also on 'site' command.
     * [ ] Upgrade setup.cfg and module __init__ to drop pkg_resources  in profit of
       importlib #26;
     * [ ] Upgrade Nu Html library;
-    * [ ] Modernize makefile;
     * [ ] Modernize documentation;
     * [ ] Add Github issue templates;
     * [ ] Find a logo ?
+    * [ ] Still have to implement '--serve' also on 'site' command;
     * [ ] Support of Sitemap index;
+    * [ ] Create issue for each undone tasks;
 
 
 Version 0.4.2 - 2022/03/17

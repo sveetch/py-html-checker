@@ -1,17 +1,22 @@
-.. _Nu Html Checker (v.Nu): https://github.com/validator/validator
+.. _Python: https://www.python.org/
+.. _Click: https://click.palletsprojects.com
+.. _Nu Html Checker: https://github.com/validator/validator
 .. _Sitemap: http://www.sitemaps.org/
 
 Py Html Checker
 ===============
 
-This is an interface around `Nu Html Checker (v.Nu)`_ to check document
-validation either from a list of pages or a `Sitemap`_.
+Python wrapper around library `Nu Html Checker`_ (v.Nu) to check document validation
+either from a list of pages or a `Sitemap`_.
+
 
 Links
 *****
 
+* Read the documentation on `Read the docs <https://py-html-checker.readthedocs.io/>`_;
 * Download its `PyPi package <http://pypi.python.org/pypi/py-html-checker>`_;
 * Clone it on its `Github repository <https://github.com/sveetch/py-html-checker>`_;
+
 
 Requires
 ********
@@ -21,16 +26,19 @@ Requires
 * Virtualenv (recommended);
 * Pip (recommended);
 
+
 Dependancies
 ************
 
+* `Python`_>=3.8;
 * ``requests``;
-* ``click>=7.0,<8.0`` (CLI only);
+* `Click`_>=8.0 (CLI only);
 * ``colorama`` (CLI only);
 * ``colorlog`` (CLI only);
 * ``Jinja2>=2.10,<3.0`` (Jinja only);
 * ``Pygments`` (Jinja only);
 * CherryPy (Server only);
+
 
 Install
 *******
@@ -44,6 +52,7 @@ export and HTTP server you can avoid the ``cli``, ``jinja`` and ``serve``
 parts: ::
 
     pip install py-html-checker
+
 
 Usage
 *****

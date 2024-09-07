@@ -2,7 +2,7 @@ from shutil import which
 
 import click
 
-from .. import __version__
+from .. import __version__, __pkgname__
 from ..utils.commands import get_vnu_version
 
 
@@ -12,7 +12,7 @@ def version_command(context):
     """
     Print out version information.
     """
-    click.echo("py-html-checker {}".format(__version__))
+    click.echo("{} {}".format(__pkgname__, __version__))
 
     java = which("java")
     if java:
