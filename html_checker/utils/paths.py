@@ -56,6 +56,9 @@ def resolve_paths(*paths):
     * ``~`` is resolved to user home directory;
     * Path is turned to absolute path if not already done;
 
+    .. Note::
+        This helper would be almost useless if we used ``pathlib`` instead of ``os``.
+
     Arguments:
         *args (list): Paths to combine and resolve into an absolute and
             normalized path.

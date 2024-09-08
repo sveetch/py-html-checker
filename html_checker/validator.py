@@ -24,7 +24,7 @@ class ValidatorInterface:
         log (logging): Logging object set to application "py-html-checker".
 
     Arguments:
-        exception_class (object): An exception catch to class. Commonly it
+        exception_class (object): An exception class to catch. Commonly it
             should be a child of
             ``html_checker.exceptions.HtmlCheckerBaseException``.
     """

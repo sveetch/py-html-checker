@@ -10,6 +10,7 @@ import cherrypy
 from html_checker.cli.entrypoint import cli_frontend
 from html_checker.export import LoggingExport
 from html_checker.validator import ValidatorInterface
+from html_checker.serve import ReleaseServer
 from html_checker.sitemap import Sitemap
 
 
@@ -219,8 +220,8 @@ def test_user_agent(monkeypatch, caplog, settings, command_name):
 ])
 def test_serve(monkeypatch, caplog, tmp_path, settings, command_name):
     """
-    Once enabled the option '--server' should serve content after validation report
-    has been done.
+    Once enabled the option '--server' should build report in a given destination
+    directory then serve.
     """
     monkeypatch.setattr(cherrypy, "quickstart", mock_cherrypy_quickstart)
 
@@ -254,6 +255,56 @@ def test_serve(monkeypatch, caplog, tmp_path, settings, command_name):
             ("py-html-checker", 20, "Starting HTTP server on: 0.0.0.0:8080"),
             ("py-html-checker", 30, "Use CTRL+C to terminate.")
         ]
+
+
+@pytest.mark.parametrize("command_name", [
+    "page",
+    # "site",
+])
+def test_serve_on_temporary(monkeypatch, caplog, tmp_path, settings, command_name):
+    """
+    Once enabled the option '--server' should build report in a temporary directory
+    then serve.
+    """
+    # Mocked up 'mkdtemp' method will just returns the current 'tmp_path' value so we
+    # have a stable value to assert on
+    def mock_releaseserver_mkdtemp(*args, **kwargs):
+        return tmp_path
+
+    monkeypatch.setattr(ReleaseServer, "mkdtemp", mock_releaseserver_mkdtemp)
+    monkeypatch.setattr(cherrypy, "quickstart", mock_cherrypy_quickstart)
+
+    sample = settings.fixtures_path / "html/valid.basic.html"
+
+    if command_name == "site":
+        command_type_specific_log = "Sitemap have 1 paths"
+    else:
+        command_type_specific_log = "Launching validation for 1 paths"
+
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        cli = [
+            command_name,
+            "--exporter", "html",
+            "--serve", "0.0.0.0:8080",
+            str(sample)
+        ]
+
+        result = runner.invoke(cli_frontend, cli)
+
+        assert result.exit_code == 0
+
+        assert caplog.record_tuples == [
+            ("py-html-checker", logging.INFO, command_type_specific_log),
+            ("py-html-checker", 20, str(sample)),
+            ("py-html-checker", 20, "Created file: {}/index.html".format(tmp_path)),
+            ("py-html-checker", 20, "Created file: {}/main.css".format(tmp_path)),
+            ("py-html-checker", 20, "Starting HTTP server on: 0.0.0.0:8080"),
+            ("py-html-checker", 30, "Use CTRL+C to terminate.")
+        ]
+
+        # On command exit the temporary directory has been removed
+        assert tmp_path.exists() is False
 
 
 @pytest.mark.parametrize("split, paths", [

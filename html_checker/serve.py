@@ -11,7 +11,11 @@ from . import __pkgname__
 
 class ReleaseServer:
     """
-    Server to serve report release.
+    Server object to serve a report release.
+
+    .. Warning::
+        This does not build the report, only configurate a CherryPy server object ready
+        to serve a path where the report should be built.
 
     Arguments:
         hostname (string): Hostname for bind adress.
@@ -36,6 +40,20 @@ class ReleaseServer:
         self.port = port or self.DEFAULT_PORT
         self.basedir = self.get_basedir(basedir, temporary)
         self.temporary = temporary
+
+    def mkdtemp(self, *args, **kwargs):
+        """
+        Create a temporary directory.
+
+        This shortand exists so we can easily mocking up in tests to have a stable path
+        in assertions.
+
+        Argument signature are exactly the same than ``tempfile.mkdtemp``.
+
+        Returns:
+            string: Absolute path to created directory.
+        """
+        return tempfile.mkdtemp(*args, **kwargs)
 
     def get_basedir(self, path, temporary):
         """
@@ -71,7 +89,7 @@ class ReleaseServer:
                 )
                 raise HTTPServerError(msg)
             else:
-                basedir = tempfile.mkdtemp(prefix="py-html-checker_report")
+                basedir = self.mkdtemp(prefix="py-html-checker_report")
         else:
             if temporary:
                 msg = (
@@ -114,7 +132,11 @@ class ReleaseServer:
 
     def flush(self):
         """
-        Flush a builded release.
+        Flush a temporary built release.
+
+        The flush depends wheither the attribute ``temporary`` is true or not because
+        we do not want to remove a non temporary release that user would expect to
+        retrieve once server has been stopped.
 
         Returns:
             string: Removed path if temporary mode is enabled, else None.

@@ -17,7 +17,10 @@ def start_live_release(adress, destination, cherrypy_available, exporter, logger
 
     Arguments:
         adress (Path): Network adress to bind server to.
-        destination (Path): Directory path to serve.
+        destination (Path): Directory path to serve. It can be a null value, in this
+            case the server will serve a temporary directory. The temporary directory
+            path can be retrieved from the returned server object in its attribute
+            ``basedir``.
         cherrypy_available (boolean): Define if CherryPy is installed an available or
             not. If is an error to call this function without CherryPy available, so
             this value should always be true to start a server.
@@ -32,7 +35,9 @@ def start_live_release(adress, destination, cherrypy_available, exporter, logger
             error before starting server.
 
     Returns:
-        object: The server instance if started.
+        html_checker.serve.ReleaseServer: The server instance. At this point the server
+        has not been started yet, you will have to do with its method ``run()`` it
+        once ready.
     """
     logger = logger or logging.getLogger(__pkgname__)
 
@@ -50,16 +55,12 @@ def start_live_release(adress, destination, cherrypy_available, exporter, logger
             logger.critical(e)
             raise click.Abort()
 
-        server = ReleaseServer(
+        return ReleaseServer(
             hostname=serve_address,
             port=serve_port,
             basedir=destination,
             temporary=not destination,
         )
-        # Overwrite destination so the temporary directory is set if not empty
-        destination = server.basedir
-
-        return server
     else:
         logger.critical((
             "'--serve' option is only available if CherryPy has been "

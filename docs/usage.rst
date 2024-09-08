@@ -47,6 +47,22 @@ absolute url (with leading ``http``): ::
     Currently *Sitemap index* format is not supported yet so for sites using it you will
     have to open their indexes and give basic Sitemap xml URL to this command.
 
+.. Hint::
+    There is also a support for sitemap in a JSON format which is a very simple: ::
+
+        {
+            "name": "Sample",
+            "urls": [
+                "http://perdu.com/",
+                "https://www.google.com/"
+            ]
+        }
+
+    As you can see it just needs a name and a simple URL list. Since it is not a
+    standardized format as the Sitemap XML, you can not expect it to be available from
+    most sites however it is a simple way to manage multiple URL ressources in an
+    unique source file.
+
 
 Manage verbosity
 ****************

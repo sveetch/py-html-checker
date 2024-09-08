@@ -110,9 +110,10 @@ def page_command(context, destination, exporter, no_stream, pack, safe, serve,
         if hasattr(exporter, "template_dir"):
             logger.debug("Using template directory: {}".format(exporter.template_dir))
 
-    # NOTE: Shouldn't this start further once exporter release has been done ?
-    server = (
-        start_live_release(
+    # NOTE: The server could be started after exporter release but then the temporary
+    # directory mode would have been to manage before exporter.
+    if serve:
+        server = start_live_release(
             serve,
             destination,
             CHERRYPY_AVAILABLE,
@@ -120,9 +121,10 @@ def page_command(context, destination, exporter, no_stream, pack, safe, serve,
             logger=logger,
             error_klass=click.Abort
         )
-        if serve
-        else None
-    )
+        # Assign created temporary directory as the export destination
+        destination = server.basedir
+    else:
+        server = None
 
     # Keep packed paths or split them depending 'split' option
     routines = [reduced_paths[:]]
