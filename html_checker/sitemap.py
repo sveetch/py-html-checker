@@ -9,9 +9,9 @@ from xml.etree import ElementTree
 import requests
 from requests.exceptions import RequestException
 
-from . import USER_AGENT
 from .utils.paths import is_local_ressource
 from .exceptions import PathInvalidError, SitemapInvalidError
+from . import __pkgname__, USER_AGENT
 
 
 class Sitemap:
@@ -22,7 +22,7 @@ class Sitemap:
     def __init__(self, register=None, user_agent=None):
         self.register = register
         self.user_agent = user_agent or USER_AGENT
-        self.log = logging.getLogger("py-html-checker")
+        self.log = logging.getLogger(__pkgname__)
 
     def get_headers(self):
         """

@@ -4,10 +4,10 @@ import subprocess
 from collections import OrderedDict
 
 
-import html_checker
 from .exceptions import HtmlCheckerUnexpectedException, ValidatorError
 from .reporter import ReportStore
 from .utils.paths import is_local_ressource, get_application_path
+from . import __pkgname__, DEFAULT_INTERPRETER, DEFAULT_VALIDATOR, USER_AGENT
 
 
 class ValidatorInterface:
@@ -29,11 +29,11 @@ class ValidatorInterface:
             ``html_checker.exceptions.HtmlCheckerBaseException``.
     """
     REPORT_CLASS = ReportStore
-    INTERPRETER = html_checker.DEFAULT_INTERPRETER
-    VALIDATOR = html_checker.DEFAULT_VALIDATOR
+    INTERPRETER = DEFAULT_INTERPRETER
+    VALIDATOR = DEFAULT_VALIDATOR
 
     def __init__(self, exception_class=None):
-        self.log = logging.getLogger("py-html-checker")
+        self.log = logging.getLogger(__pkgname__)
         self.catched_exception = self.get_catched_exception(exception_class)
 
     def get_catched_exception(self, exception_class=None):
@@ -144,9 +144,6 @@ class ValidatorInterface:
         Returns:
             subprocess.CompletedProcess: Process output.
         """
-        # print()
-        # print("🚑 exec:", command)
-
         try:
             process = subprocess.check_output(command, stderr=subprocess.STDOUT)
         except FileNotFoundError as e:
@@ -191,11 +188,12 @@ class ValidatorInterface:
 
         # Define default user-agent
         if "--user-agent" not in tool_options:
-            tool_options["--user-agent"] = html_checker.USER_AGENT
+            tool_options["--user-agent"] = USER_AGENT
 
         # TODO: Get the checked source
-        # NOTE: This option does not exists in vnu, have to implement own
-        #       solution
+        # NOTE: This option does not exists in vnu, have to implement own solution, it
+        # means this would requires to request again the ressource to get it
+        # source (sic)
         # if "--showsource" not in tool_options:
             # tool_options["--showsource"] = "yes"
 

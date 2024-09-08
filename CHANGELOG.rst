@@ -10,6 +10,15 @@ Version 0.5.0 - Unreleased
 * Removed support for Python<3.8;
 * Added support for Python from 3.8 to 3.10;
 * Added support for Click>=8.0;
+* Upgraded requirements:
+
+  * 'Jinja' to ``>=3.0``;
+  * 'CherryPy' to ``>=18.0.0``;
+  * Removed 'colorama' requirement since it is just a 'colorlog' extra requirement
+    for Windows system;
+  * Removed 'MarkupSafe' requirement that is no longer needed since upgrade to
+    'Jinja' 3.x;
+
 * Removed useless requirement to ``six``;
 * Implemented ``--serve`` option on ``page`` command to serve contents once the report
   has been built;
@@ -17,7 +26,8 @@ Version 0.5.0 - Unreleased
 * Modernized package configuration;
 * Modernized makefile;
 * Updated README;
-* Added documentation (there is still a lot of work);
+* Added documentation (there is still a lot of work)
+* Added a logo;
 * Added Github issue templates;
 * Upgraded ``setup.cfg`` and project's ``__init__`` module to drop usage of
   ``pkg_resources`` in profit of importlib
@@ -28,8 +38,8 @@ Version 0.5.0 - Unreleased
     * [x] Server mode is fully implemented and working with 'page'
     * [x] Interface has been tested.
     * [-] Upgrade Nu Html library (there is no new release yet);
-    * [ ] Upgrade requirements using 'pkg>=x.x.x' to modernize and help pip install;
-    * [ ] Find a logo ?
+    * [x] Upgrade requirements using 'pkg>=x.x.x' to modernize and help pip install;
+    * [x] Find a logo
     * [ ] Still have to implement '--serve' also on 'site' command;
     * [ ] Support of Sitemap index;
     * [ ] Create issue for each undone tasks;

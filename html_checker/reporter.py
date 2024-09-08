@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from .exceptions import ReportError
 from .utils.paths import is_local_ressource
+from . import __pkgname__
 
 
 class ReportStore:
@@ -14,7 +15,7 @@ class ReportStore:
     Parse validator report content and store it correctly.
     """
     def __init__(self, paths):
-        self.log = logging.getLogger("py-html-checker")
+        self.log = logging.getLogger(__pkgname__)
 
         self.paths = paths
         self.registry = OrderedDict(

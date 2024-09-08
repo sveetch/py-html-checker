@@ -64,10 +64,12 @@ class JinjaExport(ExporterRenderer):
 
         # All required templates exist
         missing_files = []
+
         for name in sorted(self.TEMPLATES.keys()):
             path = self.TEMPLATES[name]
             if not os.path.exists(os.path.join(self.template_dir, path)):
                 missing_files.append(path)
+
         if len(missing_files) > 0:
             msg = "Some required files are missing from template directory: {}"
             return msg.format(", ".join(missing_files))
@@ -85,7 +87,10 @@ class JinjaExport(ExporterRenderer):
             loader=FileSystemLoader(self.template_dir),
             autoescape=select_autoescape(["html", "xml"])
         )
+
+        # Add internal filters
         env.filters["highlight_html"] = highlight_html_filter
+
         return env
 
     def get_template(self, filepath):
@@ -99,7 +104,6 @@ class JinjaExport(ExporterRenderer):
         Returns:
             jinja2.Template: Template ready to render.
         """
-
         return self.jinja_env.get_template(filepath)
 
     def render(self, context):

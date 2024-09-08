@@ -2,15 +2,16 @@ import json
 import logging
 
 from ..exceptions import ExportError
+from .. import __pkgname__
 
 
 class ExporterBase(object):
     """
     Exporter base.
 
-    Don't output or write anything, just contain shared methods
+    This don't output or write anything, just contains shared methods.
 
-    Message parsing is based on vnu validator behavior from JSON report
+    Message parsing is based on VNU validator behavior from its JSON report
     documentation:
 
         https://github.com/validator/validator/wiki/Output-%C2%BB-JSON
@@ -20,7 +21,7 @@ class ExporterBase(object):
     klassname = __qualname__  # noqa: F821
 
     def __init__(self, *args, **kwargs):
-        self.log = logging.getLogger("py-html-checker")
+        self.log = logging.getLogger(__pkgname__)
 
     def format_source_position(self, row):
         """
@@ -65,11 +66,11 @@ class ExporterBase(object):
             message (dict): A dict of path messages, each item key is a path and
                 item value is a list of dictionnaries (each dict is a message).
         """
-        # Until we faced every case from validator logs to be sure to not
+        # Until we faced every case from validator print out content to be sure to not
         # miss any edge case
         if "type" not in row:
             print(json.dumps(path, indent=4))
-            raise NotImplementedError
+            raise NotImplementedError("Unavailable row type from validator response.")
 
         # Non validating error
         if row["type"] in ["critical", "non-document-error"]:

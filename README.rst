@@ -6,6 +6,7 @@
 .. _CherryPy: https://docs.cherrypy.dev/
 .. _Jinja: https://jinja.palletsprojects.com/
 .. _Pygments: https://pygments.org/
+.. _colorlog: https://github.com/borntyping/python-colorlog
 
 
 Py Html Checker
@@ -35,8 +36,7 @@ Dependencies
 
 * `Requests`_>=2.27.0;
 * `Click`_>=8.0 (optional);
-* ``colorama`` (optional);
-* ``colorlog`` (optional);
+* `colorlog`_ (optional);
 * `Jinja`_>=2.10,<3.0 (optional);
 * `Pygments`_ (optional);
 * `CherryPy`_ (optional);

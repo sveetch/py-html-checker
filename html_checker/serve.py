@@ -6,6 +6,7 @@ import cherrypy
 
 from .exceptions import HTTPServerError
 from .utils.paths import resolve_paths
+from . import __pkgname__
 
 
 class ReleaseServer:
@@ -30,7 +31,7 @@ class ReleaseServer:
     DEFAULT_PORT = 8000
 
     def __init__(self, hostname, port, basedir=None, temporary=False):
-        self.log = logging.getLogger("py-html-checker")
+        self.log = logging.getLogger(__pkgname__)
         self.hostname = hostname
         self.port = port or self.DEFAULT_PORT
         self.basedir = self.get_basedir(basedir, temporary)
