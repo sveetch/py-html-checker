@@ -9,6 +9,7 @@ Version 0.5.0 - Unreleased
 
 * Removed support for Python<3.8;
 * Added support for Python from 3.8 to 3.10;
+* Added support for Click>=8.0;
 * Removed useless requirement to ``six``;
 * Implemented ``--serve`` option on ``page`` command to serve contents once the report
   has been built;
@@ -16,7 +17,7 @@ Version 0.5.0 - Unreleased
 * Modernized package configuration;
 * Modernized makefile;
 * Updated README;
-* Added documentation;
+* Added documentation (there is still a lot of work);
 * Added Github issue templates;
 * Upgraded ``setup.cfg`` and project's ``__init__`` module to drop usage of
   ``pkg_resources`` in profit of importlib
