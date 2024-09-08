@@ -11,9 +11,6 @@ def init_logger(name, level, printout=True):
     """
     Initialize app logger to configure its level/handler/formatter/etc..
 
-    Todo:
-        * A way to raise click.Abort or sys.exit when CRITICAL is used;
-
     Arguments:
         name (str): Logger name used to instanciate and retrieve it.
         level (str): Level name (``debug``, ``info``, etc..).
