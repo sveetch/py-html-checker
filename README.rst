@@ -40,3 +40,10 @@ Dependencies
 * `Jinja`_>=2.10,<3.0 (optional);
 * `Pygments`_ (optional);
 * `CherryPy`_ (optional);
+
+
+Credits
+*******
+
+Logo vector and icon original sources by `SVG Repo <https://www.svgrepo.com>`_ then
+modified to build final logo.

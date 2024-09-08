@@ -40,6 +40,10 @@ Version 0.5.0 - Unreleased
     * [-] Upgrade Nu Html library (there is no new release yet);
     * [x] Upgrade requirements using 'pkg>=x.x.x' to modernize and help pip install;
     * [x] Find a logo
+    * [ ] Server mode for 'page' is buggy when no destination argument has been given,
+      it should just work in a temporary directory but instead report is just output
+      to stdin, this is as it should do without server mode but not when it is enabled;
+    * [ ] Get back Sass sources ? (was done in an Optimus project for easy prototyping);
     * [ ] Still have to implement '--serve' also on 'site' command;
     * [ ] Support of Sitemap index;
     * [ ] Create issue for each undone tasks;

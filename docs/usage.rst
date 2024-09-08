@@ -43,6 +43,10 @@ absolute url (with leading ``http``): ::
     htmlcheck site sitemap.xml
     htmlcheck site http://perdu.com/sitemap.xml
 
+.. Warning::
+    Currently *Sitemap index* format is not supported yet so for sites using it you will
+    have to open their indexes and give basic Sitemap xml URL to this command.
+
 
 Manage verbosity
 ****************
@@ -112,3 +116,12 @@ Specific 'site' options
     For ``site`` command only. This will only get and parse given sitemap path
     but without validating its items, useful to validate a sitemap before
     using it for validations.
+
+Alternative
+***********
+
+`html5validator <https://github.com/svenkreiss/html5validator>`_ is a another Python
+great alternative standing on VNU library, it is best suited to include validation into
+a CI configuration.
+
+However it does not have some features like HTML report building or Sitemap support.
