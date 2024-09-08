@@ -15,6 +15,9 @@ Version 0.5.0 - Unreleased
 * Splitted utils in various modules;
 * Modernized package configuration;
 * Modernized makefile;
+* Updated README;
+* Added documentation;
+* Added Github issue templates;
 * Upgraded ``setup.cfg`` and project's ``__init__`` module to drop usage of
   ``pkg_resources`` in profit of importlib
   `#26 <https://github.com/sveetch/py-html-checker/issues/26>`_;
@@ -23,11 +26,8 @@ Version 0.5.0 - Unreleased
 
     * [x] Server mode is fully implemented and working with 'page'
     * [x] Interface has been tested.
-    * [ ] Upgrade setup.cfg and module __init__ to drop pkg_resources  in profit of
-      importlib #26;
-    * [ ] Upgrade Nu Html library;
-    * [ ] Modernize documentation;
-    * [ ] Add Github issue templates;
+    * [-] Upgrade Nu Html library (there is no new release yet);
+    * [ ] Upgrade requirements using 'pkg>=x.x.x' to modernize and help pip install;
     * [ ] Find a logo ?
     * [ ] Still have to implement '--serve' also on 'site' command;
     * [ ] Support of Sitemap index;
