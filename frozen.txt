@@ -1,4 +1,4 @@
-# Frozen requirement versions from '0.5.0rc11' installation
+# Frozen requirement versions from '0.5.0' installation
 CherryPy==18.10.0
 click==8.1.7
 colorlog==6.8.2

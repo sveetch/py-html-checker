@@ -3,7 +3,7 @@
 History
 =======
 
-Version 0.5.0 - Unreleased
+Version 0.5.0 - 2024/09/09
 --------------------------
 
 **A major new release to modernize package**
