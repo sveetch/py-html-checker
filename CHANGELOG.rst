@@ -1,4 +1,3 @@
-.. _intro_history:
 
 =======
 History
@@ -6,6 +5,8 @@ History
 
 Version 0.5.0 - Unreleased
 --------------------------
+
+**A major new release to modernize package**
 
 * Removed support for Python<3.8;
 * Added support for Python from 3.8 to 3.10;
@@ -20,8 +21,6 @@ Version 0.5.0 - Unreleased
     'Jinja' 3.x;
 
 * Removed useless requirement to ``six``;
-* Implemented ``--serve`` option on ``page`` command to serve contents once the report
-  has been built;
 * Splitted utils in various modules;
 * Modernized package configuration;
 * Modernized makefile;
@@ -32,21 +31,8 @@ Version 0.5.0 - Unreleased
 * Upgraded ``setup.cfg`` and project's ``__init__`` module to drop usage of
   ``pkg_resources`` in profit of importlib
   `#26 <https://github.com/sveetch/py-html-checker/issues/26>`_;
-
-.. TODO:
-
-    * [x] Server mode is fully implemented and working with 'page'
-    * [x] Interface has been tested.
-    * [-] Upgrade Nu Html library (there is no new release yet);
-    * [x] Upgrade requirements using 'pkg>=x.x.x' to modernize and help pip install;
-    * [x] Find a logo
-    * [ ] Server mode for 'page' is buggy when no destination argument has been given,
-      it should just work in a temporary directory but instead report is just output
-      to stdin, this is as it should do without server mode but not when it is enabled;
-    * [ ] Get back Sass sources ? (was done in an Optimus project for easy prototyping);
-    * [ ] Still have to implement '--serve' also on 'site' command;
-    * [ ] Support of Sitemap index;
-    * [ ] Create issue for each undone tasks;
+* Implemented ``--serve`` option on ``page`` command to serve contents once the report
+  has been built;
 
 
 Version 0.4.2 - 2022/03/17
